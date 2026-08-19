@@ -1,0 +1,202 @@
+// ===================== Portfolio: lista de proyectos =====================
+// Para reordenar/añadir/quitar, edita SOLO este array (id = ID de YouTube).
+const projects = [
+  { id: 'ZxRvXqU2u40', title: 'Quemando Vitamina',   artist: 'La2bleT',      type: 'Videoclip' },
+  { id: 'lSBKnSD0No4', title: 'La Impostora',        artist: 'Ana Vas',      type: 'Videoclip' },
+  { id: 'tqWtqHeIXnc', title: 'Lo que digan',        artist: 'Ana Vas',      type: 'Videoclip' },
+  { id: 'BRB6WrXJZEA', title: 'Egoísta',             artist: 'Ana Vas',      type: 'Videoclip' },
+  { id: 'Af81rQXx0Yo', title: 'A mí quién me salva', artist: 'Rubén Avilés', type: 'Videoclip' },
+  { id: 'iq7kOCV1Mj4', title: 'Fama de Maleante',    artist: 'Ana Vas',      type: 'Videoclip' },
+];
+const sliderEl = document.getElementById('workSlider');
+if (sliderEl) {
+  sliderEl.innerHTML = projects
+    .map(
+      (p) => `
+      <button class="work-card reveal" type="button" data-video="${p.id}" aria-label="Ver ${p.type.toLowerCase()}: ${p.title} — ${p.artist}">
+        <div class="work-card__media">
+          <img class="work-card__img" src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${p.id}/hqdefault.jpg'" alt="${p.title} — ${p.artist}" />
+          <span class="work-card__play" aria-hidden="true">▶</span>
+        </div>
+        <div class="work-card__meta">
+          <span class="work-card__type">${p.type}</span>
+          <h3>${p.title}</h3>
+          <span class="work-card__artist">${p.artist}</span>
+        </div>
+      </button>`
+    )
+    .join('');
+}
+
+// ===================== NAV: scroll-spy (ilumina la sección activa) =====================
+const spyLinks = document.querySelectorAll('[data-spy]');
+const setActive = (id) => {
+  spyLinks.forEach((l) => l.classList.toggle('is-active', l.dataset.spy === id));
+};
+const spySections = ['hero', 'proyectos', 'servicios', 'sobre', 'contacto']
+  .map((id) => document.getElementById(id))
+  .filter(Boolean);
+
+if ('IntersectionObserver' in window && spySections.length) {
+  const spy = new IntersectionObserver(
+    (entries) => {
+      // La entrada que cruza la banda central marca la sección activa.
+      entries.forEach((e) => {
+        if (e.isIntersecting) setActive(e.target.id);
+      });
+    },
+    { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+  );
+  spySections.forEach((s) => spy.observe(s));
+  setActive('hero');
+}
+
+// ===================== Reveal on scroll =====================
+const revealEls = document.querySelectorAll('.reveal');
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+  );
+  revealEls.forEach((el) => io.observe(el));
+} else {
+  revealEls.forEach((el) => el.classList.add('is-visible'));
+}
+
+// ===================== Lightbox de vídeo =====================
+const lightbox = document.getElementById('lightbox');
+const lightboxFrame = document.getElementById('lightboxFrame');
+const openLightbox = (videoId) => {
+  if (!lightbox || !videoId) return;
+  lightboxFrame.innerHTML =
+    '<iframe src="https://www.youtube.com/embed/' + videoId +
+    '?autoplay=1&rel=0&modestbranding=1" title="Vídeo" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+  lightbox.classList.add('is-open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+};
+const closeLightbox = () => {
+  if (!lightbox) return;
+  lightbox.classList.remove('is-open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  lightboxFrame.innerHTML = ''; // detiene la reproducción
+  document.body.style.overflow = '';
+};
+if (lightbox) {
+  lightbox.addEventListener('click', (e) => {
+    if (e.target.hasAttribute('data-close')) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+  });
+}
+
+// ===================== Portfolio slider =====================
+const slider = document.getElementById('workSlider');
+if (slider) {
+  // --- Flechas (PC) ---
+  const arrows = document.querySelectorAll('.work__arrow');
+  const step = () => {
+    const card = slider.querySelector('.work-card');
+    const gap = parseFloat(getComputedStyle(slider).columnGap || getComputedStyle(slider).gap || 16);
+    return card ? card.offsetWidth + gap : slider.clientWidth * 0.8;
+  };
+  let snapTimer;
+  arrows.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const dir = btn.dataset.dir === 'next' ? 1 : -1;
+      // El scroll-snap mandatory cancela el scroll programático suave:
+      // lo desactivamos durante la animación y lo restauramos al terminar.
+      slider.style.scrollSnapType = 'none';
+      slider.scrollBy({ left: dir * step(), behavior: 'smooth' });
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => { slider.style.scrollSnapType = ''; }, 600);
+    });
+  });
+
+  const updateArrows = () => {
+    const prev = document.querySelector('.work__arrow[data-dir="prev"]');
+    const next = document.querySelector('.work__arrow[data-dir="next"]');
+    if (!prev || !next) return;
+    const maxScroll = slider.scrollWidth - slider.clientWidth - 2;
+    prev.disabled = slider.scrollLeft <= 2;
+    next.disabled = slider.scrollLeft >= maxScroll;
+  };
+  slider.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows);
+  updateArrows();
+
+  // --- Arrastre con ratón (drag to scroll) ---
+  let isDown = false;
+  let startX = 0;
+  let startScroll = 0;
+  let moved = false;
+
+  slider.addEventListener('pointerdown', (e) => {
+    // Solo ratón/pen: el táctil ya hace scroll nativo
+    if (e.pointerType === 'touch') return;
+    isDown = true;
+    moved = false;
+    startX = e.clientX;
+    startScroll = slider.scrollLeft;
+    slider.setPointerCapture(e.pointerId);
+  });
+
+  slider.addEventListener('pointermove', (e) => {
+    if (!isDown) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) {
+      moved = true;
+      slider.classList.add('is-dragging');
+    }
+    slider.scrollLeft = startScroll - dx;
+  });
+
+  const endDrag = (e) => {
+    if (!isDown) return;
+    isDown = false;
+    slider.classList.remove('is-dragging');
+    try { slider.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+  slider.addEventListener('pointerup', endDrag);
+  slider.addEventListener('pointercancel', endDrag);
+
+  // Click en tarjeta: abre el lightbox (salvo que haya sido un arrastre)
+  slider.addEventListener('click', (e) => {
+    if (moved) { e.preventDefault(); moved = false; return; }
+    const card = e.target.closest('.work-card[data-video]');
+    if (card) { e.preventDefault(); openLightbox(card.dataset.video); }
+  });
+
+  // Rueda del ratón vertical -> desplazamiento horizontal
+  slider.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      slider.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
+}
+
+// ===================== Formulario (demo) =====================
+const form = document.getElementById('contactForm');
+if (form) {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.innerHTML = '¡Gracias! Te escribimos pronto ✦';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.disabled = false;
+      form.reset();
+    }, 3000);
+  });
+}

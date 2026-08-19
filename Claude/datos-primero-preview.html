@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DatosPrimero — Preview</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useRef, useEffect, useCallback } = React;
+
+    /* ─── Datos ─── */
+    const PHASES = [
+      { label: "Fase 1", title: "Análisis",   desc: "Negocio a fondo",        cx: 350, cy: 120 },
+      { label: "Fase 2", title: "Research",   desc: "Investigamos similares", cx: 540, cy: 258 },
+      { label: "Fase 3", title: "Plan",       desc: "Plan de contenido",      cx: 468, cy: 482 },
+      { label: "Fase 4", title: "Creación",   desc: "Pasamos a producción",   cx: 232, cy: 482 },
+      { label: "Fase 5", title: "Resultados", desc: "Medimos y actuamos",     cx: 160, cy: 258 },
+    ];
+
+    const LABEL_CFG = [
+      { anchor: "middle", lx: 350, ly: [58,  79,  97]  },
+      { anchor: "start",  lx: 576, ly: [242, 263, 280] },
+      { anchor: "start",  lx: 490, ly: [508, 529, 546] },
+      { anchor: "end",    lx: 210, ly: [508, 529, 546] },
+      { anchor: "end",    lx: 124, ly: [242, 263, 280] },
+    ];
+
+    const DOT_T = [150,  660,  1310, 1960, 2510];
+    const LBL_T = [370,  880,  1530, 2180, 2730];
+    const RET_T = 2950;
+
+    /* ─── Componente ─── */
+    function DatosPrimero() {
+      const sectionRef = useRef(null);
+      const arcRef     = useRef(null);
+      const retRef     = useRef(null);
+      const dotRefs    = useRef([]);
+      const lblRefs    = useRef([]);
+      const timerIds   = useRef([]);
+
+      const animate = useCallback(() => {
+        const arc = arcRef.current;
+        const ret = retRef.current;
+        if (!arc) return;
+
+        // Reset timers
+        timerIds.current.forEach(clearTimeout);
+        timerIds.current = [];
+
+        // Reset arco
+        const len = arc.getTotalLength();
+        arc.style.transition       = "none";
+        arc.style.strokeDasharray  = String(len);
+        arc.style.strokeDashoffset = String(len);
+
+        // Reset clases
+        ret && ret.classList.remove("on");
+        dotRefs.current.forEach(el => el && el.classList.remove("on"));
+        lblRefs.current.forEach(el => el && el.classList.remove("on"));
+
+        const add = (fn, ms) => timerIds.current.push(setTimeout(fn, ms));
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+
+            // Draw arco principal
+            add(() => {
+              arc.style.transition       = "stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1)";
+              arc.style.strokeDashoffset = "0";
+            }, 60);
+
+            // Dots y labels
+            PHASES.forEach((_, i) => {
+              add(() => { dotRefs.current[i] && dotRefs.current[i].classList.add("on"); }, DOT_T[i]);
+              add(() => { lblRefs.current[i] && lblRefs.current[i].classList.add("on"); }, LBL_T[i]);
+            });
+
+            // Arco retorno
+            add(() => { ret && ret.classList.add("on"); }, RET_T);
+          });
+        });
+      }, []);
+
+      useEffect(() => {
+        const section = sectionRef.current;
+        const arc     = arcRef.current;
+        if (!section || !arc) return;
+
+        // Ocultar arco en carga
+        const len = arc.getTotalLength();
+        arc.style.strokeDasharray  = String(len);
+        arc.style.strokeDashoffset = String(len);
+
+        const obs = new IntersectionObserver(
+          ([entry]) => { if (entry.isIntersecting) animate(); },
+          { threshold: 0.15 }
+        );
+        obs.observe(section);
+
+        return () => {
+          obs.disconnect();
+          timerIds.current.forEach(clearTimeout);
+        };
+      }, [animate]);
+
+      return (
+        <section ref={sectionRef} className="dp-section" style={s.section}>
+          <style>{CSS}</style>
+
+          {/* Título */}
+          <h1 style={s.heading}>
+            <span style={s.bold}>Datos primero</span>
+            <br />
+            <span style={s.bold}>Cámara </span>
+            <em style={s.italic}>después</em>
+          </h1>
+
+          {/* Intro */}
+          <p style={s.intro}>
+            Como Branded Content Filmmaker no llego a una marca a "grabar bonito".
+            <br />
+            Llego a <em>entender el negocio</em>, leer sus datos y construir un
+            sistema de contenido que mida en conversión, no en likes.
+          </p>
+
+          {/* SVG */}
+          <div style={s.svgWrap}>
+            <svg
+              width="100%"
+              viewBox="0 0 700 582"
+              overflow="visible"
+              aria-label="Proceso circular de 5 fases"
+              style={{ display: "block" }}
+            >
+              <defs>
+                <marker
+                  id="arrowRet"
+                  markerWidth="7" markerHeight="7"
+                  refX="6" refY="3.5"
+                  orient="auto"
+                >
+                  <polyline
+                    points="0,1 5.5,3.5 0,6"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.32)"
+                    strokeWidth="1.2"
+                    strokeLinejoin="round"
+                  />
+                </marker>
+              </defs>
+
+              {/* Círculo guía */}
+              <circle
+                cx="350" cy="320" r="200"
+                fill="none"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="1"
+              />
+
+              {/* Arco principal: Fase 1 → Fase 5 (288°, horario) */}
+              <path
+                ref={arcRef}
+                d="M 350,120 A 200,200 0 1 1 160,258"
+                fill="none"
+                stroke="rgba(255,255,255,0.62)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+
+              {/* Arco retorno: Fase 5 → Fase 1 (72°, horario, punteado) */}
+              <path
+                ref={retRef}
+                className="rline"
+                d="M 160,258 A 200,200 0 0 1 350,120"
+                fill="none"
+                stroke="rgba(255,255,255,0.32)"
+                strokeWidth="1"
+                strokeDasharray="4 5"
+                markerEnd="url(#arrowRet)"
+              />
+
+              {/* Fases */}
+              {PHASES.map((p, i) => {
+                const c = LABEL_CFG[i];
+                return (
+                  <g key={i} className="pg-phase">
+                    <circle
+                      ref={el => (dotRefs.current[i] = el)}
+                      className="rdot"
+                      cx={p.cx} cy={p.cy} r="8"
+                      fill="#fff"
+                    />
+                    <g ref={el => (lblRefs.current[i] = el)} className="rlbl">
+                      <text className="txt-fase"  x={c.lx} y={c.ly[0]} textAnchor={c.anchor}>{p.label}</text>
+                      <text className="txt-title" x={c.lx} y={c.ly[1]} textAnchor={c.anchor}>{p.title}</text>
+                      <text className="txt-desc"  x={c.lx} y={c.ly[2]} textAnchor={c.anchor}>{p.desc}</text>
+                    </g>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Footer */}
+          <p style={s.footer}>
+            Esto no es una línea recta, tiene que estar en constante alimentación.
+          </p>
+        </section>
+      );
+    }
+
+    /* ─── CSS ─── */
+    const CSS = `
+      .rdot {
+        opacity: 0;
+        transform: scale(0);
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: opacity .3s ease, transform .36s cubic-bezier(.34,1.56,.64,1);
+      }
+      .rdot.on { opacity: 1; transform: scale(1); }
+      .pg-phase:hover .rdot { transform: scale(1.45); }
+
+      .rlbl { opacity: 0; transition: opacity .5s ease; }
+      .rlbl.on { opacity: 1; }
+
+      .rline { opacity: 0; transition: opacity 1.1s ease; }
+      .rline.on { opacity: 1; }
+
+      .txt-fase {
+        font-size: 10.5px; font-style: italic;
+        font-family: Georgia, serif;
+        fill: #fff; opacity: 0.40;
+        transition: opacity .22s ease;
+      }
+      .txt-title {
+        font-size: 22px; font-weight: 900;
+        font-family: Arial, sans-serif;
+        letter-spacing: -0.025em;
+        fill: #fff; opacity: 0.94;
+      }
+      .txt-desc {
+        font-size: 11px; font-family: Arial, sans-serif;
+        fill: #fff; opacity: 0.50;
+        transition: opacity .22s ease;
+      }
+      .pg-phase:hover .txt-fase { opacity: 0.80; }
+      .pg-phase:hover .txt-desc { opacity: 0.70; }
+
+      @media (max-width: 768px) {
+        .dp-section { padding: 48px 24px 56px !important; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rdot, .rlbl, .rline {
+          transition: none !important; opacity: 1 !important; transform: scale(1) !important;
+        }
+      }
+    `;
+
+    /* ─── Estilos JS ─── */
+    const s = {
+      section: {
+        background: "#0a0a0a", color: "#ffffff",
+        minHeight: "100vh", padding: "52px 44px 60px",
+        fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+        boxSizing: "border-box",
+      },
+      heading: { fontSize: "clamp(2rem,5.5vw,4rem)", lineHeight: 1.05, margin: "0 0 22px", fontWeight: 400 },
+      bold:    { fontWeight: 900, fontStyle: "normal", letterSpacing: "-0.02em" },
+      italic:  { fontFamily: "Georgia,'Times New Roman',serif", fontWeight: 400, fontStyle: "italic" },
+      intro:   { maxWidth: 580, lineHeight: 1.7, margin: "0 0 52px", fontSize: "0.96rem", opacity: 0.88 },
+      svgWrap: { width: "100%", maxWidth: 700, margin: "0 auto" },
+      footer:  { textAlign: "center", marginTop: 40, opacity: 0.6, fontSize: "0.88rem", letterSpacing: "0.01em" },
+    };
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<DatosPrimero />);
+  </script>
+</body>
+</html>
