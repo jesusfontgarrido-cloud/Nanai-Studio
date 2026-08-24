@@ -13,7 +13,7 @@ if (sliderEl) {
   sliderEl.innerHTML = projects
     .map(
       (p, i) => `
-      <button class="work-card reveal" type="button" data-video="${p.id}" aria-label="Ver ${p.type.toLowerCase()}: ${p.title} — ${p.artist}">
+      <a class="work-card reveal" href="https://www.youtube.com/watch?v=${p.id}" target="_blank" rel="noopener" data-video="${p.id}" aria-label="Ver ${p.type.toLowerCase()}: ${p.title} — ${p.artist} en YouTube">
         <div class="work-card__media">
           <img class="work-card__img" src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${p.id}/mqdefault.jpg'" alt="${p.title} — ${p.artist}" width="1280" height="720" decoding="async" loading="${i < 2 ? 'eager' : 'lazy'}" ${i === 0 ? 'fetchpriority="high"' : ''} />
           <span class="work-card__play" aria-hidden="true">▶</span>
@@ -23,7 +23,7 @@ if (sliderEl) {
           <h3>${p.title}</h3>
           <span class="work-card__artist">${p.artist}</span>
         </div>
-      </button>`
+      </a>`
     )
     .join('');
 }
@@ -139,17 +139,11 @@ if (slider) {
   let startScroll = 0;
   let moved = false;
 
-  slider.addEventListener('pointerdown', (e) => {
-    // Solo ratón/pen: el táctil ya hace scroll nativo
-    if (e.pointerType === 'touch') return;
-    isDown = true;
-    moved = false;
-    startX = e.clientX;
-    startScroll = slider.scrollLeft;
-    slider.setPointerCapture(e.pointerId);
-  });
-
-  slider.addEventListener('pointermove', (e) => {
+  // Nota: NO usamos setPointerCapture. Al capturar el puntero, Chrome
+  // redirige el evento `click` al carrusel en lugar del enlace <a>, y eso
+  // impedía que la tarjeta abriera YouTube en escritorio. En su lugar
+  // escuchamos el movimiento a nivel de `window` mientras se arrastra.
+  const onMove = (e) => {
     if (!isDown) return;
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 4) {
@@ -157,32 +151,38 @@ if (slider) {
       slider.classList.add('is-dragging');
     }
     slider.scrollLeft = startScroll - dx;
-  });
-
-  const endDrag = (e) => {
+  };
+  const endDrag = () => {
     if (!isDown) return;
     isDown = false;
     slider.classList.remove('is-dragging');
-    try { slider.releasePointerCapture(e.pointerId); } catch (_) {}
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', endDrag);
   };
-  slider.addEventListener('pointerup', endDrag);
-  slider.addEventListener('pointercancel', endDrag);
+  slider.addEventListener('pointerdown', (e) => {
+    // Solo ratón/pen: el táctil ya hace scroll nativo
+    if (e.pointerType === 'touch') return;
+    isDown = true;
+    moved = false;
+    startX = e.clientX;
+    startScroll = slider.scrollLeft;
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+  });
 
   // Click en tarjeta (salvo que haya sido un arrastre):
-  //  - Escritorio (ratón): abre el vídeo en YouTube en una pestaña nueva.
-  //  - Táctil/móvil: abre el reproductor emergente (lightbox).
+  //  - Escritorio (ratón): el enlace <a> abre el vídeo en YouTube en una
+  //    pestaña nueva de forma nativa (no lo interceptamos).
+  //  - Táctil/móvil: cancelamos el enlace y abrimos el reproductor (lightbox).
   const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   slider.addEventListener('click', (e) => {
     if (moved) { e.preventDefault(); moved = false; return; }
     const card = e.target.closest('.work-card[data-video]');
     if (!card) return;
+    if (isDesktop) return; // deja pasar el enlace → YouTube en pestaña nueva
     e.preventDefault();
-    const id = card.dataset.video;
-    if (isDesktop) {
-      window.open('https://www.youtube.com/watch?v=' + id, '_blank', 'noopener');
-    } else {
-      openLightbox(id);
-    }
+    openLightbox(card.dataset.video);
   });
 
   // Nota: NO interceptamos la rueda del ratón. Antes se convertía el scroll

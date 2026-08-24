@@ -559,7 +559,9 @@ img { max-width: 100%; display: block; }
   flex: 0 0 78%;
   max-width: 340px;
   scroll-snap-align: start;
-  /* reset para las tarjetas que son <button> */
+  /* reset (las tarjetas son enlaces <a>) */
+  display: block;
+  text-decoration: none;
   background: none;
   border: none;
   padding: 0;
@@ -1035,6 +1037,8 @@ img { max-width: 100%; display: block; }
   .work__controls { display: flex; }
   .work-card { flex: 0 0 360px; max-width: none; }
   .work__slider { gap: 24px; }
+  /* En PC: solo miniaturas (ocultamos el texto). Clic → YouTube en nueva pestaña. */
+  .work-card__meta { display: none; }
 
   .about__grid {
     grid-template-columns: 1.1fr 0.9fr;
