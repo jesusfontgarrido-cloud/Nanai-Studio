@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://googleads.g.doubleclick.net" />
   <link rel="preconnect" href="https://static.doubleclick.net" />
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260824" />
 </head>
 <body>
 
@@ -35,7 +35,7 @@
     <nav class="nav__links">
       <a href="#proyectos" data-nav data-spy="proyectos">Proyectos</a>
       <a href="#servicios" data-nav data-spy="servicios">Servicios</a>
-      <a href="#sobre" data-nav data-spy="sobre">Sobre</a>
+      <a href="#sobre" data-nav data-spy="sobre">Nosotros</a>
       <a href="#contacto" data-nav data-spy="contacto">Contacto</a>
     </nav>
 
@@ -171,25 +171,35 @@
    <div class="about__panel glass">
     <div class="about__grid">
       <div class="about__text reveal">
-        <span class="section-head__eyebrow">Sobre nosotros</span>
+        <span class="section-head__eyebrow">Nosotros</span>
         <p class="about__lead">
           Una productora de Sevilla que <em class="grad-text">vive y respira música</em>.
         </p>
         <p class="about__body">
-          Nos gusta trabajar codo a codo con los artistas, entender qué quieren
-          contar y cómo quieren sonar, y convertir eso en imágenes que tengan
-          fuerza, personalidad y emoción. No somos una agencia fría: somos un
-          equipo creativo que juega, experimenta y se involucra en cada proyecto,
-          porque creemos que cada artista merece que su música se vea tan bien
-          como suena.
+          Nos gusta trabajar codo a codo con los artistas: entender qué quieren
+          contar y cómo quieren sonar, y convertir eso en imágenes con fuerza,
+          personalidad y emoción. No somos una agencia fría, somos un equipo
+          creativo que juega, experimenta y se involucra en cada proyecto.
         </p>
+        <p class="about__body">
+          Antes de encender la cámara construimos el concepto: pensamos la idea
+          a partir de tu canción y te acompañamos desde ahí hasta el vídeo final
+          entregado. Trabajamos sobre todo con artistas independientes y
+          proyectos que empiezan, adaptando cada producción a tu idea y a tus
+          recursos. Venimos a solucionarte problemas, no a crearte otros.
+        </p>
+
+        <ul class="about__pillars">
+          <li><strong>Concepto antes que cámara</strong><span>Pensamos la idea antes de producir.</span></li>
+          <li><strong>De la idea al máster</strong><span>Un solo equipo, de principio a fin.</span></li>
+          <li><strong>Cercanía real</strong><span>Trabajamos contigo, no para ti.</span></li>
+        </ul>
       </div>
 
       <div class="about__media reveal">
         <div class="about__ph about__ph--wide"><img src="images/rodaje3.jpg" alt="Rodaje de Nanai Studio" loading="lazy" /></div>
         <div class="about__ph"><img src="images/rodaje1.jpg" alt="El equipo de Nanai Studio en un rodaje" loading="lazy" /></div>
         <div class="about__ph"><img src="images/rodaje2.jpg" alt="Detrás de cámaras — Nanai Studio" loading="lazy" /></div>
-        <div class="about__ph about__ph--wide"><img src="images/rodaje4.jpg" alt="Preparando un rodaje — Nanai Studio" loading="lazy" /></div>
       </div>
     </div>
    </div>
@@ -250,7 +260,14 @@
       </div>
     </div>
 
-    <form class="contact__form glass reveal" id="contactForm">
+    <form class="contact__form glass reveal" id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+      <!-- Web3Forms: pega aquí tu Access Key (la obtienes gratis en web3forms.com). -->
+      <input type="hidden" name="access_key" value="f33f640b-b6ac-4919-9d6e-ab1dc6553f52" />
+      <input type="hidden" name="subject" value="Nuevo mensaje desde la web de Nanai Studio" />
+      <input type="hidden" name="from_name" value="Web Nanai Studio" />
+      <!-- Anti-spam (honeypot): debe quedar vacío. -->
+      <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+
       <label>
         <span>Nombre</span>
         <input type="text" name="nombre" placeholder="Tu nombre" required />
@@ -263,7 +280,8 @@
         <span>Cuéntanos</span>
         <textarea name="mensaje" rows="4" placeholder="Tu proyecto, tu idea, tu música…"></textarea>
       </label>
-      <button type="submit" class="btn btn--primary btn--block">Enviar <span class="arrow">→</span></button>
+      <button type="submit" class="btn btn--primary btn--block">Cuéntanos tu idea <span class="arrow">→</span></button>
+      <p class="contact__form-note" id="formNote" role="status" aria-live="polite">Te respondemos con los siguientes pasos y una primera orientación.</p>
     </form>
   </section>
 
@@ -294,6 +312,6 @@
 
   <!-- Widget de reseñas de Google (Featurable v2) -->
   <script src="https://cdn.featurable.com/widget/v2/embed.js" defer charset="UTF-8"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=20260824"></script>
 </body>
 </html>

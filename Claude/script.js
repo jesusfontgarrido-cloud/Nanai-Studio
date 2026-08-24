@@ -12,10 +12,10 @@ const sliderEl = document.getElementById('workSlider');
 if (sliderEl) {
   sliderEl.innerHTML = projects
     .map(
-      (p) => `
+      (p, i) => `
       <button class="work-card reveal" type="button" data-video="${p.id}" aria-label="Ver ${p.type.toLowerCase()}: ${p.title} — ${p.artist}">
         <div class="work-card__media">
-          <img class="work-card__img" src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${p.id}/hqdefault.jpg'" alt="${p.title} — ${p.artist}" />
+          <img class="work-card__img" src="https://i.ytimg.com/vi/${p.id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${p.id}/mqdefault.jpg'" alt="${p.title} — ${p.artist}" width="1280" height="720" decoding="async" loading="${i < 2 ? 'eager' : 'lazy'}" ${i === 0 ? 'fetchpriority="high"' : ''} />
           <span class="work-card__play" aria-hidden="true">▶</span>
         </div>
         <div class="work-card__meta">
@@ -168,35 +168,77 @@ if (slider) {
   slider.addEventListener('pointerup', endDrag);
   slider.addEventListener('pointercancel', endDrag);
 
-  // Click en tarjeta: abre el lightbox (salvo que haya sido un arrastre)
+  // Click en tarjeta (salvo que haya sido un arrastre):
+  //  - Escritorio (ratón): abre el vídeo en YouTube en una pestaña nueva.
+  //  - Táctil/móvil: abre el reproductor emergente (lightbox).
+  const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   slider.addEventListener('click', (e) => {
     if (moved) { e.preventDefault(); moved = false; return; }
     const card = e.target.closest('.work-card[data-video]');
-    if (card) { e.preventDefault(); openLightbox(card.dataset.video); }
+    if (!card) return;
+    e.preventDefault();
+    const id = card.dataset.video;
+    if (isDesktop) {
+      window.open('https://www.youtube.com/watch?v=' + id, '_blank', 'noopener');
+    } else {
+      openLightbox(id);
+    }
   });
 
-  // Rueda del ratón vertical -> desplazamiento horizontal
-  slider.addEventListener('wheel', (e) => {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      slider.scrollLeft += e.deltaY;
-      e.preventDefault();
-    }
-  }, { passive: false });
+  // Nota: NO interceptamos la rueda del ratón. Antes se convertía el scroll
+  // vertical en horizontal, pero eso "atrapaba" el scroll vertical de la
+  // página al pasar el cursor por encima del carrusel. Ahora la rueda vertical
+  // siempre mueve la página; el carrusel se desplaza con las flechas ‹ ›, el
+  // arrastre con ratón, o el gesto táctil/horizontal del trackpad.
 }
 
-// ===================== Formulario (demo) =====================
+// ===================== Formulario (Web3Forms) =====================
+// Envía el formulario a Web3Forms por fetch (sin recargar) y muestra el
+// estado en el botón + la nota inferior. Requiere pegar tu Access Key en el
+// campo oculto `access_key` del HTML (se obtiene gratis en web3forms.com).
 const form = document.getElementById('contactForm');
 if (form) {
-  form.addEventListener('submit', (e) => {
+  const note = document.getElementById('formNote');
+  const noteDefault = note ? note.textContent : '';
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('button[type="submit"]');
     const original = btn.innerHTML;
-    btn.innerHTML = '¡Gracias! Te escribimos pronto ✦';
+    const key = form.querySelector('[name="access_key"]');
+
+    // Aviso claro si aún no se ha configurado la clave.
+    if (!key || key.value.includes('TU_ACCESS_KEY')) {
+      if (note) note.textContent = '⚠ Falta configurar la Access Key de Web3Forms en el HTML.';
+      return;
+    }
+
     btn.disabled = true;
-    setTimeout(() => {
+    btn.innerHTML = 'Enviando…';
+    if (note) note.textContent = '';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        btn.innerHTML = 'Recibido ✦';
+        if (note) note.textContent = 'Recibido. Ahora toca darle forma — te escribimos pronto.';
+        form.reset();
+      } else {
+        throw new Error(data.message || 'error');
+      }
+    } catch (err) {
       btn.innerHTML = original;
-      btn.disabled = false;
-      form.reset();
-    }, 3000);
+      if (note) note.textContent = 'Algo ha fallado. Revisa los datos o escríbenos directo por WhatsApp.';
+    } finally {
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.disabled = false;
+        if (note) note.textContent = noteDefault;
+      }, 5000);
+    }
   });
 }
