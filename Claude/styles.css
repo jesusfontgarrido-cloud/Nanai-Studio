@@ -1077,3 +1077,20 @@ img { max-width: 100%; display: block; }
   .work-card__meta { padding: 10px 4px 0; }
   .work-card__meta h3 { font-size: 17px; }
 }
+
+/* ============ AJUSTES SOLO MÓVIL / TÁCTIL (≤ 899px) ============ */
+/* Solo afecta a la versión móvil (por debajo del breakpoint de escritorio de
+   900px). No modifica PC ni tablet-escritorio. */
+@media (max-width: 899px) {
+  /* 1) Libera el SCROLL VERTICAL dentro del carrusel de "Últimos trabajos".
+     El snap 'mandatory' hacía que el gesto vertical quedara atrapado en el eje
+     horizontal (bug típico de Android). Con 'proximity' + touch-action pan-x,
+     los deslizamientos verticales pasan a la página con normalidad y el
+     horizontal sigue funcionando. */
+  .work__slider { scroll-snap-type: x proximity; }
+
+  /* 2) Oculta el indicador "scroll" del hero en móvil: se solapaba con los
+     botones y la barra inferior (se veía "bugueado"). En móvil la barra de
+     navegación inferior y el botón "Ver proyectos" ya invitan a bajar. */
+  .hero__scroll { display: none; }
+}
