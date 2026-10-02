@@ -1,0 +1,30 @@
+---
+/** Marcas de encuadre: cuatro ángulos de 24px en las esquinas del padre posicionado. */
+---
+
+<span class="frame-marks" aria-hidden="true">
+  <span class="corner corner--tl"></span>
+  <span class="corner corner--tr"></span>
+  <span class="corner corner--bl"></span>
+  <span class="corner corner--br"></span>
+</span>
+
+<style>
+  .frame-marks {
+    position: absolute;
+    inset: var(--space-3);
+    pointer-events: none;
+  }
+
+  .corner {
+    position: absolute;
+    width: var(--frame-mark);
+    height: var(--frame-mark);
+    border: 0 solid var(--bone);
+  }
+
+  .corner--tl { top: 0; left: 0; border-top-width: var(--hairline); border-left-width: var(--hairline); }
+  .corner--tr { top: 0; right: 0; border-top-width: var(--hairline); border-right-width: var(--hairline); }
+  .corner--bl { bottom: 0; left: 0; border-bottom-width: var(--hairline); border-left-width: var(--hairline); }
+  .corner--br { bottom: 0; right: 0; border-bottom-width: var(--hairline); border-right-width: var(--hairline); }
+</style>

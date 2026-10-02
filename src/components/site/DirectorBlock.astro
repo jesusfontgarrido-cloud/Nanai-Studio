@@ -1,0 +1,163 @@
+---
+/**
+ * Quién dirige (día). «teaser» en Inicio (enlaza a Estudio); «full» en Estudio (con los
+ * principios). El título va encima del retrato, no a su lado, y la foto ocupa lo mismo que
+ * una columna de texto. El retrato disponible es sobre fondo blanco: vive en el día.
+ */
+import { Picture } from 'astro:assets';
+// Recorte cuadrado (24-09): el 4:5 dejaba demasiado aire al lado del texto.
+import portrait from '../../assets/media/jesus-font-1x1.jpg';
+import Arrow from '../ui/Arrow.astro';
+import { studio } from '../../data/copy';
+import { site } from '../../data/site';
+
+interface Props {
+  variant?: 'teaser' | 'full';
+  label?: string;
+}
+
+const { variant = 'teaser', label = 'Quién dirige' } = Astro.props;
+
+// En Inicio basta con los dos primeros párrafos; la versión larga vive en Estudio.
+const bio = variant === 'full' ? studio.bio : studio.bio.slice(0, 2);
+---
+
+<section class="section zone-day director" aria-labelledby="director-title">
+  <div class="container">
+    <div class="director__head">
+      <p class="label">{label}</p>
+      <h2 id="director-title" class="headline headline--h2">Jesús Font</h2>
+    </div>
+
+    <div class="director__grid">
+      <figure class="director__portrait">
+        <Picture
+          src={portrait}
+          formats={['avif', 'webp']}
+          widths={[300, 440, 600]}
+          sizes="(min-width: 768px) 300px, 70vw"
+          alt="Jesús Font con una cámara de cine"
+          loading="lazy"
+        />
+        <figcaption class="label director__meta">
+          <span>Director</span>
+          <span>Sevilla</span>
+        </figcaption>
+      </figure>
+
+      <div class="director__text">
+        <div class="director__bio">{bio.map((text) => <p>{text}</p>)}</div>
+
+        {variant === 'full' && <p class="director__team">{studio.team}</p>}
+
+        <!-- Las redes de Jesús, donde se habla de él -->
+        <ul class="director__social" role="list">
+          <li><a class="text-link" href={site.instagram}>Instagram <Arrow /></a></li>
+          <li><a class="text-link" href={site.whatsapp}>WhatsApp <Arrow /></a></li>
+        </ul>
+
+        {
+          variant === 'full' ? (
+            <ul class="pillars" role="list">
+              {studio.principles.map((principle) => (
+                <li>
+                  <strong>{principle.title}</strong>
+                  <span>{principle.text}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <a class="text-link" href="/estudio">
+              Conoce el estudio <Arrow />
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .director__head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .director__grid {
+    display: grid;
+    align-items: start;
+    gap: var(--space-4);
+  }
+
+  .director__portrait {
+    position: relative;
+    width: 100%;
+    max-width: var(--portrait-w);
+    margin: 0;
+  }
+
+  .director__portrait :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  .director__meta {
+    position: absolute;
+    inset: var(--space-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .director__text {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+  }
+
+  .director__team {
+    max-width: var(--measure);
+    color: var(--muted-on-bone);
+  }
+
+  .director__bio {
+    display: grid;
+    gap: var(--space-2);
+    max-width: var(--measure);
+  }
+
+  .director__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+  }
+
+  .pillars {
+    width: 100%;
+    margin-top: var(--space-2);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .pillars li {
+    display: grid;
+    gap: var(--space-1) var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: var(--hairline) solid var(--rule);
+    font-size: var(--fs-ui);
+  }
+
+  .pillars strong { font-weight: var(--weight-headline); }
+  .pillars span { color: var(--muted-on-bone); }
+
+  @media (min-width: 768px) {
+    .director__grid {
+      grid-template-columns: var(--portrait-w) minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+
+    .pillars li { grid-template-columns: 1fr 1fr; }
+  }
+</style>

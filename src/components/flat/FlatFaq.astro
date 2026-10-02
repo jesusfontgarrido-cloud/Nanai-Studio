@@ -1,0 +1,113 @@
+---
+/**
+ * Preguntas. El plano rojo de la página: la única banda en rojo, a sangre. Las objeciones
+ * (precio, idea cerrada, qué pasa después) se resuelven aquí, justo antes del contacto.
+ */
+import type { Faq } from '../../data/copy';
+
+interface Props {
+  items: Faq[];
+  label?: string;
+  num?: string;
+  tone?: 'paper' | 'red';
+}
+
+const { items, label = 'Preguntas', num = '05', tone = 'red' } = Astro.props;
+---
+
+<section class:list={['sec', tone === 'red' && 'tone-red']} aria-label={label}>
+  <div class="wrap">
+
+    <div class="ffaq__grid">
+      <div class="ffaq__head">
+      <h2 class="h2 ffaq__title" data-reveal="lines">
+        <span>Antes de escribirnos,</span>
+        <span class="ffaq__title-2">quizá te preguntas…</span>
+      </h2>
+      </div>
+
+      <div class="ffaq__list" data-stagger>
+        {
+          items.map((item) => (
+            <details class="ffaq__item">
+              <summary class="ffaq__q">
+                <span>{item.q}</span>
+                <span class="ffaq__icon" aria-hidden="true" />
+              </summary>
+              <p class="ffaq__a">{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ffaq__grid {
+    display: grid;
+    gap: 28px;
+  }
+
+  .ffaq__head { display: grid; align-content: start; gap: 18px; }
+  .ffaq__title > span { display: block; }
+  .ffaq__title-2 { opacity: 0.78; }
+
+  .ffaq__list {
+    display: grid;
+    border-top: var(--f-hair) solid var(--f-line);
+  }
+
+  .ffaq__item { border-bottom: var(--f-hair) solid var(--f-line); }
+
+  .ffaq__q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    min-height: 60px;
+    padding: 14px 10px;
+    font-size: 18px;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+    transition: padding-left 320ms var(--f-ease-out);
+  }
+
+  .ffaq__q:hover { padding-left: 16px; }
+
+  .ffaq__q::-webkit-details-marker { display: none; }
+
+  .ffaq__icon {
+    position: relative;
+    flex: none;
+    width: 20px;
+    height: 20px;
+  }
+
+  .ffaq__icon::before,
+  .ffaq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: translateY(-50%);
+    transition: transform var(--f-dur) var(--f-ease);
+  }
+
+  .ffaq__icon::after { transform: translateY(-50%) rotate(90deg); }
+  .ffaq__item[open] .ffaq__icon::after { transform: translateY(-50%) rotate(0deg); }
+
+  .ffaq__a {
+    max-width: 62ch;
+    padding: 0 10px 20px;
+    color: var(--f-muted);
+  }
+
+  @media (min-width: 900px) {
+    .ffaq__grid { grid-template-columns: 1fr 1.25fr; gap: 48px; }
+  }
+</style>

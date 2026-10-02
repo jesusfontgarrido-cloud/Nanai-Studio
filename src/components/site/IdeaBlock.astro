@@ -1,0 +1,52 @@
+---
+/**
+ * La idea: por qué se trabaja así. Sustituye al antiguo «El problema», que daba por hecho
+ * que toda pieza busca retorno. Una sección silenciosa: titular, dos párrafos y nada más.
+ */
+import { idea } from '../../data/copy';
+
+interface Props {
+  label?: string;
+}
+
+const { label = 'La idea' } = Astro.props;
+---
+
+<section class="section zone-night idea" aria-labelledby="idea-title">
+  <div class="container idea__grid">
+    <div>
+      <p class="label">{label}</p>
+      <h2 id="idea-title" class="headline headline--h2 idea__title">
+        <span>{idea.lines[0]}</span>
+        <span class="tone-2">{idea.lines[1]}</span>
+      </h2>
+    </div>
+
+    <div class="idea__text">
+      {idea.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .idea__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .idea__title { margin-top: var(--space-2); }
+  .idea__title span { display: block; }
+
+  .idea__text {
+    display: grid;
+    align-content: end;
+    gap: var(--space-3);
+    max-width: var(--measure);
+    font-size: var(--fs-deck);
+    line-height: var(--lh-statement);
+  }
+
+  @media (min-width: 1024px) {
+    .idea__grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

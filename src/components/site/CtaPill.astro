@@ -1,0 +1,63 @@
+---
+/**
+ * CTA: píldora en hueso con miniatura, texto y círculo rojo con flecha.
+ * Es el único rojo de su pantalla. Por debajo de 420px la miniatura se oculta para que quepa el texto.
+ */
+import Arrow from '../ui/Arrow.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  thumb: string;
+}
+
+const { href, label, thumb } = Astro.props;
+---
+
+<a class="cta-pill" href={href}>
+  <img class="cta-pill__thumb" src={thumb} alt="" width="96" height="40" decoding="async" />
+  <span>{label}</span>
+  <span class="cta-pill__dot" aria-hidden="true"><Arrow /></span>
+</a>
+
+<style>
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--cta-height);
+    padding: calc((var(--cta-height) - var(--pill-media-h)) / 2);
+    border-radius: var(--radius-pill);
+    background: var(--bone);
+    color: var(--text-on-bone);
+    font-size: var(--fs-ui);
+    font-weight: var(--weight-headline);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .cta-pill__thumb {
+    width: var(--pill-media-w);
+    height: var(--pill-media-h);
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+
+  .cta-pill__dot {
+    display: grid;
+    place-items: center;
+    width: var(--cta-dot);
+    height: var(--cta-dot);
+    border-radius: var(--radius-pill);
+    background: var(--red);
+    color: var(--white);
+    transition: transform var(--dur-switch) var(--ease-standard);
+  }
+
+  .cta-pill:hover .cta-pill__dot { transform: translateX(var(--cta-nudge)); }
+
+  @media (max-width: 419px) {
+    .cta-pill { padding-left: var(--space-3); }
+    .cta-pill__thumb { display: none; }
+  }
+</style>

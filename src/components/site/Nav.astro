@@ -1,0 +1,265 @@
+---
+/**
+ * Nav de todas las páginas. Marcas, Artistas y creadores y Estudio son páginas; «Hablemos» baja al
+ * formulario de la página actual. En móvil, menú a pantalla completa con popover nativo:
+ * abrir y cerrar no necesita JS.
+ */
+import { site } from '../../data/site';
+
+const links = [
+  { href: '/marcas', label: 'Marcas' },
+  { href: '/artistas', label: 'Artistas y creadores' },
+  { href: '/estudio', label: 'Estudio' },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = (href: string) =>
+  path === href || path.startsWith(`${href}/`) ? ('page' as const) : undefined;
+const home = path === '/' ? ('page' as const) : undefined;
+---
+
+<header class="topnav">
+  <div class="topnav__bar">
+    <a class="topnav__logo" href="/" aria-current={home}>
+      <img src="/brand/logo-horizontal-blanco.svg" alt="Nanai Studio" width="478" height="61" />
+    </a>
+
+    <nav class="topnav__links" aria-label="Principal">
+      <ul role="list">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={current(link.href)}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="topnav__actions">
+      <a class="topnav__cta" href="#contacto">Hablemos</a>
+      <button class="topnav__menu" type="button" popovertarget="site-menu">
+        <span class="visually-hidden">Menú</span>
+        <span class="topnav__burger" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="site-menu" class="site-menu zone-night" popover>
+  <div class="site-menu__top">
+    <img class="site-menu__logo" src="/brand/logo-horizontal-blanco.svg" alt="" width="478" height="61" />
+    <button class="site-menu__close" type="button" popovertarget="site-menu" popovertargetaction="hide">
+      Cerrar
+    </button>
+  </div>
+
+  <nav aria-label="Principal (móvil)">
+    <ul class="site-menu__list" role="list">
+      <li><a href="/" aria-current={home}>Inicio</a></li>
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={current(link.href)}>{link.label}</a>
+          </li>
+        ))
+      }
+      <li><a href="#contacto">Hablemos</a></li>
+    </ul>
+  </nav>
+
+  <p class="label site-menu__foot">{site.coordinates}</p>
+</div>
+
+<script>
+  // Un enlace a la misma página (#contacto) no cierra el popover por sí solo.
+  const menu = document.getElementById('site-menu');
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      try {
+        menu.hidePopover();
+      } catch {
+        // Navegador sin popover o menú ya cerrado.
+      }
+    });
+  });
+</script>
+
+<style>
+  .topnav {
+    position: fixed;
+    top: var(--nav-offset);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    padding-inline: var(--gutter);
+    pointer-events: none;
+  }
+
+  .topnav__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--nav-bg-solid);
+    -webkit-backdrop-filter: blur(var(--nav-blur));
+    backdrop-filter: blur(var(--nav-blur));
+    pointer-events: auto;
+  }
+
+  .topnav__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--pill-media-h);
+  }
+
+  .topnav__logo img,
+  .site-menu__logo {
+    width: auto;
+    height: var(--nav-logo-h);
+  }
+
+  .topnav__links ul {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .topnav__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--pill-media-h);
+    color: var(--muted-on-ink);
+    font-size: var(--fs-ui);
+    text-decoration: none;
+  }
+
+  .topnav__links a:hover,
+  .topnav__links a[aria-current='page'] {
+    color: var(--text-on-ink);
+  }
+
+  .topnav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .topnav__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--pill-media-h);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--bone);
+    color: var(--text-on-bone);
+    font-size: var(--fs-ui);
+    font-weight: var(--weight-headline);
+    text-decoration: none;
+  }
+
+  .topnav__menu { display: none; }
+
+  @media (max-width: 767px) {
+    .topnav__bar {
+      justify-content: space-between;
+      width: 100%;
+      gap: var(--space-2);
+    }
+
+    .topnav__links { display: none; }
+
+    .topnav__menu {
+      display: grid;
+      place-items: center;
+      width: var(--pill-media-h);
+      height: var(--pill-media-h);
+      border: 0;
+      border-radius: var(--radius-pill);
+      background: transparent;
+      color: var(--text-on-ink);
+      cursor: pointer;
+    }
+
+    .topnav__burger,
+    .topnav__burger::before,
+    .topnav__burger::after {
+      display: block;
+      width: var(--space-3);
+      height: var(--hairline);
+      background: currentColor;
+    }
+
+    .topnav__burger { position: relative; }
+
+    .topnav__burger::before,
+    .topnav__burger::after {
+      content: '';
+      position: absolute;
+      left: 0;
+    }
+
+    .topnav__burger::before { top: calc(var(--space-1) * -1); }
+    .topnav__burger::after { top: var(--space-1); }
+  }
+
+  /* Sin soporte de popover el menú queda oculto, nunca abierto a pantalla completa */
+  .site-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: var(--nav-offset) var(--gutter) var(--space-6);
+    border: 0;
+  }
+
+  .site-menu:popover-open {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-6);
+  }
+
+  .site-menu__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  }
+
+  .site-menu__close {
+    min-height: var(--pill-media-h);
+    padding-inline: var(--space-3);
+    border: var(--hairline) solid var(--bone);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-on-ink);
+    font-size: var(--fs-ui);
+    font-weight: var(--weight-headline);
+    cursor: pointer;
+  }
+
+  .site-menu__list {
+    display: grid;
+    align-content: center;
+    gap: var(--space-2);
+    padding-inline-start: var(--space-3);
+  }
+
+  .site-menu__list a {
+    font-size: var(--fs-h2);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-headline);
+    letter-spacing: var(--tracking-headline);
+    text-decoration: none;
+  }
+
+  .site-menu__list a[aria-current='page'] { color: var(--muted-on-ink); }
+
+  .site-menu__foot { padding-inline-start: var(--space-3); }
+</style>

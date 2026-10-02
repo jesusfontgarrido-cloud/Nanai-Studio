@@ -1,0 +1,174 @@
+---
+/**
+ * Cómo trabajamos (día): cinco pasos en línea, uno en rojo. En móvil la línea pasa a vertical.
+ * Al recorrer la línea con el ratón, los pasos por los que ya has pasado se marcan.
+ * Un único proceso para todo el estudio: es como se trabaja, venga marca, artista o creador.
+ */
+import { process } from '../../data/copy';
+
+interface Props {
+  label?: string;
+}
+
+const { label = 'Proceso' } = Astro.props;
+---
+
+<section class="section zone-day process" aria-labelledby="process-title">
+  <div class="container">
+    <p class="label">{label}</p>
+    <h2 id="process-title" class="headline headline--h2 process__title">
+      <span>Cómo trabajamos.</span>
+      <span class="tone-2">Cinco pasos, siempre los mismos.</span>
+    </h2>
+
+    <ol class="steps" role="list" data-steps>
+      {
+        process.map((step, i) => (
+          <li class:list={['step', { 'step--key': step.key }]}>
+            <span class="step__node" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </span>
+            <span class="label">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="step__name">{step.name}</h3>
+            <p class="step__text">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+  </div>
+</section>
+
+<script>
+  // Recorrer la línea con el ratón va marcando los pasos, como una lista de comprobación.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (finePointer && !reduceMotion) {
+    document.querySelectorAll<HTMLElement>('[data-steps]').forEach((list) => {
+      const steps = [...list.querySelectorAll<HTMLElement>('.step')];
+
+      const mark = (upTo: number) =>
+        steps.forEach((step, i) => step.classList.toggle('is-done', i <= upTo));
+
+      list.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        const x = event.clientX;
+        const last = steps.reduce((acc, step, i) => {
+          const box = step.getBoundingClientRect();
+          return x >= box.left ? i : acc;
+        }, -1);
+        mark(last);
+      });
+
+      list.addEventListener('pointerleave', () => mark(-1));
+    });
+  }
+</script>
+
+<style>
+  .process__title { margin-top: var(--space-2); }
+  .process__title span { display: block; }
+
+  .steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+
+  /* Filete que une los nodos */
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--space-3) / 2);
+    left: 0;
+    right: 0;
+    height: var(--hairline);
+    background: var(--muted-on-bone);
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+  }
+
+  .step__node {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--space-3);
+    height: var(--space-3);
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--text-on-bone);
+    color: var(--bone);
+    transition: transform var(--dur-switch) var(--ease-standard);
+  }
+
+  .step--key .step__node { background: var(--red); }
+
+  /* El check aparece cuando el paso queda marcado */
+  .step__node svg {
+    width: var(--space-2);
+    height: var(--space-2);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity var(--dur-switch) var(--ease-standard),
+      transform var(--dur-switch) var(--ease-spring);
+  }
+
+  .step.is-done .step__node { transform: scale(1.15); }
+
+  .step.is-done .step__node svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .step__name,
+  .step__text { transition: opacity var(--dur-switch) var(--ease-standard); }
+
+  .steps:hover .step:not(.is-done) .step__name,
+  .steps:hover .step:not(.is-done) .step__text { opacity: 0.55; }
+
+  .step__name {
+    font-size: var(--fs-body);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-body);
+  }
+
+  .step__text {
+    color: var(--muted-on-bone);
+    font-size: var(--fs-ui);
+  }
+
+  @media (max-width: 767px) {
+    .steps {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    .steps::before {
+      top: 0;
+      bottom: 0;
+      left: calc(var(--space-3) / 2);
+      width: var(--hairline);
+      height: auto;
+    }
+
+    .step { padding-left: var(--space-4); }
+
+    .step__node {
+      position: absolute;
+      top: var(--space-1);
+      left: 0;
+      margin: 0;
+    }
+  }
+</style>

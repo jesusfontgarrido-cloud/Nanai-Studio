@@ -1,0 +1,375 @@
+---
+/**
+ * Barra superior. Una franja de papel a todo el ancho, con filete abajo, como la cabecera
+ * de una hoja de rodaje: logo a la izquierda, páginas numeradas en el centro (la activa
+ * entre esquinas de encuadre) y «Hablemos» con el punto de REC a la derecha.
+ *
+ * Su filo inferior es la línea de progreso en rojo (animación ligada al scroll, sin JS;
+ * donde no hay soporte no aparece). En el cambio de página la barra se queda quieta.
+ * En móvil: «Menú» abre una hoja a pantalla completa con WhatsApp a mano.
+ */
+import { site } from '../../data/site';
+
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/trabajos', label: 'Trabajos' },
+  { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+];
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = (href: string) => (path === href ? ('page' as const) : undefined);
+---
+
+<header class="fnav">
+  <div class="fnav__bar">
+    <a class="fnav__logo" href="/" aria-label="Nanai Studio, inicio">
+      <img src="/brand/logo-horizontal-negro.svg" alt="" width="478" height="61" />
+    </a>
+
+    <nav class="fnav__links" aria-label="Principal">
+      <ul role="list">
+        {
+          links.map((link, i) => (
+            <li>
+              <a href={link.href} aria-current={current(link.href)}>
+                <span class="fnav__idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="fnav__actions">
+      <a class="fnav__cta" href="/#contacto">
+        <span class="fnav__dot" aria-hidden="true"></span>
+        Hablemos
+      </a>
+      <button class="fnav__menu" type="button" popovertarget="flat-menu">Menú</button>
+    </div>
+  </div>
+</header>
+
+<div id="flat-menu" class="fmenu" popover>
+  <div class="fmenu__head">
+    <img src="/brand/logo-horizontal-negro.svg" alt="Nanai Studio" width="478" height="61" />
+    <button class="fmenu__close" type="button" popovertarget="flat-menu" popovertargetaction="hide">Cerrar</button>
+  </div>
+
+  <nav aria-label="Principal (móvil)">
+    <ul class="fmenu__list" role="list">
+      {
+        links.map((link, i) => (
+          <li>
+            <a href={link.href} aria-current={current(link.href)}>
+              <span class="fmenu__idx">{String(i + 1).padStart(2, '0')}</span>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href="/#contacto">
+          <span class="fmenu__idx">04</span>
+          Hablemos
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Atajos de contacto: en móvil, WhatsApp es lo más rápido -->
+  <div class="fmenu__direct">
+    <a class="fmenu__wa" href={site.whatsapp}>
+      <span class="fmenu__dot" aria-hidden="true"></span>
+      Escríbenos por WhatsApp
+    </a>
+    <a class="fmenu__mail" href={`mailto:${site.email}`}>{site.email}</a>
+  </div>
+</div>
+
+<script>
+  // Un enlace de ancla no cierra el popover por sí solo.
+  const menu = document.getElementById('flat-menu');
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      try {
+        (menu as HTMLElement & { hidePopover(): void }).hidePopover();
+      } catch {
+        // Navegador sin popover o menú ya cerrado.
+      }
+    });
+  });
+</script>
+
+<style>
+  .fnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+
+  .fnav__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: 60px;
+    padding: 8px var(--f-gutter);
+    border-bottom: var(--f-hair) solid rgba(20, 20, 18, 0.12);
+    background: rgba(244, 244, 241, 0.94);
+    color: #151514;
+    view-transition-name: fnav;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .fnav__bar::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--f-red);
+      transform: scaleX(0);
+      transform-origin: left center;
+      animation: fnav-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes fnav-progress {
+      to { transform: scaleX(1); }
+    }
+  }
+
+  .fnav__logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .fnav__logo img { width: auto; height: 17px; }
+
+  .fnav__links { flex: 1; }
+
+  .fnav__links ul {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .fnav__links a,
+  .fnav__cta,
+  .fnav__menu {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .fnav__cta { font-weight: 600; }
+
+  .fnav__links a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding-inline: 12px;
+    color: #55554F;
+    text-decoration: none;
+    transition: color var(--f-dur) var(--f-ease);
+  }
+
+  .fnav__idx { color: #6A6A63; }
+
+  /* Esquinas de encuadre: aparecen al pasar y fijan la página activa */
+  .fnav__links a::before,
+  .fnav__links a::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border: 0 solid currentColor;
+    opacity: 0;
+    transition: opacity var(--f-dur) var(--f-ease);
+  }
+
+  .fnav__links a::before { top: 6px; left: 2px; border-top-width: 1px; border-left-width: 1px; }
+  .fnav__links a::after { bottom: 6px; right: 2px; border-bottom-width: 1px; border-right-width: 1px; }
+
+  .fnav__links a:hover,
+  .fnav__links a[aria-current='page'] { color: #151514; }
+
+  .fnav__links a:hover::before,
+  .fnav__links a:hover::after,
+  .fnav__links a[aria-current='page']::before,
+  .fnav__links a[aria-current='page']::after { opacity: 1; }
+
+  .fnav__links a[aria-current='page'] .fnav__idx { color: var(--f-red-text); }
+
+  .fnav__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Hablemos: el único botón relleno de la barra, con el punto de REC */
+  .fnav__cta {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding-inline: 16px;
+    border-radius: var(--f-r);
+    background: #151514;
+    color: #F4F4F1;
+    text-decoration: none;
+    transition: background-color var(--f-dur) var(--f-ease);
+  }
+
+  .fnav__cta:hover { background: var(--f-red); }
+
+  .fnav__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--f-red);
+    animation: fnav-rec 1.6s steps(1) infinite;
+  }
+
+  .fnav__cta:hover .fnav__dot { background: #FFFFFF; }
+
+  @keyframes fnav-rec {
+    50% { opacity: 0.25; }
+  }
+
+  .fnav__menu {
+    display: none;
+    align-items: center;
+    min-height: 40px;
+    padding-inline: 14px;
+    border: var(--f-hair) solid rgba(20, 20, 18, 0.34);
+    border-radius: var(--f-r);
+    background: transparent;
+    color: #151514;
+    cursor: pointer;
+  }
+
+  /* Menú a pantalla completa (móvil) */
+  .fmenu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 12px max(16px, var(--f-gutter)) 28px;
+    border: 0;
+    background: #F4F4F1;
+    color: #151514;
+  }
+
+  .fmenu:popover-open {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 28px;
+  }
+
+  .fmenu__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 48px;
+  }
+
+  .fmenu__head img { width: auto; height: 17px; }
+
+  .fmenu__close {
+    min-height: 44px;
+    padding-inline: 16px;
+    border: var(--f-hair) solid rgba(20, 20, 18, 0.34);
+    border-radius: var(--f-r);
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-type);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .fmenu__list {
+    display: grid;
+    align-content: center;
+    border-top: var(--f-hair) solid rgba(20, 20, 18, 0.14);
+  }
+
+  .fmenu__list a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    min-height: 72px;
+    padding: 16px 4px;
+    border-bottom: var(--f-hair) solid rgba(20, 20, 18, 0.14);
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 620;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+  }
+
+  .fmenu__idx {
+    color: #6A6A63;
+    font-family: var(--font-type);
+    font-size: 14px;
+  }
+
+  .fmenu__list a[aria-current='page'] .fmenu__idx { color: var(--f-red-text); }
+
+  .fmenu__direct {
+    display: grid;
+    gap: 14px;
+  }
+
+  .fmenu__wa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    border-radius: var(--f-r);
+    background: var(--f-red);
+    color: #FFFFFF;
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .fmenu__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .fmenu__mail {
+    justify-self: center;
+    min-height: 32px;
+    color: #55554F;
+    font-size: 16px;
+  }
+
+  @media (max-width: 899px) {
+    .fnav__links { display: none; }
+    .fnav__bar { justify-content: space-between; }
+    .fnav__menu { display: inline-flex; }
+  }
+
+  @media (max-width: 380px) {
+    .fnav__cta { padding-inline: 12px; }
+  }
+</style>

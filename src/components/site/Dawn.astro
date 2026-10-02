@@ -1,0 +1,107 @@
+---
+/**
+ * Transición de la noche al día: un amanecer continuo de la escala de luz.
+ * «measured» (home): banda corta con una regla de temperatura de color a media altura.
+ */
+interface Props {
+  measured?: boolean;
+}
+
+const { measured = false } = Astro.props;
+
+// Temperatura de color aproximada: de la noche a la luz de día.
+const stops = ['La noche', '1900 K', '2700 K', '3200 K', '4300 K', '5600 K', 'El día'];
+---
+
+<div class:list={['dawn', { 'dawn--measured': measured }]} aria-hidden="true">
+  {
+    measured && (
+      <div class="container dawn__overlay">
+        <ol class="label dawn__ruler" role="list">
+          {stops.map((stop) => (
+            <li class="dawn__stop">{stop}</li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .dawn {
+    height: var(--dawn-height);
+    background: linear-gradient(
+      to bottom,
+      var(--light-0) 0%,
+      var(--light-1) 24%,
+      var(--light-2) 42%,
+      var(--light-3) 58%,
+      var(--light-4) 72%,
+      var(--light-5) 86%,
+      var(--bone) 100%
+    );
+  }
+
+  .dawn--measured { height: var(--dawn-height-lg); }
+
+  .dawn__overlay {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  /* Regla horizontal: marcas menores cada 16px y una mayor en cada temperatura */
+  .dawn__ruler {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: var(--space-3) 0 0;
+    color: var(--text-on-ink);
+  }
+
+  .dawn__ruler::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--space-1);
+    border-top: var(--hairline) solid var(--text-on-ink);
+    background: repeating-linear-gradient(
+      to right,
+      var(--muted-on-ink) 0 var(--hairline),
+      transparent var(--hairline) var(--space-2)
+    );
+  }
+
+  .dawn__stop { position: relative; }
+
+  .dawn__stop::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--space-3) * -1);
+    left: 0;
+    width: var(--hairline);
+    height: var(--space-2);
+    background: var(--text-on-ink);
+  }
+
+  .dawn__stop:last-child { text-align: right; }
+
+  .dawn__stop:last-child::before {
+    left: auto;
+    right: 0;
+  }
+
+  /* En móvil solo caben los extremos y el centro */
+  @media (max-width: 767px) {
+    .dawn__stop:nth-child(2),
+    .dawn__stop:nth-child(3),
+    .dawn__stop:nth-child(5),
+    .dawn__stop:nth-child(6) {
+      display: none;
+    }
+  }
+</style>

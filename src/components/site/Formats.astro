@@ -1,0 +1,73 @@
+---
+/**
+ * Qué se puede contratar en esta página. Una lista, no un párrafo: quien llega tiene que
+ * reconocer su proyecto de un vistazo.
+ */
+import { audiences, type Audience } from '../../data/copy';
+
+interface Props {
+  audience: Audience;
+  label?: string;
+  title?: string;
+}
+
+const { audience, label = 'Qué hacemos', title } = Astro.props;
+const { formats } = audiences[audience];
+---
+
+<section class="section zone-night formats" aria-labelledby={`formats-${audience}`}>
+  <div class="container formats__grid">
+    <div>
+      <p class="label">{label}</p>
+      {title && <h2 id={`formats-${audience}`} class="headline headline--h2 formats__title">{title}</h2>}
+    </div>
+
+    <ul class="formats__list" role="list">
+      {
+        formats.map((format, i) => (
+          <li class="formats__item">
+            <span class="label formats__index">{String(i + 1).padStart(2, '0')}</span>
+            <span class="formats__name">{format}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .formats__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .formats__title { margin-top: var(--space-2); }
+
+  .formats__list {
+    display: grid;
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .formats__item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+    border-bottom: var(--hairline) solid var(--rule);
+  }
+
+  .formats__index { color: var(--muted-on-ink); }
+
+  .formats__name {
+    font-size: var(--fs-name);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-statement);
+    letter-spacing: var(--tracking-headline);
+  }
+
+  @media (min-width: 1024px) {
+    .formats__grid { grid-template-columns: 1fr 1fr; }
+
+    .formats__list { grid-template-columns: 1fr 1fr; column-gap: var(--space-4); }
+  }
+</style>

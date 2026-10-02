@@ -1,0 +1,51 @@
+---
+/**
+ * Han confiado: nombres reales en una fila estática.
+ * Sustituye al ticker de servicios y al muro de logos (con un solo logo quedaba a medias).
+ */
+interface Props {
+  names: string[];
+}
+
+const { names } = Astro.props;
+---
+
+<section class="trusted zone-night" aria-labelledby="trusted-title">
+  <div class="container trusted__row">
+    <h2 id="trusted-title" class="label">Han confiado</h2>
+    <ul class="trusted__list" role="list">
+      {names.map((name) => <li>{name}</li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .trusted { border-block: var(--hairline) solid var(--rule); }
+
+  .trusted__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-4);
+  }
+
+  .trusted__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font-size: var(--fs-name);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-statement);
+    letter-spacing: var(--tracking-headline);
+  }
+
+  /* Separadores solo en una línea: en móvil los nombres saltan y el punto quedaba colgando */
+  @media (min-width: 768px) {
+    .trusted__list li:not(:last-child)::after {
+      content: '·';
+      margin-left: var(--space-3);
+      color: var(--muted-on-ink);
+    }
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+/**
+ * Reseñas de Google (widget de Featurable, facilitado por el usuario el 2-10-2026). Va debajo
+ * de las preguntas. El script de Featurable pesa y es de terceros, así que solo se carga
+ * cuando la sección se acerca a la pantalla. Lo que pinta el widget se ajusta a la piel en
+ * flat.css (bloque «Reseñas»), sin tocar su contenido.
+ */
+const widgetId = 'featurable-36ec07db-5cc2-4e0f-bd22-a063e1d82067';
+---
+
+<section class="sec freviews" aria-labelledby="reviews-title">
+  <div class="wrap freviews__inner">
+    <div class="freviews__head">
+      <h2 id="reviews-title" class="h2" data-reveal="lines"><span>Lo que dicen de nosotros</span></h2>
+      <p class="freviews__deck" data-reveal style="--i: 2">Reseñas reales de clientes en Google.</p>
+    </div>
+
+    <div class="freviews__widget" data-reviews>
+      <div id={widgetId} data-featurable-async data-location-code="es"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const box = document.querySelector<HTMLElement>('[data-reviews]');
+
+  const load = () => {
+    if (document.querySelector('script[data-featurable]')) return;
+    const script = document.createElement('script');
+    script.src = 'https://featurable.com/assets/bundle.js';
+    script.defer = true;
+    script.charset = 'UTF-8';
+    script.dataset.featurable = '';
+    document.body.appendChild(script);
+  };
+
+  /*
+   * El widget se pinta dentro de un shadow DOM: los estilos de la web no le llegan. Cuando
+   * aparece, se le añade esta hoja para vestirlo con la piel (tipografía, papel, esquinas y
+   * estrellas en rojo). Selectores por prefijo: sus nombres de clase llevan un sufijo que
+   * puede cambiar.
+   */
+  const skin = `
+    :host, * { font-family: 'Archivo', 'Archivo Fallback', system-ui, sans-serif !important; }
+    [class*="Carousel-module__card"] { padding: 6px !important; }
+    [class*="ReviewCard-module__reviewCard"] {
+      background: #FBFBF9 !important;
+      border: 1px solid rgba(21, 21, 20, 0.12) !important;
+      border-radius: 10px !important;
+      box-shadow: none !important;
+      color: #151514 !important;
+    }
+    [class*="ReviewCard-module__reviewBody"] { color: #55554F !important; font-size: 15px !important; line-height: 1.5 !important; }
+    [class*="ReviewCard-module__reviewerName"] { color: #151514 !important; font-weight: 600 !important; }
+    [class*="ReviewCard-module__readMore"] { color: #B8231A !important; }
+    [class*="StarRating-module__container"] svg, [class*="StarRating"] svg { color: #D9291C !important; fill: #D9291C !important; }
+    [class*="Carousel-module__btn"] {
+      background: #F4F4F1 !important;
+      border: 1px solid rgba(21, 21, 20, 0.34) !important;
+      box-shadow: none !important;
+      color: #151514 !important;
+    }
+    [class*="Branding-module__container"] { background: transparent !important; box-shadow: none !important; opacity: 0.7; }
+  `;
+
+  const dress = () => {
+    const root = box?.querySelector<HTMLElement>('.shadow-wrapper')?.shadowRoot;
+    if (!root) return false;
+    if (!root.querySelector('style[data-nanai]')) {
+      const style = document.createElement('style');
+      style.dataset.nanai = '';
+      style.textContent = skin;
+      root.appendChild(style);
+    }
+    return true;
+  };
+
+  if (box) {
+    const watch = new MutationObserver(() => {
+      if (dress()) watch.disconnect();
+    });
+    watch.observe(box, { childList: true, subtree: true });
+    // Por si el shadow DOM se adjunta después de insertar el nodo (no lo ve el observador)
+    let tries = 0;
+    const poll = window.setInterval(() => {
+      if (dress() || ++tries > 60) window.clearInterval(poll);
+    }, 500);
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          load();
+        },
+        { rootMargin: '800px 0px' },
+      );
+      observer.observe(box);
+    } else {
+      load();
+    }
+  }
+</script>
+
+<style>
+  .freviews__inner { display: grid; gap: clamp(24px, 3vw, 40px); }
+  .freviews__head { display: grid; gap: 10px; }
+  .freviews__deck { color: var(--f-muted); }
+  .freviews__widget { min-height: 280px; }
+</style>

@@ -1,0 +1,156 @@
+---
+/**
+ * Botón de deslizar de la piel plana. El cuadro con la flecha recorre el botón al pulsar
+ * y después navega (o baja al ancla). Sin JS es un enlace normal; con movimiento reducido,
+ * navega sin animación. Mismo comportamiento que el de la piel anterior.
+ */
+interface Props {
+  href: string;
+  label: string;
+  /** El principal va relleno; el secundario, con contorno; «paper», en papel sobre una foto. */
+  variant?: 'solid' | 'outline' | 'paper';
+}
+
+const { href, label, variant = 'solid' } = Astro.props;
+---
+
+<a class:list={['fslide', `fslide--${variant}`]} href={href} data-fslide>
+  <span class="fslide__knob" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  </span>
+  <span class="fslide__label">{label}</span>
+</a>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-fslide]').forEach((cta) => {
+    const knob = cta.querySelector<HTMLElement>('.fslide__knob');
+
+    cta.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (reduceMotion.matches || !knob) return;
+
+      event.preventDefault();
+      if (cta.classList.contains('is-sliding')) return;
+      cta.classList.add('is-sliding');
+
+      let done = false;
+      const go = () => {
+        if (done) return;
+        done = true;
+        const url = new URL(cta.href);
+        const samePage = url.pathname === location.pathname && url.hash;
+        const target = samePage ? document.querySelector(url.hash) : null;
+
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, '', url.hash);
+          window.setTimeout(() => cta.classList.remove('is-sliding'), 900);
+        } else {
+          location.assign(cta.href);
+        }
+      };
+
+      knob.addEventListener('transitionend', (end) => {
+        if (end.propertyName === 'transform') go();
+      });
+      window.setTimeout(go, 700);
+    });
+  });
+
+  window.addEventListener('pageshow', () => {
+    document.querySelectorAll('[data-fslide].is-sliding').forEach((cta) => cta.classList.remove('is-sliding'));
+  });
+</script>
+
+<style>
+  .fslide {
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    align-items: center;
+    --knob: 44px;
+    width: 232px;
+    max-width: 100%;
+    height: 56px;
+    padding: 5px;
+    border: var(--f-hair) solid transparent;
+    border-radius: var(--f-r);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .fslide--solid {
+    background: var(--f-inverse);
+    color: var(--f-on-inverse);
+  }
+
+  .fslide--paper {
+    background: #F4F4F1;
+    color: #151514;
+  }
+
+  .fslide--paper .fslide__knob { background: #151514; color: #F4F4F1; }
+
+  .fslide--outline {
+    border-color: var(--f-line-strong);
+    background: transparent;
+    color: var(--f-on-surface);
+  }
+
+  .fslide__knob {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--knob);
+    height: var(--knob);
+    border-radius: 1px;
+    transition:
+      transform 420ms var(--f-ease),
+      background-color var(--f-dur) var(--f-ease),
+      color var(--f-dur) var(--f-ease);
+  }
+
+  .fslide__knob svg { width: 18px; height: 18px; }
+
+  .fslide--solid .fslide__knob { background: var(--f-on-inverse); color: var(--f-inverse); }
+  .fslide--outline .fslide__knob { background: var(--f-inverse); color: var(--f-on-inverse); }
+
+  .fslide__label {
+    flex: 1;
+    text-align: center;
+    transition:
+      opacity var(--f-dur) var(--f-ease),
+      transform 420ms var(--f-ease);
+  }
+
+  @media (hover: hover) {
+    .fslide:hover .fslide__knob {
+      background: var(--f-red);
+      color: var(--f-on-red);
+      transform: translateX(6px);
+    }
+  }
+
+  .fslide:focus-visible .fslide__knob { background: var(--f-red); color: var(--f-on-red); }
+
+  /* El cuadro recorre el ancho útil del botón */
+  .fslide.is-sliding .fslide__knob {
+    background: var(--f-red);
+    color: var(--f-on-red);
+    transform: translateX(calc(100cqw - var(--knob)));
+  }
+
+  .fslide.is-sliding .fslide__label {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+</style>

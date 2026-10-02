@@ -1,0 +1,132 @@
+/* ═══════════════════════════════════════════════════════════════
+   fonts.css — tipografías autoalojadas, subset latino, woff2.
+   Origen: @fontsource(-variable) en devDependencies, copiadas a public/fonts.
+
+   Tres voces (dirección editorial del 1-10-2026):
+   · League Spartan (variable, 100–900): titulares. La letra de la marca. 24 KB.
+   · Archivo (variable, ancho 62–125 %): cuerpo en ancho normal; etiquetas y lecturas
+     de cámara en condensada (75 %) y versalitas. 90 KB.
+   · Playfair Display Italic: el gesto, 1–3 palabras dentro de un titular y la firma.
+     Su ojo medio se iguala al de League Spartan con font-size-adjust (flat.css).
+
+   · Courier Prime: la voz de guion, en notas pequeñas (etiquetas, créditos de foto, datos),
+     como la máquina de escribir de un guion. 18 KB.
+
+   IBM Plex Mono (piel negra) queda declarada por si se vuelve a ella.
+
+   Inter Tight y JetBrains Mono (piel anterior) se quedan declaradas para poder volver
+   atrás: una @font-face que no se usa no se descarga.
+   ═══════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/league-spartan-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/courier-prime-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('/fonts/courier-prime-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Reservas calibradas: mientras llega la fuente buena, la de sistema ocupa lo mismo
+   (ancho, ascendente y descendente medidos el 1-10-2026), así el titular no salta. */
+@font-face {
+  font-family: 'League Spartan Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 90.6%;
+  ascent-override: 77.3%;
+  descent-override: 24.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Archivo Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 98.6%;
+  ascent-override: 89.2%;
+  descent-override: 21.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Playfair Fallback';
+  font-style: italic;
+  src: local('Georgia Italic'), local('Georgia-Italic');
+  size-adjust: 96.4%;
+  ascent-override: 112%;
+  descent-override: 25.9%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('/fonts/archivo-latin-standard-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400 900;
+  src: url('/fonts/playfair-display-latin-wght-italic.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('/fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ── Piel anterior ──────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('/fonts/inter-tight-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

@@ -1,0 +1,24 @@
+---
+/** Plantilla de las páginas públicas: nav, contenido y pie. */
+import BaseLayout from './BaseLayout.astro';
+import Nav from '../components/site/Nav.astro';
+import Footer from '../components/sections/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <!-- Capa previa a la página (la apertura de la home) -->
+  <slot name="before" />
+  <Nav />
+  <main id="contenido">
+    <slot />
+  </main>
+  <Footer />
+</BaseLayout>

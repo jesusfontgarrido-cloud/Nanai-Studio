@@ -1,0 +1,232 @@
+---
+/**
+ * Fotografía (Trabajos). Un bloque por tipo de trabajo (gastronomía y empresa · moda y
+ * retrato) con una rejilla justificada: cada fila tiene la misma altura y cada foto conserva
+ * su formato, sin recortes. En color (es el trabajo, no el rodaje). Al pulsar, la foto se
+ * abre entera en un visor (flechas, Esc y clic fuera para cerrar).
+ * En móvil, dos columnas recortadas a 4:5.
+ */
+import { Picture, getImage } from 'astro:assets';
+import { photoSets } from '../../data/photos';
+
+interface Props {
+  id?: string;
+}
+
+const { id = 'fotografia' } = Astro.props;
+
+const sets = await Promise.all(
+  photoSets.map(async (set) => ({
+    ...set,
+    rows: await Promise.all(
+      set.rows.map((row) =>
+        Promise.all(
+          row.map(async (photo) => ({
+            ...photo,
+            ratio: photo.src.width / photo.src.height,
+            large: (await getImage({ src: photo.src, format: 'webp', width: Math.min(photo.src.width, 1600) })).src,
+          })),
+        ),
+      ),
+    ),
+  })),
+);
+---
+
+<section id={id} class="sec fphotos-sec" aria-labelledby={`${id}-title`}>
+  <div class="wrap fphotos">
+    <div class="fphotos__head">
+      <h2 id={`${id}-title`} class="h2" data-reveal="lines"><span>Fotografía</span></h2>
+      <p class="fphotos__deck" data-reveal style="--i: 2">
+        También fotografiamos: producto y gastronomía, imagen de empresa, moda y retrato. Foto y vídeo en una misma campaña.
+      </p>
+    </div>
+
+    {
+      sets.map((set) => (
+        <div class="fphotos__set">
+          <div class="fphotos__set-head" data-reveal>
+            <h3 class="h3 fphotos__title">{set.title}</h3>
+            <p class="label">{set.note}</p>
+          </div>
+          {set.rows.map((row) => (
+            <ul class="fphotos__row" role="list" data-stagger>
+              {row.map((photo) => (
+                <li class="fphotos__item" style={`--ratio: ${photo.ratio.toFixed(4)}`}>
+                  <button
+                    class="fphotos__open"
+                    type="button"
+                    data-photo-src={photo.large}
+                    data-photo-alt={photo.alt}
+                    aria-label={`Ver la foto entera: ${photo.alt}`}
+                  >
+                    <Picture
+                      src={photo.src}
+                      formats={['avif', 'webp']}
+                      widths={[400, 640, Math.min(photo.src.width, 1000)]}
+                      sizes="(min-width: 1024px) 20vw, (min-width: 700px) 30vw, 47vw"
+                      alt=""
+                      loading="lazy"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+
+  <dialog class="fphotobox" aria-label="Foto ampliada" data-photobox>
+    <img class="fphotobox__img" alt="" data-photobox-img />
+    <button class="fphotobox__btn fphotobox__btn--prev" type="button" aria-label="Foto anterior" data-photobox-prev>←</button>
+    <button class="fphotobox__btn fphotobox__btn--next" type="button" aria-label="Foto siguiente" data-photobox-next>→</button>
+    <button class="fphotobox__btn fphotobox__btn--close" type="button" aria-label="Cerrar" data-photobox-close>×</button>
+  </dialog>
+</section>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('dialog[data-photobox]');
+  const img = dialog?.querySelector<HTMLImageElement>('[data-photobox-img]');
+  const items = [...document.querySelectorAll<HTMLButtonElement>('[data-photo-src]')];
+
+  if (dialog && img && items.length && typeof dialog.showModal === 'function') {
+    let index = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      img.src = items[index].dataset.photoSrc ?? '';
+      img.alt = items[index].dataset.photoAlt ?? '';
+    };
+
+    items.forEach((item, i) =>
+      item.addEventListener('click', () => {
+        opener = item;
+        show(i);
+        dialog.showModal();
+      }),
+    );
+
+    dialog.querySelector('[data-photobox-prev]')?.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-photobox-next]')?.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('[data-photobox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+    dialog.addEventListener('close', () => opener?.focus({ preventScroll: true }));
+  }
+</script>
+
+<style>
+  .fphotos { display: grid; gap: clamp(40px, 5vw, 72px); }
+
+  .fphotos__head { display: grid; gap: 12px; }
+  .fphotos__deck { max-width: 56ch; color: var(--f-muted); }
+
+  .fphotos__set { display: grid; gap: var(--f-gap); }
+
+  .fphotos__set-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 24px;
+  }
+
+  .fphotos__title { font-size: clamp(22px, 2vw, 30px); }
+  .fphotos__set-head .label { color: var(--f-muted); }
+
+  /* Móvil: dos columnas, todas a 4:5 */
+  .fphotos__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fphotos__item { position: relative; aspect-ratio: 4 / 5; }
+
+  .fphotos__open {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--f-r-media);
+    overflow: hidden;
+    background: var(--f-surface-3);
+    cursor: zoom-in;
+  }
+
+  .fphotos__open :global(picture),
+  .fphotos__open :global(img) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 600ms var(--f-ease-out);
+  }
+
+  .fphotos__open:hover :global(img) { transform: scale(1.03); }
+
+  /* Tablet y escritorio: filas justificadas; cada foto, en su formato y a la misma altura */
+  @media (min-width: 700px) {
+    .fphotos__row { display: flex; gap: var(--f-gap); }
+    .fphotos__item { flex: var(--ratio) 1 0; aspect-ratio: var(--ratio); }
+  }
+
+  /* ── Visor ───────────────────────────────────────────────── */
+  .fphotobox {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: clamp(16px, 4vw, 56px);
+    border: 0;
+    background: rgba(10, 10, 10, 0.94);
+  }
+
+  .fphotobox[open] { display: grid; place-items: center; }
+  .fphotobox::backdrop { background: transparent; }
+
+  .fphotobox__img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100dvh - 2 * clamp(16px, 4vw, 56px));
+    width: auto;
+    height: auto;
+    border-radius: var(--f-r);
+  }
+
+  .fphotobox__btn {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(244, 244, 241, 0.35);
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.5);
+    color: #F4F4F1;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .fphotobox__btn:hover { background: #F4F4F1; color: #151514; }
+  .fphotobox__btn--prev { left: 16px; top: 50%; transform: translateY(-50%); }
+  .fphotobox__btn--next { right: 16px; top: 50%; transform: translateY(-50%); }
+  .fphotobox__btn--close { top: 16px; right: 16px; }
+</style>

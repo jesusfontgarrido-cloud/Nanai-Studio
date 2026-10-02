@@ -1,0 +1,249 @@
+---
+/**
+ * Galería de rodaje (Sobre nosotros). Un collage sin título ni pies de foto: el equipo
+ * trabajando. Blanco y negro que se enciende a color al pasar el ratón; el crédito de la
+ * foto, en una esquina. Al pulsar, la foto se abre entera en un visor (flechas, Esc y
+ * clic fuera para cerrar). La lista vive en src/data/bts.ts.
+ *
+ * En escritorio, tres columnas con los formatos repartidos para que las tres midan lo mismo
+ * y el collage acabe recto (con columnas CSS, una se quedaba corta). En tablet y móvil, una
+ * rejilla normal.
+ */
+import { Picture, getImage } from 'astro:assets';
+import { stills } from '../../data/bts';
+
+const large = await Promise.all(stills.map((still) => getImage({ src: still.src, format: 'webp', width: 2000 })));
+
+/* Formato de cada hueco, por columna: las tres suman la misma altura (4,25 veces su ancho) */
+const ratios = [
+  ['3 / 2', '4 / 5', '3 / 2', '1 / 1', '3 / 2'],
+  ['1 / 1', '3 / 2', '4 / 5', '3 / 2', '3 / 2'],
+  ['4 / 5', '1 / 1', '4 / 5', '4 / 3'],
+];
+const columns = ratios.map((col, c) =>
+  col.map((ratio, row) => ({ index: row * 3 + c, ratio })).filter(({ index }) => index < stills.length),
+);
+---
+
+<section class="sec fgallery-sec" aria-label="Fotos de rodaje">
+  <div class="wrap">
+    <div class="fgallery">
+      {
+        columns.map((column, c) => (
+          <ul class="fgallery__col" role="list">
+            {column.map(({ index, ratio }) => {
+              const still = stills[index];
+              return (
+                <li class="fgallery__item" data-reveal style={`--i: ${c}; --ratio: ${ratio}`}>
+                  <button
+                    class="fgallery__open bw"
+                    type="button"
+                    data-lightbox-src={large[index].src}
+                    data-lightbox-alt={still.alt}
+                    data-lightbox-credit={still.credit ? `Foto ${still.credit}` : ''}
+                    aria-label={`Ver la foto entera: ${still.alt}`}
+                  >
+                    <Picture
+                      src={still.src}
+                      formats={['avif', 'webp']}
+                      widths={[480, 800, 1200]}
+                      sizes="(min-width: 1024px) 31vw, (min-width: 700px) 47vw, 94vw"
+                      alt=""
+                      loading="lazy"
+                      style={still.focus ? `object-position: ${still.focus}` : undefined}
+                    />
+                    {still.credit && <span class="photo-credit">Foto {still.credit}</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
+
+  <dialog class="flightbox" aria-label="Foto ampliada" data-lightbox>
+    <figure class="flightbox__figure">
+      <img class="flightbox__img" alt="" data-lightbox-img />
+      <figcaption class="label flightbox__credit" data-lightbox-cap></figcaption>
+    </figure>
+    <button class="flightbox__btn flightbox__btn--prev" type="button" aria-label="Foto anterior" data-lightbox-prev>←</button>
+    <button class="flightbox__btn flightbox__btn--next" type="button" aria-label="Foto siguiente" data-lightbox-next>→</button>
+    <button class="flightbox__btn flightbox__btn--close" type="button" aria-label="Cerrar" data-lightbox-close>×</button>
+  </dialog>
+</section>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('dialog[data-lightbox]');
+  const img = dialog?.querySelector<HTMLImageElement>('[data-lightbox-img]');
+  const cap = dialog?.querySelector<HTMLElement>('[data-lightbox-cap]');
+  const items = [...document.querySelectorAll<HTMLButtonElement>('[data-lightbox-src]')];
+
+  if (dialog && img && cap && items.length && typeof dialog.showModal === 'function') {
+    let index = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const item = items[index];
+      img.src = item.dataset.lightboxSrc ?? '';
+      img.alt = item.dataset.lightboxAlt ?? '';
+      cap.textContent = item.dataset.lightboxCredit ?? '';
+    };
+
+    items.forEach((item, i) =>
+      item.addEventListener('click', () => {
+        opener = item;
+        show(i);
+        dialog.showModal();
+      }),
+    );
+
+    dialog.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(index - 1));
+    dialog.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+    dialog.addEventListener('close', () => opener?.focus({ preventScroll: true }));
+  }
+</script>
+
+<style>
+  .fgallery-sec { padding-top: clamp(24px, 3vw, 48px); }
+
+  /* Collage: cada hueco con su formato (--ratio); la foto lo llena */
+  .fgallery {
+    display: grid;
+    gap: var(--f-gap);
+  }
+
+  .fgallery__col {
+    display: contents;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fgallery__item {
+    position: relative;
+    aspect-ratio: var(--ratio, 3 / 2);
+    margin: 0;
+  }
+
+  .fgallery__open {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--f-r-media);
+    overflow: hidden;
+    background: var(--f-surface-3);
+    cursor: zoom-in;
+  }
+
+  .fgallery__open :global(picture),
+  .fgallery__open :global(img) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fgallery__open:hover :global(img) { transform: scale(1.03); }
+
+  /* ── Visor ───────────────────────────────────────────────── */
+  .flightbox {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: clamp(16px, 4vw, 56px);
+    border: 0;
+    background: rgba(10, 10, 10, 0.94);
+    color: #F4F4F1;
+  }
+
+  .flightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .flightbox::backdrop { background: transparent; }
+
+  .flightbox__figure {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+  }
+
+  .flightbox__img {
+    display: block;
+    max-width: min(100%, 1600px);
+    max-height: calc(100dvh - 2 * clamp(16px, 4vw, 56px) - 40px);
+    width: auto;
+    height: auto;
+    border-radius: var(--f-r);
+  }
+
+  .flightbox__credit { color: rgba(244, 244, 241, 0.75); }
+
+  .flightbox__btn {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(244, 244, 241, 0.35);
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.5);
+    color: #F4F4F1;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .flightbox__btn:hover { background: #F4F4F1; color: #151514; }
+  .flightbox__btn--prev { left: 16px; top: 50%; transform: translateY(-50%); }
+  .flightbox__btn--next { right: 16px; top: 50%; transform: translateY(-50%); }
+  .flightbox__btn--close { top: 16px; right: 16px; }
+
+  @media (min-width: 700px) {
+    .fgallery { grid-template-columns: 1fr 1fr; }
+    .fgallery__item { aspect-ratio: 3 / 2; }
+  }
+
+  /* Escritorio: tres columnas de la misma altura; lo que sobra (un hueco menos) lo
+     reparten las fotos de la columna corta */
+  @media (min-width: 1024px) {
+    .fgallery {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .fgallery__col {
+      display: flex;
+      flex-direction: column;
+      gap: var(--f-gap);
+    }
+
+    .fgallery__item {
+      flex: 1 0 auto;
+      aspect-ratio: var(--ratio, 3 / 2);
+    }
+  }
+</style>

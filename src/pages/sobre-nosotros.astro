@@ -1,0 +1,47 @@
+---
+/**
+ * Sobre nosotros: qué es Nanai Studio, la idea firmada por Jesús (completa, con los
+ * principios), el rodaje, las preguntas y el contacto. /estudio redirige aquí.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/flat.css';
+import FlatMotion from '../components/flat/FlatMotion.astro';
+import FlatNav from '../components/flat/FlatNav.astro';
+import FlatPageHeader from '../components/flat/FlatPageHeader.astro';
+import FlatManifesto from '../components/flat/FlatManifesto.astro';
+import FlatGallery from '../components/flat/FlatGallery.astro';
+import FlatFaq from '../components/flat/FlatFaq.astro';
+import FlatReviews from '../components/flat/FlatReviews.astro';
+import FlatContact from '../components/flat/FlatContact.astro';
+import FlatFooter from '../components/flat/FlatFooter.astro';
+import { studio, studioFaq } from '../data/copy';
+import teamPhoto from '../assets/media/bts/juandi-equipo-guitarra.jpg';
+---
+
+<BaseLayout
+  title="Sobre nosotros | Nanai Studio, firma audiovisual creativa en Sevilla"
+  description="Nanai Studio es la firma audiovisual de Jesús Font: dirección creativa y producción para marcas, artistas y creadores, con equipos que se forman según cada proyecto."
+  path="/sobre-nosotros/"
+>
+  <div class="flat">
+    <FlatMotion />
+    <FlatNav />
+
+    <main id="contenido">
+      <FlatPageHeader
+        num="01"
+        label="Sobre nosotros"
+        title={['Quiénes', '*somos*']}
+        deck={studio.statement.join(' ')}
+        image={{ src: teamPhoto, alt: 'El equipo de Nanai Studio graba a un guitarrista y a los bailarines en la playa', credit: '@gallagm' }}
+      />
+      <FlatManifesto variant="full" />
+      <FlatGallery />
+      <FlatFaq items={studioFaq} />
+      <FlatReviews />
+      <FlatContact />
+    </main>
+
+    <FlatFooter />
+  </div>
+</BaseLayout>

@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════
+   tokens.css — única fuente de verdad de color, tipo y medida.
+   Ningún componente escribe un color o un tamaño a pelo: todo sale de aquí.
+
+   Bloque 1 · Copia literal de CLAUDE.md (§ Design tokens).
+   Bloque 2 · Valores fijados por docs/spec_home_nanai.md y por las
+              decisiones del 13-09-2026, convertidos en token. Los marcados
+              «criterio propio» no tienen valor en la spec: pendientes de validar.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Bloque 1 · CLAUDE.md ─────────────────────────────────────── */
+:root {
+  /* Superficies */
+  --ink: #0A0A0A;        /* fondo noche */
+  --bone: #F1ECE3;       /* fondo día */
+  --gray: #8A857E;       /* segunda voz de titulares */
+  --red: #DE1212;        /* único acento */
+  --yellow: #FFCA00;     /* solo final de la escala de luz */
+
+  /* Texto */
+  --text-on-ink: #F1ECE3;
+  --text-on-bone: #1A1917;
+  --muted-on-ink: #A39E97;
+  --muted-on-bone: #6B6760;
+  --hairline-ink: #2E2C2A;
+  --hairline-bone: #D6CFC3;
+
+  /* Escala de luz: solo degradados de imagen y transiciones. Nunca en UI. */
+  --light-0: #0A0A0A;
+  --light-1: #2B0606;
+  --light-2: #6E0E0B;
+  --light-3: #DE1212;
+  --light-4: #F0561C;
+  --light-5: #F59A26;
+  --light-6: #FFCA00;
+
+  /* Tipografía */
+  /* Dirección editorial (1-10-2026), tres voces:
+     · Display: League Spartan, la de la marca, solo en titulares.
+     · Texto: Archivo. Cuerpo en ancho normal; etiquetas y lecturas en condensada (75 %).
+     · Gesto: Playfair Display Italic, 1–3 palabras y la firma.
+     Antes: 'Inter Tight' + 'JetBrains Mono' (piel «Luz medida») e 'IBM Plex Mono' (piel negra). */
+  --font-display: 'League Spartan', 'League Spartan Fallback', system-ui, sans-serif;
+  --font-sans: 'Archivo', 'Archivo Fallback', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', 'Playfair Fallback', Georgia, serif;
+  /* Voz de guion: notas pequeñas a máquina de escribir */
+  --font-type: 'Courier Prime', 'Courier New', ui-monospace, monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Ritmo: escala de 8 px */
+  --space-1: 8px;  --space-2: 16px; --space-3: 24px; --space-4: 32px;
+  --space-6: 48px; --space-8: 64px; --space-12: 96px; --space-16: 128px;
+
+  --radius-pill: 999px;
+  --maxw: 1440px;
+}
+
+/* ── Bloque 2 · Añadidos ──────────────────────────────────────── */
+:root {
+  /* Color · decisión 13-09: solo texto y flechas sobre --red (5,0:1) */
+  --white: #FFFFFF;
+
+  /* Tipografía · CLAUDE.md § Tipografía */
+  --fs-wordmark: clamp(96px, 20vw, 320px);
+  --fs-h1: clamp(48px, 7vw, 112px);
+  /* Portada: el claim del hero, a tamaño de cabecera de revista */
+  --fs-hero: clamp(44px, 11.5vw, 184px);
+  --lh-hero: 0.86;
+  --tracking-hero: -0.05em;
+  --portrait-w: clamp(200px, 22vw, 300px);   /* retrato cuadrado de «Quién dirige» */
+  --rule-on-image: color-mix(in srgb, var(--bone) 40%, transparent);
+  /* Brillo decorativo al pasar el ratón por las píldoras de formato */
+  --glow-edge: var(--light-4);
+  --glow-fill: color-mix(in srgb, var(--light-3) 22%, transparent);
+  --glow-halo:
+    0 0 0 1px color-mix(in srgb, var(--light-4) 45%, transparent),
+    0 0 24px color-mix(in srgb, var(--light-4) 45%, transparent);
+  --fs-h2: clamp(32px, 4vw, 56px);
+  --fs-statement: clamp(24px, 2.8vw, 40px);
+  --fs-body: 18px;
+  --fs-mono: 13px;                            /* subido de 12 el 24-09: legibilidad */
+  --lh-body: 1.5;
+  --measure: 68ch;
+  --tracking-headline: -0.03em;
+  --tracking-mono: 0.08em;
+  --weight-statement: 300;
+
+  /* Tipografía · spec */
+  --fs-quote: 32px;                           /* § 09 Voces */
+  --weight-quote: 300;                        /* § 09 Voces */
+  --fs-tag: 12px;                             /* § Etiqueta de formato (subido de 11) */
+
+  /* Tipografía · criterio propio */
+  --fs-ui: 16px;                              /* nav, botones, interruptor */
+  --fs-slate-mark: 24px;                      /* «NS» de la claqueta */
+  --weight-regular: 400;
+  --weight-headline: 600;
+  --lh-headline: 1;
+  --lh-statement: 1.3;
+
+  /* Nav · § Nav */
+  --nav-bg: rgba(28, 27, 26, 0.6);
+  --nav-blur: 12px;
+  --nav-offset: var(--space-3);               /* 24px del borde superior */
+  --nav-logo-h: 16px;                         /* criterio propio */
+
+  /* Píldoras · § CTA, § Etiqueta de formato */
+  --cta-height: 56px;
+  --cta-dot: 40px;
+  --cta-nudge: 4px;
+  --pill-media-w: 96px;
+  --pill-media-h: 40px;
+  --tag-height: 28px;
+
+  /* Glifos y filetes · § Marcas de encuadre, § Claqueta */
+  --frame-mark: 24px;
+  --hairline: 1px;
+  --slate-size: var(--space-8);               /* criterio propio */
+
+  /* Composición */
+  --gutter: clamp(var(--space-2), 4vw, var(--space-8));        /* criterio propio */
+  --section-pad: clamp(var(--space-8), 10vw, var(--space-16)); /* criterio propio */
+  --work-stagger: var(--space-6);             /* § 04: las columnas pares bajan 48px */
+  --grid-cell: var(--space-8);                /* § 06: retícula cada 64px */
+  --wordmark-visible: 0.62;                   /* § 01: se ve el 62 % superior */
+  --bands-height: clamp(200px, 24vw, 320px);  /* § 05: entre 200 y 320px */
+  --bands-curve: var(--space-8);              /* criterio propio */
+
+  /* Cristal acanalado · § Cristal acanalado */
+  --flute-width: 8px;
+  --flute-shade: rgba(0, 0, 0, 0.55);
+
+  /* Foco · criterio propio */
+  --focus-width: 2px;
+  --focus-offset: 4px;
+
+  /* Movimiento · § Interruptor */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-switch: 240ms;
+}
+
+/* ── Bloque 3 · Web multipágina (13-09-2026) ──────────────────────
+   Pendiente de aprobar. Sin colores nuevos: todo sale de la paleta de arriba. */
+:root {
+  /* Nav legible también sobre el día: con 0,6 de opacidad, el texto
+     sobre --bone quedaba en 4,3:1 (hueso) y 1,9:1 (muted). Con 0,85, 11,7:1. */
+  --nav-bg-solid: color-mix(in srgb, var(--ink) 85%, transparent);
+
+  /* Velo de legibilidad sobre la imagen del hero */
+  --scrim-strong: color-mix(in srgb, var(--ink) 92%, transparent);
+  --scrim-soft: color-mix(in srgb, var(--ink) 50%, transparent);
+  --hud-rule: color-mix(in srgb, var(--bone) 20%, transparent);
+
+  --fs-deck: clamp(18px, 1.6vw, 22px);
+  --measure-deck: 40ch;
+  --fs-name: clamp(18px, 2vw, 28px);
+  --dawn-height: clamp(160px, 18vw, 240px);
+  --tap-min: 44px;
+  --tap-link: 32px;                           /* alto mínimo de enlaces sueltos */
+  --hover-zoom: 1.03;
+  --dur-reveal: 480ms;
+
+  /* Home (16-09-2026) */
+  --scrim-deep: color-mix(in srgb, var(--ink) 72%, transparent); /* gris del H1 ≥ 3:1 sobre el halo naranja */
+  --hero-top: clamp(128px, 22svh, 240px);
+  --slide-cta-w: 216px;
+  --dur-slide: 420ms;
+  --fs-ticker: clamp(12px, 1.1vw, 15px);
+  --ticker-duration: 70s;
+  --measure-statement: 26em;
+  --swipe-w: 520px;                               /* pista del deslizador Marcas/Música */
+  --swipe-h: 72px;
+  --swipe-knob: 56px;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* vuelta con rebote al soltar */
+  --dawn-height-lg: clamp(120px, 12vw, 176px);
+
+  /* Degradado de «activación» (decisión 16-09): relleno de los deslizadores y «creatividad».
+     Excepción a la regla 3 de CLAUDE.md, solo en estos dos elementos. */
+  --light-active: linear-gradient(90deg, var(--light-2), var(--light-3) 55%, var(--light-4));
+  /* Versión suave para rellenos de botones: nace casi transparente, sin tonos oscuros */
+  --light-active-soft: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--light-3) 18%, transparent),
+    color-mix(in srgb, var(--light-3) 45%, transparent) 55%,
+    color-mix(in srgb, var(--light-4) 55%, transparent)
+  );
+  /* Estela del deslizador: empieza en transparente para no marcar el centro de la pista */
+  --light-active-trail: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--light-3) 45%, transparent) 55%,
+    color-mix(in srgb, var(--light-4) 55%, transparent)
+  );
+  --slider-feather: 96px; /* borde de avance difuminado de la estela */
+
+  /* Apertura: interruptor «Activar creatividad» y zoom hacia la palabra */
+  --rec-switch-w: 176px;
+  --rec-switch-h: 80px;
+  --rec-knob: 64px;
+  --rec-feather: 72px;
+  --opener-dim: color-mix(in srgb, var(--gray) 40%, var(--bone)); /* gris apagado a propósito */
+  --dur-zoom: 420ms;
+  --ease-zoom: cubic-bezier(0.7, 0, 0.84, 0);
+  --zoom-scale: 14;
+
+  /* Apertura sencilla (la de serie; /?intro=grande muestra la versión grande).
+     Interruptor de tamaño cómodo y título en mono legible. */
+  --rec-switch-w-sm: 148px;
+  --rec-switch-h-sm: 44px;
+  --rec-knob-sm: 34px;
+  --rec-feather-sm: 44px;
+  --fs-opener-sm: clamp(19px, 1.1vw + 14px, 24px);
+  --opener-dim-sm: var(--gray); /* a este tamaño el gris apagado tiene que leerse */
+  --zoom-scale-minimal: 30;
+}

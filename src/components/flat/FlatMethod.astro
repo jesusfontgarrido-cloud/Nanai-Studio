@@ -1,0 +1,125 @@
+---
+/**
+ * Cómo trabajamos (home). Punto intermedio entre los seis bloques de antes y la versión
+ * mínima: el método en una frase a la izquierda y, a la derecha, tres fotos de rodaje que lo
+ * cuentan (la idea, el rodaje, la entrega), cada una con una sola línea. En tres columnas que
+ * se parten a distinta altura y acaban a la vez, como la rejilla de VYNN.
+ *
+ * Fotos en blanco y negro que se encienden a color al pasar el ratón, con su crédito.
+ */
+import { Picture } from 'astro:assets';
+import planning from '../../assets/media/bts/juandi-plan-tableta.jpg';
+import shooting from '../../assets/media/bts/impostora-gimbal.jpg';
+import delivery from '../../assets/media/bts/fama-monitor-rojo.jpg';
+import { method } from '../../data/copy';
+
+const shots = [
+  { src: planning, alt: 'Planificación de un rodaje sobre una tableta, antes de grabar', caption: 'La idea, antes que la cámara', credit: '@gallagm', area: 'a' },
+  { src: shooting, alt: 'Jesús Font con el gimbal y la camiseta de Nanai Studio en el rodaje', caption: 'Rodaje con el equipo necesario', credit: '@gallagm', area: 'b' },
+  { src: delivery, alt: 'El plano revisado en el monitor de cámara, con luz roja', caption: 'Entregado para cada canal', area: 'c' },
+];
+---
+
+<section class="sec fmethod" aria-labelledby="method-title">
+  <div class="wrap fmethod__grid">
+    <div class="fmethod__text">
+      <p class="label" data-reveal>{method.label}</p>
+      <h2 id="method-title" class="h2" data-reveal="lines">
+        <span>{method.title[0]}</span>
+        <span class="fmethod__title-2">{method.title[1]}</span>
+      </h2>
+      <p class="lead fmethod__deck" data-reveal style="--i: 2">{method.deck}</p>
+    </div>
+
+    {
+      shots.map((shot, i) => (
+        <figure class={`fmethod__shot fmethod__shot--${shot.area}`} data-reveal style={`--i: ${i + 1}`}>
+          <div class="fmethod__img bw">
+            <Picture src={shot.src} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(min-width: 1024px) 26vw, 92vw" alt={shot.alt} loading="lazy" />
+            {shot.credit && <span class="photo-credit">Foto {shot.credit}</span>}
+          </div>
+          <figcaption class="label fmethod__cap">
+            <span class="fmethod__num">0{i + 1}</span>
+            {shot.caption}
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .fmethod__grid {
+    display: grid;
+    gap: clamp(28px, 3vw, 40px) var(--f-gap);
+  }
+
+  .fmethod__text {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  .fmethod__text h2 { font-size: clamp(32px, 3.4vw, 54px); }
+  .fmethod__text h2 > span { display: block; }
+  .fmethod__title-2 { color: var(--f-dim); }
+  .fmethod__deck { max-width: 34ch; color: var(--f-muted); }
+
+  .fmethod__shot {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .fmethod__img {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 240px;
+    overflow: hidden;
+    border-radius: var(--f-r-media);
+    background: var(--f-surface-3);
+  }
+
+  .fmethod__img :global(picture),
+  .fmethod__img :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fmethod__shot:hover .fmethod__img :global(img) { transform: scale(1.03); }
+
+  .fmethod__cap {
+    display: flex;
+    gap: 10px;
+    color: var(--f-on-surface);
+  }
+
+  .fmethod__num { color: var(--f-red-text); }
+
+  @media (min-width: 700px) {
+    .fmethod__grid { grid-template-columns: 1fr 1fr; }
+    .fmethod__text { grid-column: 1 / -1; }
+    .fmethod__shot--a { grid-row: span 2; }
+    .fmethod__img { min-height: 260px; }
+  }
+
+  /* Escritorio: texto a la izquierda; a la derecha, una foto alta y dos apiladas */
+  @media (min-width: 1024px) {
+    .fmethod__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: auto auto;
+      align-items: stretch;
+    }
+
+    .fmethod__text { grid-column: 1 / span 4; grid-row: 1 / span 2; align-self: center; }
+    .fmethod__shot--a { grid-column: 6 / span 4; grid-row: 1 / span 2; }
+    .fmethod__shot--b { grid-column: 10 / span 3; grid-row: 1; }
+    .fmethod__shot--c { grid-column: 10 / span 3; grid-row: 2; }
+    .fmethod__shot--a .fmethod__img { min-height: 560px; }
+    .fmethod__img { min-height: 220px; }
+  }
+</style>

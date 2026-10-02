@@ -1,0 +1,73 @@
+---
+/**
+ * Cinta de oficios. Una franja entre filetes, como una línea de créditos que pasa:
+ * los oficios y, entre uno y otro, el punto de REC.
+ * Se para al pasar el ratón; con movimiento reducido queda quieta y en varias líneas.
+ */
+import { tickerTerms } from '../../data/copy';
+
+const loop = [...tickerTerms, ...tickerTerms];
+---
+
+<section class="fticker" aria-label="Qué hacemos" data-reveal>
+  <ul class="fticker__row" role="list">
+    {
+      loop.map((term, i) => (
+        <li class="fticker__term" aria-hidden={i >= tickerTerms.length ? 'true' : undefined}>
+          <span class="rec-dot fticker__dot" aria-hidden="true" />
+          {term}
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .fticker {
+    position: relative;
+    padding-block: 16px;
+    overflow: hidden;
+    border-block: var(--f-hair) solid var(--f-line);
+    /* Los extremos se desvanecen para que no corte en seco */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .fticker__row {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: fticker-run 80s linear infinite;
+  }
+
+  .fticker__term {
+    display: inline-flex;
+    align-items: center;
+    gap: 22px;
+    padding-right: 22px;
+    color: var(--f-muted);
+    font-size: clamp(19px, 1.7vw, 24px);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .fticker__dot { width: 7px; height: 7px; }
+
+  .fticker:hover .fticker__row { animation-play-state: paused; }
+
+  @keyframes fticker-run {
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fticker__row {
+      flex-wrap: wrap;
+      width: auto;
+      animation: none;
+    }
+
+    .fticker__term[aria-hidden] { display: none; }
+  }
+</style>

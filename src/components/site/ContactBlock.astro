@@ -1,0 +1,240 @@
+---
+/**
+ * Contacto al final de cada página, ya marcado según la página. Pide lo justo para poder
+ * responder bien: para quién es, qué quiere hacer, cuándo y dónde se publica. El presupuesto
+ * es opcional. Radios nativos en vez de botones: es un valor del formulario y va sin JS.
+ * En desarrollo el envío está desactivado para no mandar correos reales.
+ */
+import Arrow from '../ui/Arrow.astro';
+import { site } from '../../data/site';
+import { contact, contactOptions, type ContactKind } from '../../data/copy';
+
+interface Props {
+  kind?: ContactKind;
+  label?: string;
+}
+
+const { kind = 'brand', label = 'Hablemos' } = Astro.props;
+---
+
+<section id="contacto" class="section zone-day contact" aria-labelledby="contact-title">
+  <div class="container contact__grid">
+    <div class="contact__intro">
+      <p class="label">{label}</p>
+      <h2 id="contact-title" class="headline headline--h1">{contact.title}</h2>
+      <p class="contact__help">{contact.help}</p>
+
+      <ul class="contact__direct" role="list">
+        <li><a class="text-link" href={site.whatsapp}>WhatsApp <Arrow /></a></li>
+        <li><a class="text-link" href={`mailto:${site.email}`}>{site.email}</a></li>
+      </ul>
+    </div>
+
+    <form class="contact__form" action="https://api.web3forms.com/submit" method="POST" data-contact-form>
+      <input type="hidden" name="access_key" value={site.web3formsKey} />
+      <input type="hidden" name="subject" value="Nuevo mensaje desde la web de Nanai Studio" />
+      <input type="hidden" name="pagina" value={Astro.url.pathname} />
+      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" hidden />
+
+      <fieldset class="chips">
+        <legend class="label">¿Para quién es el proyecto?</legend>
+        <div class="chips__row">
+          {
+            contactOptions.map((option) => (
+              <label class="chip">
+                <input type="radio" name="para" value={option.value} checked={option.kind === kind} />
+                <span>{option.value}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="contact__row">
+        <label class="field">
+          <span class="label">Nombre</span>
+          <input type="text" name="nombre" autocomplete="name" required />
+        </label>
+        <label class="field">
+          <span class="label">Email o teléfono</span>
+          <input type="text" name="contacto" autocomplete="email" required />
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">¿Qué quieres crear?</span>
+        <textarea name="proyecto" rows="3" placeholder={contact.placeholders.what} required></textarea>
+      </label>
+
+      <div class="contact__row">
+        <label class="field">
+          <span class="label">Fecha o plazo</span>
+          <input type="text" name="cuando" placeholder={contact.placeholders.when} />
+        </label>
+        <label class="field">
+          <span class="label">¿Dónde se va a publicar?</span>
+          <input type="text" name="donde" placeholder={contact.placeholders.where} />
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Presupuesto aproximado</span>
+        <input type="text" name="presupuesto" placeholder={contact.placeholders.budget} />
+      </label>
+
+      <button class="contact__submit" type="submit">Cuéntanos tu idea <Arrow /></button>
+      <p class="contact__note" role="status" data-form-note>{contact.note}</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const note = form.querySelector<HTMLElement>('[data-form-note]');
+
+    // Fase 4: envío por fetch. Hasta entonces, en desarrollo no se envía nada.
+    form.addEventListener('submit', (event) => {
+      if (!import.meta.env.DEV) return;
+      event.preventDefault();
+      if (note) note.textContent = 'Modo desarrollo: el envío está desactivado.';
+    });
+  });
+</script>
+
+<style>
+  .contact__grid {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .contact__intro {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: var(--space-3);
+  }
+
+  .contact__help {
+    max-width: var(--measure-deck);
+    font-size: var(--fs-deck);
+    line-height: var(--lh-statement);
+  }
+
+  .contact__direct {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-2);
+  }
+
+  .contact__form {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .contact__row {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .chips {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  /* Cuatro opciones no caben en un solo control segmentado: píldoras sueltas que envuelven bien */
+  .chips__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .chip { position: relative; }
+
+  .chip input {
+    position: absolute;
+    width: var(--hairline);
+    height: var(--hairline);
+    opacity: 0;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    padding-inline: var(--space-3);
+    border: var(--hairline) solid var(--hairline-bone);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-ui);
+    font-weight: var(--weight-headline);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-switch) var(--ease-standard),
+      color var(--dur-switch) var(--ease-standard);
+  }
+
+  .chip input:checked + span {
+    border-color: var(--text-on-bone);
+    background: var(--text-on-bone);
+    color: var(--bone);
+  }
+
+  .chip input:focus-visible + span {
+    outline: var(--focus-width) solid var(--text-on-bone);
+    outline-offset: var(--focus-width);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding-block: var(--space-1);
+    border: 0;
+    border-bottom: var(--hairline) solid var(--muted-on-bone);
+    border-radius: 0;
+    background: transparent;
+    font-size: var(--fs-body);
+  }
+
+  .field textarea { resize: vertical; }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--muted-on-bone); }
+
+  .contact__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-1);
+    height: var(--cta-height);
+    padding-inline: var(--space-4);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--red);
+    color: var(--white);
+    font-size: var(--fs-ui);
+    font-weight: var(--weight-headline);
+    cursor: pointer;
+  }
+
+  .contact__note {
+    color: var(--muted-on-bone);
+    font-size: var(--fs-ui);
+  }
+
+  @media (min-width: 768px) {
+    .contact__row { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 1024px) {
+    .contact__grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

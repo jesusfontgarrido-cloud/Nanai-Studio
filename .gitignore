@@ -1,0 +1,42 @@
+# build
+dist/
+.astro/
+
+# dependencias
+node_modules/
+
+# entorno
+.env
+.env.production
+
+# web estática anterior, solo como referencia local
+# (copia íntegra en ../nanai-studio-web-backup-20260913)
+_legacy/
+
+# logs y temporales
+npm-debug.log*
+*.log
+*.tmp
+
+# sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editores
+.vscode/
+.idea/
+
+# PDF de la web: capturas y perfiles de Chrome temporales
+scripts/pdf-web/shots/
+scripts/pdf-web/pdfshots/
+scripts/pdf-web/preview/
+scripts/pdf-web/chrome-*/
+scripts/pdf-web/doc.html
+scripts/pdf-web/manifest.json
+
+# Material de trabajo local (no se sube)
+_retirado/
+docs/design/
+docs/capturas-*/
+docs/*.pdf

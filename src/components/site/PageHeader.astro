@@ -1,0 +1,83 @@
+---
+/**
+ * Cabecera tipográfica de las páginas interiores (noche). El H1 llega por el slot:
+ * dos <span> para el titular bitono, o un párrafo con píldoras en la variante «statement».
+ */
+import CtaPill from './CtaPill.astro';
+
+interface Props {
+  label: string;
+  /** Uno o varios párrafos de entradilla. */
+  deck?: string | string[];
+  cta?: { href: string; label: string; thumb: string };
+  variant?: 'headline' | 'statement';
+}
+
+const { label, deck, cta, variant = 'headline' } = Astro.props;
+const decks = deck ? (Array.isArray(deck) ? deck : [deck]) : [];
+---
+
+<section class="page-header zone-night" aria-labelledby="page-title">
+  <div class="container page-header__inner">
+    <p class="label">{label}</p>
+    <h1
+      id="page-title"
+      class:list={[
+        'page-header__title',
+        variant === 'statement' ? 'page-header__title--statement' : 'headline headline--h1',
+      ]}
+    >
+      <slot />
+    </h1>
+    {decks.length > 0 && (
+      <div class="page-header__deck">
+        {decks.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+      </div>
+    )}
+    {
+      cta && (
+        <div class="page-header__actions">
+          <CtaPill href={cta.href} label={cta.label} thumb={cta.thumb} />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .page-header__inner {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    padding-top: calc(var(--nav-offset) + var(--cta-height) + var(--space-12));
+    padding-bottom: var(--space-8);
+  }
+
+  .page-header__title:not(.page-header__title--statement) > :global(span) { display: block; }
+
+  .page-header__title--statement {
+    max-width: var(--measure);
+    font-size: var(--fs-statement);
+    font-weight: var(--weight-statement);
+    line-height: var(--lh-statement);
+  }
+
+  /* --gray solo desde 32px: la declaración baja a 24px, así que por debajo de 1143px va en muted */
+  .page-header__title--statement > :global(.tone-2) { color: var(--muted-on-ink); }
+
+  @media (min-width: 1143px) {
+    .page-header__title--statement > :global(.tone-2) { color: var(--gray); }
+  }
+
+  .page-header__deck {
+    display: grid;
+    gap: var(--space-2);
+    max-width: var(--measure);
+    font-size: var(--fs-deck);
+    line-height: var(--lh-statement);
+  }
+
+  .page-header__actions { margin-top: var(--space-2); }
+</style>

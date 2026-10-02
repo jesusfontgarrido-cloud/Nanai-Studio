@@ -1,0 +1,52 @@
+---
+/**
+ * Artistas y creadores · El equipo. Ocupa el sitio que tenía el proceso en esta página:
+ * aquí importa más saber que hay un equipo listo para lo que necesitas publicar.
+ */
+import { crew } from '../../data/copy';
+
+interface Props {
+  label?: string;
+}
+
+const { label = 'El equipo' } = Astro.props;
+---
+
+<section class="section zone-day team" aria-labelledby="team-title">
+  <div class="container team__grid">
+    <div>
+      <p class="label">{label}</p>
+      <h2 id="team-title" class="headline headline--h2 team__title">
+        <span>{crew.lines[0]}</span>
+        <span class="tone-2">{crew.lines[1]}</span>
+      </h2>
+    </div>
+
+    <div class="team__text">
+      {crew.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .team__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .team__title { margin-top: var(--space-2); }
+  .team__title span { display: block; }
+
+  .team__text {
+    display: grid;
+    align-content: end;
+    gap: var(--space-3);
+    max-width: var(--measure);
+    font-size: var(--fs-deck);
+    line-height: var(--lh-statement);
+  }
+
+  @media (min-width: 1024px) {
+    .team__grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

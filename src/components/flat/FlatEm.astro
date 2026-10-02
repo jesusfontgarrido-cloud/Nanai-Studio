@@ -1,0 +1,14 @@
+---
+/**
+ * Texto con gesto: lo que va entre asteriscos sale en Playfair cursiva (clase .accent),
+ * p. ej. «Que se *sienta*,». Es el patrón de titular de la casa: condensada + una palabra
+ * en cursiva. Para usar el mismo texto fuera de un titular (title, aria), `plain()`.
+ */
+interface Props {
+  text: string;
+}
+
+const parts = Astro.props.text.split(/(\*[^*]+\*)/g).filter(Boolean);
+---
+
+{parts.map((part) => (part.startsWith('*') && part.endsWith('*') ? <em class="accent">{part.slice(1, -1)}</em> : part))}

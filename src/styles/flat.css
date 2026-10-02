@@ -1,0 +1,582 @@
+/* ═══════════════════════════════════════════════════════════════
+   flat.css — dirección editorial de Nanai Studio (1-10-2026).
+
+   La idea: entre un guion y una revista. Papel blanco con un punto de gris
+   y grano, mucho aire, poca información y la imagen mandando. Los
+   titulares llevan fotogramas incrustados, recortados con formas suaves.
+
+   · Papel por defecto. El negro es la sala de proyección (el trabajo y el
+     pie). El rojo, un plano por página. Un solo rojo, plano: #D9291C.
+   · Voces: League Spartan (titulares, minúscula), Archivo (cuerpo), Courier
+     Prime (notas pequeñas, como un guion) y Playfair cursiva (1–3 palabras,
+     con el mismo tamaño aparente que la palabra de al lado).
+   · Sin retícula a la vista ni adornos: solo grano de papel.
+   · BTS en blanco y negro; el color llega al pasar el ratón (se «enciende»).
+   · Movimiento de montaje: titulares por líneas, imágenes que enfocan,
+     fundido entre páginas. Sin rebotes y con movimiento reducido.
+
+   Puntos de retorno completos en _retirado/snapshot-2026-10-01*.
+   ═══════════════════════════════════════════════════════════════ */
+
+.flat {
+  /* Papel: blanco con un punto de gris */
+  --f-bg: #F4F4F1;
+  --f-surface: #F4F4F1;
+  --f-surface-2: #EAEAE6;
+  --f-surface-3: #DEDED9;
+  --f-line: rgba(20, 20, 18, 0.13);
+  --f-line-strong: rgba(20, 20, 18, 0.32);
+
+  /* Tinta */
+  --f-on-surface: #151514;
+  --f-muted: #55554F;
+  --f-dim: #6A6A63;
+  --f-inverse: #151514;
+  --f-on-inverse: #F4F4F1;
+
+  /* El rojo REC. Blanco encima: 4,9:1. Texto pequeño en rojo: --f-red-text */
+  --f-red: #D9291C;
+  --f-on-red: #FFFFFF;
+  --f-red-text: #B8231A;
+
+  /* Forma: controles casi rectos; imágenes con esquinas suaves (Material) */
+  --f-r: 2px;
+  --f-r-media: 10px;
+  --f-r-card: clamp(18px, 2.2vw, 32px);
+  --f-capsule: clamp(8px, 1.2vw, 18px);
+  --f-hair: 1px;
+
+  /* Ritmo: márgenes 16 / 32 / 64 */
+  --f-gutter: clamp(16px, 4.4vw, 64px);
+  --f-gap: clamp(12px, 1.6vw, 24px);
+  --f-sec: clamp(72px, 9vw, 144px);
+  --f-maxw: 1680px;
+
+  /* Tipografía */
+  --f-display: clamp(52px, 9.6vw, 172px);
+  --f-h2: clamp(34px, 4vw, 64px);
+  --f-h3: clamp(21px, 1.7vw, 26px);
+  --f-body: 18px;
+  --f-lead: clamp(19px, 1.5vw, 23px);
+  --f-label: 13px;
+
+  /* Movimiento */
+  --f-ease: cubic-bezier(0.2, 0, 0, 1);
+  --f-ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --f-dur: 220ms;
+  --f-dur-reveal: 820ms;
+
+  min-height: 100vh;
+  background: var(--f-bg);
+  color: var(--f-on-surface);
+  font-family: var(--font-sans);
+  font-size: var(--f-body);
+  line-height: 1.55;
+  font-kerning: normal;
+  interpolate-size: allow-keywords;
+}
+
+body:has(> .flat) {
+  background: #F4F4F1;
+  color: #151514;
+  color-scheme: light;
+}
+
+/* Grano de papel sobre toda la página (también sobre las fotos: las une) */
+.flat::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.flat ::selection {
+  background: var(--f-red);
+  color: #FFFFFF;
+}
+
+.flat p { text-wrap-style: pretty; }
+
+/* ── Tonos: el negro es la sala de proyección; el rojo, el plano de la página ── */
+.flat .tone-dark {
+  --f-bg: #121212;
+  --f-surface: #121212;
+  --f-surface-2: #1C1C1B;
+  --f-surface-3: #282826;
+  --f-line: rgba(244, 244, 241, 0.14);
+  --f-line-strong: rgba(244, 244, 241, 0.34);
+  --f-on-surface: #F4F4F1;
+  --f-muted: #ADADA6;
+  --f-dim: #8E8E87;
+  --f-inverse: #F4F4F1;
+  --f-on-inverse: #151514;
+  --f-red-text: #F0473B;
+  background: var(--f-bg);
+  color: var(--f-on-surface);
+  color-scheme: dark;
+}
+
+.flat .tone-red {
+  --f-bg: #D9291C;
+  --f-surface: #D9291C;
+  --f-surface-2: rgba(255, 255, 255, 0.1);
+  --f-surface-3: rgba(255, 255, 255, 0.16);
+  --f-line: rgba(255, 248, 242, 0.32);
+  --f-line-strong: rgba(255, 248, 242, 0.6);
+  --f-on-surface: #FFF8F2;
+  --f-muted: #FFF8F2;
+  --f-dim: #FFF8F2;
+  --f-inverse: #FFF8F2;
+  --f-on-inverse: #9E1A11;
+  --f-red: #FFF8F2;
+  --f-on-red: #9E1A11;
+  --f-red-text: #FFF8F2;
+  background: var(--f-bg);
+  color: var(--f-on-surface);
+}
+
+/* ── Composición ─────────────────────────────────────────────── */
+.flat .wrap {
+  width: 100%;
+  max-width: var(--f-maxw);
+  margin-inline: auto;
+  padding-inline: var(--f-gutter);
+}
+
+/* Sección: banda a sangre */
+.flat .sec {
+  position: relative;
+  isolation: isolate;
+  padding-block: var(--f-sec);
+  background: var(--f-bg);
+}
+
+/* Cápsulas: las secciones de color (negro, rojo, hueso) van encapsuladas sobre el papel,
+   con esquinas suaves y un margen de papel alrededor. Nunca un corte seco de lado a lado:
+   la página es siempre del mismo papel y lo demás se posa encima. */
+.flat .sec.tone-dark,
+.flat .sec.tone-red,
+.flat .sec.tone-bone {
+  margin: var(--f-capsule) var(--f-capsule);
+  border-radius: var(--f-r-card);
+}
+
+.flat .tone-bone {
+  --f-bg: #EAEAE6;
+  --f-surface-3: #DCDCD7;
+  background: var(--f-bg);
+}
+
+/* Cabecera de sección: (01) ETIQUETA ··········· LECTURA */
+.flat .sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 18px;
+  padding-bottom: 16px;
+  margin-bottom: clamp(32px, 4vw, 56px);
+  border-bottom: var(--f-hair) solid var(--f-line);
+}
+
+.flat .sec-head__spacer { flex: 1; }
+
+.flat .sec-num {
+  font-family: var(--font-sans);
+  font-size: var(--f-label);
+  font-stretch: 75%;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.flat .sec-num::before { content: '('; color: var(--f-dim); }
+.flat .sec-num::after { content: ')'; color: var(--f-dim); }
+
+/* ── Tipografía ──────────────────────────────────────────────── */
+.flat .display,
+.flat .h2,
+.flat .h3 {
+  font-family: var(--font-display);
+  text-wrap-style: balance;
+}
+
+.flat .display {
+  font-size: var(--f-display);
+  font-weight: 640;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+
+.flat .h2 {
+  font-size: var(--f-h2);
+  font-weight: 620;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.flat .h3 {
+  font-size: var(--f-h3);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+/* El gesto: Playfair cursiva en rojo, del mismo tamaño aparente que la palabra
+   de al lado (su ojo medio es 0,53 frente a 0,42 de League Spartan). */
+.flat .accent {
+  padding-right: 0.04em;
+  color: var(--f-red);
+  font-family: var(--font-serif);
+  font-size-adjust: ex-height 0.46;
+  font-style: italic;
+  font-weight: 540;
+  letter-spacing: -0.005em;
+}
+
+/* En titulares, la cursiva no empuja la línea: Playfair tiene el ascendente más alto */
+.flat .display .accent,
+.flat .h2 .accent { line-height: 0.8; }
+
+.flat .lead {
+  font-size: var(--f-lead);
+  line-height: 1.45;
+}
+
+.flat .muted { color: var(--f-muted); }
+
+.flat .note {
+  color: var(--f-muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Nota a máquina, como en un guion: etiquetas, créditos y datos */
+.flat .label,
+.flat .readout {
+  font-family: var(--font-type);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+.flat .label { color: var(--f-muted); }
+
+/* Lectura: clave + valor, como en el visor o en una hoja de rodaje */
+.flat .readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.flat .readout__key { color: var(--f-muted); }
+
+/* ── Botones ─────────────────────────────────────────────────── */
+.flat .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding-inline: 24px;
+  border: var(--f-hair) solid transparent;
+  border-radius: var(--f-r);
+  background: var(--f-inverse);
+  color: var(--f-on-inverse);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--f-dur) var(--f-ease),
+    background-color var(--f-dur) var(--f-ease),
+    color var(--f-dur) var(--f-ease),
+    border-color var(--f-dur) var(--f-ease);
+}
+
+.flat .btn:hover { transform: translateY(-1px); }
+.flat .btn:active { transform: translateY(0) scale(0.98); }
+.flat .btn--red { background: var(--f-red); color: var(--f-on-red); }
+
+.flat .btn--line {
+  background: transparent;
+  border-color: var(--f-line-strong);
+  color: var(--f-on-surface);
+}
+
+.flat .btn--line:hover { border-color: var(--f-on-surface); }
+.flat .btn svg { width: 18px; height: 18px; }
+
+/* Enlace con subrayado que se dibuja */
+.flat .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 calc(100% - 4px) / 0 1px no-repeat;
+  transition: background-size 320ms var(--f-ease-out);
+}
+
+.flat .link:hover { background-size: 100% 1px; }
+
+/* Chip: opciones del formulario y enlaces del pie */
+.flat .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding-inline: 14px;
+  border: var(--f-hair) solid var(--f-line-strong);
+  border-radius: var(--f-r);
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--f-dur) var(--f-ease), color var(--f-dur) var(--f-ease), border-color var(--f-dur) var(--f-ease);
+}
+
+/* ── Imagen ──────────────────────────────────────────────────── */
+/* BTS en blanco y negro: el color llega al pasar el ratón, como al encender */
+.flat .bw img,
+.flat img.bw {
+  filter: grayscale(1) contrast(1.06);
+  transition: filter 700ms var(--f-ease-out), transform 900ms var(--f-ease-out);
+}
+
+@media (hover: hover) {
+  .flat .bw:hover img,
+  .flat img.bw:hover { filter: grayscale(0) contrast(1); }
+}
+
+/* Grano de película, 4 %, solo sobre fotos a sangre */
+.flat .grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Esquinas de encuadre */
+.flat .marks {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.flat .marks span {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 0 solid currentColor;
+  opacity: 0.7;
+}
+
+.flat .marks span:nth-child(1) { top: 14px; left: 14px; border-top-width: 1px; border-left-width: 1px; }
+.flat .marks span:nth-child(2) { top: 14px; right: 14px; border-top-width: 1px; border-right-width: 1px; }
+.flat .marks span:nth-child(3) { bottom: 14px; left: 14px; border-bottom-width: 1px; border-left-width: 1px; }
+.flat .marks span:nth-child(4) { bottom: 14px; right: 14px; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* Punto REC */
+.flat .rec-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--f-red);
+}
+
+.flat .rec-dot--blink { animation: flat-blink 1s steps(1) infinite; }
+
+@keyframes flat-blink {
+  50% { opacity: 0; }
+}
+
+/* Regla de foco */
+.flat .ruler {
+  height: 12px;
+  border-top: var(--f-hair) solid var(--f-line);
+  background-image: linear-gradient(to right, var(--f-line-strong) 1px, transparent 1px);
+  background-size: 24px 6px;
+  background-repeat: repeat-x;
+}
+
+/* Fotograma incrustado en un titular (Commuter, VYNN): ocupa el alto de la letra
+   y se recorta con formas suaves, como las de Material (píldora, arco) */
+.flat .inframe {
+  position: relative;
+  display: inline-block;
+  height: 0.74em;
+  aspect-ratio: 16 / 10;
+  margin-inline: 0.06em;
+  overflow: hidden;
+  border-radius: 0.2em;
+  vertical-align: -0.02em;
+  background: var(--f-surface-3);
+}
+
+.flat .inframe--pill { aspect-ratio: 2 / 1; border-radius: 999px; }
+.flat .inframe--arch { aspect-ratio: 5 / 4; border-radius: 999px 999px 0.12em 0.12em; }
+
+/* Crédito de la foto, en una esquina */
+.flat .photo-credit {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: rgba(10, 10, 10, 0.62);
+  color: #FFFFFF;
+  font-family: var(--font-type);
+  font-size: 13px;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
+.flat .inframe img,
+.flat .inframe video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Movimiento ──────────────────────────────────────────────────
+   Solo con JS y sin movimiento reducido (FlatMotion pone html.motion).
+   · data-reveal          sube y aparece
+   · data-reveal="lines"  el titular sube línea a línea desde una máscara
+   · data-reveal="focus"  la imagen entra desenfocada y enfoca (rack focus)
+   · data-stagger         sus hijos entran uno detrás de otro               */
+html.motion .flat [data-reveal],
+html.motion .flat [data-stagger] > * {
+  transition:
+    opacity var(--f-dur-reveal) var(--f-ease-out),
+    transform var(--f-dur-reveal) var(--f-ease-out);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+html.motion .flat [data-reveal]:not(.is-in),
+html.motion .flat [data-stagger] > :not(.is-in) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+html.motion .flat [data-reveal='lines'],
+html.motion .flat [data-reveal='lines']:not(.is-in) {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+html.motion .flat [data-reveal='lines'] > * {
+  display: block;
+  clip-path: inset(-0.3em -0.3em -0.3em -0.3em);
+  transition:
+    transform 900ms var(--f-ease-out),
+    clip-path 900ms var(--f-ease-out),
+    opacity 500ms var(--f-ease-out);
+  transition-delay: calc(var(--line, 0) * 110ms + var(--i, 0) * 90ms);
+}
+
+html.motion .flat [data-reveal='lines']:not(.is-in) > * {
+  opacity: 0;
+  transform: translateY(0.45em);
+  clip-path: inset(0 -0.3em 100% -0.3em);
+}
+
+html.motion .flat [data-reveal='lines'] > :nth-child(2) { --line: 1; }
+html.motion .flat [data-reveal='lines'] > :nth-child(3) { --line: 2; }
+
+html.motion .flat [data-reveal='focus'],
+html.motion .flat [data-reveal='focus']:not(.is-in) {
+  opacity: 1;
+  transform: none;
+}
+
+html.motion .flat [data-reveal='focus'] img {
+  transition:
+    filter 1300ms var(--f-ease-out),
+    transform 1500ms var(--f-ease-out);
+}
+
+html.motion .flat [data-reveal='focus']:not(.is-in) img {
+  filter: blur(16px) grayscale(1);
+  transform: scale(1.08);
+}
+
+/* Desplegables que se abren con suavidad (Chrome; el resto, al instante) */
+.flat details::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 380ms var(--f-ease-out),
+    content-visibility 380ms allow-discrete;
+}
+
+.flat details[open]::details-content { block-size: auto; }
+
+/* Cambio de página: fundido con desenfoque, como un rack focus */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: flat-vt-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: flat-vt-in 520ms cubic-bezier(0.2, 0.7, 0.1, 1) 80ms both;
+}
+
+@keyframes flat-vt-out {
+  to { opacity: 0; filter: blur(8px); }
+}
+
+@keyframes flat-vt-in {
+  from { opacity: 0; filter: blur(8px); }
+}
+
+/* ── Accesibilidad ───────────────────────────────────────────── */
+.flat :focus-visible {
+  outline: 2px solid var(--f-red);
+  outline-offset: 3px;
+}
+
+.flat .visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+
+  .flat *,
+  .flat *::before,
+  .flat *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

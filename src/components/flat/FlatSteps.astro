@@ -1,0 +1,241 @@
+---
+/**
+ * Proceso. Franja sin número, en hueso, entre «Cómo trabajamos» y la sala del trabajo.
+ * Las casillas son las de una lista de comprobación de rodaje. Los pasos empiezan apagados y se
+ * encienden al pasar el ratón por encima, uno a uno, y se quedan encendidos: como una lista
+ * de comprobación de rodaje. En táctil se encienden solos al llegar a la sección.
+ * Sin JS o con movimiento reducido se ven encendidos desde el principio.
+ */
+import { process, processHead } from '../../data/copy';
+---
+
+<section class="sec tone-bone fsteps-sec" aria-labelledby="steps-title">
+  <div class="wrap fsteps">
+    <div class="fsteps__head" data-reveal>
+      <p class="label">{processHead.label}</p>
+      <h2 id="steps-title" class="h2 fsteps__title">{processHead.title}</h2>
+      <p class="fsteps__deck">{processHead.deck}</p>
+    </div>
+
+    <ol class="fsteps__list" role="list" data-steps>
+      {
+        process.map((step, i) => (
+          <li class:list={['fstep', { 'fstep--key': step.key }]}>
+            <span class="fstep__node" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </span>
+            <span class="label fstep__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="fstep__name">{step.name}</h3>
+            <p class="fstep__text">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (!reduceMotion) {
+    document.querySelectorAll<HTMLElement>('[data-steps]').forEach((list) => {
+      const steps = [...list.querySelectorAll<HTMLElement>('.fstep')];
+      let reached = -1;
+
+      // Solo avanza: lo que se ha encendido, se queda encendido.
+      const light = (upTo: number) => {
+        if (upTo <= reached) return;
+        reached = upTo;
+        steps.forEach((step, i) => step.classList.toggle('is-done', i <= reached));
+        measure();
+      };
+
+      // El filete rojo llega hasta el centro del último nodo encendido (en horizontal o en vertical).
+      const measure = () => {
+        const node = steps[reached]?.querySelector<HTMLElement>('.fstep__node');
+        if (!node) return;
+        const box = node.getBoundingClientRect();
+        const origin = list.getBoundingClientRect();
+        list.style.setProperty('--reach-x', `${box.left + box.width / 2 - origin.left}px`);
+        list.style.setProperty('--reach-y', `${box.top + box.height / 2 - origin.top}px`);
+      };
+      window.addEventListener('resize', measure);
+
+      // Apagado de partida (solo con JS: sin él, todo se ve encendido).
+      list.classList.add('is-armed');
+
+      if (finePointer) {
+        list.addEventListener('pointermove', (event) => {
+          if (event.pointerType !== 'mouse') return;
+          const x = event.clientX;
+          light(steps.reduce((acc, step, i) => (x >= step.getBoundingClientRect().left ? i : acc), -1));
+        });
+      } else if ('IntersectionObserver' in window) {
+        // Táctil: sin ratón que pasar, los pasos se encienden solos al llegar a la sección.
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            steps.forEach((_, i) => window.setTimeout(() => light(i), 220 * i));
+          },
+          { threshold: 0.35 },
+        );
+        observer.observe(list);
+      } else {
+        light(steps.length - 1);
+      }
+    });
+  }
+</script>
+
+<style>
+  .fsteps-sec { padding-block: clamp(72px, 8vw, 128px); }
+
+  .fsteps {
+    display: grid;
+    gap: clamp(32px, 4vw, 52px);
+  }
+
+  .fsteps__head {
+    display: grid;
+    gap: 12px;
+  }
+
+  .fsteps__title { font-size: clamp(24px, 2.2vw, 34px); }
+  .fsteps__deck { max-width: 52ch; color: var(--f-muted); }
+
+  .fsteps__list {
+    position: relative;
+    display: grid;
+    gap: 22px;
+  }
+
+  /* Filete que une los pasos */
+  .fsteps__list::before {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 0;
+    right: 0;
+    height: var(--f-hair);
+    background: var(--f-line-strong);
+  }
+
+  /* El filete se llena de rojo hasta el último paso encendido */
+  .fsteps__list::after {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 0;
+    width: var(--reach-x, 0px);
+    height: var(--f-hair);
+    background: var(--f-red);
+    transition: width 520ms var(--f-ease-out);
+  }
+
+  .fsteps__list:not(.is-armed)::after { display: none; }
+
+  .fstep {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding-right: 16px;
+  }
+
+  /* Los nodos van por encima de los filetes, nunca debajo */
+  .fstep__node {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-bottom: 10px;
+    border-radius: var(--f-r);
+    background: var(--f-on-surface);
+    color: var(--f-bg);
+  }
+
+  .fstep--key .fstep__node { background: var(--f-red); color: #fff; }
+
+  .fstep__node svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity var(--f-dur) var(--f-ease), transform var(--f-dur) var(--f-ease);
+  }
+
+  .fstep.is-done .fstep__node { transform: scale(1.1); }
+  .fstep.is-done .fstep__node svg { opacity: 1; transform: scale(1); }
+
+  .fstep__num { color: var(--f-muted); }
+
+  .fstep__name {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 1.4vw, 21px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .fstep__text {
+    max-width: 28ch;
+    color: var(--f-muted);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* Apagado: nodo gris y texto atenuado hasta que el paso se enciende */
+  .fstep__name,
+  .fstep__text,
+  .fstep__num {
+    transition: opacity 320ms var(--f-ease), color 320ms var(--f-ease);
+  }
+
+  .fstep__node { transition: transform var(--f-dur) var(--f-ease), background-color 320ms var(--f-ease); }
+
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__node {
+    background: var(--f-surface-3);
+    box-shadow: inset 0 0 0 1px var(--f-line-strong);
+  }
+
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__name,
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__text,
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__num { opacity: 0.4; }
+
+  @media (max-width: 899px) {
+    .fsteps__list::before {
+      top: 0;
+      bottom: 0;
+      left: 13px;
+      right: auto;
+      width: var(--f-hair);
+      height: auto;
+    }
+
+    .fsteps__list::after {
+      top: 0;
+      left: 13px;
+      width: var(--f-hair);
+      height: var(--reach-y, 0px);
+      transition-property: height;
+    }
+
+    .fstep { padding-left: 46px; }
+
+    .fstep__node {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .fsteps__list { grid-template-columns: repeat(5, 1fr); }
+  }
+</style>

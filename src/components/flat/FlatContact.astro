@@ -1,0 +1,280 @@
+---
+/**
+ * Contacto. El mismo en todas las páginas. Lo primero es WhatsApp, que es lo más rápido:
+ * va como un enlace grande, sin caja, igual que el correo pero a otra escala. El formulario
+ * queda al lado para quien prefiera escribirlo con calma (los mismos campos de siempre).
+ * En desarrollo el envío está desactivado.
+ */
+import FlatEm from './FlatEm.astro';
+import { contact, contactOptions, type ContactKind } from '../../data/copy';
+import { site } from '../../data/site';
+
+interface Props {
+  kind?: ContactKind;
+}
+
+const { kind = 'brand' } = Astro.props;
+---
+
+<section id="contacto" class="sec fcontact" aria-labelledby="contact-title">
+  <div class="wrap fcontact__grid">
+    <div class="fcontact__intro">
+      <h2 id="contact-title" class="h2 fcontact__title" data-reveal="lines"><span><FlatEm text={contact.title} /></span></h2>
+      <p class="lead fcontact__lead" data-reveal style="--i: 2">{contact.lead}</p>
+
+      <a class="fcontact__wa" href={site.whatsapp} data-reveal style="--i: 3">
+        <span>Escríbenos por WhatsApp</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" /></svg>
+      </a>
+
+      <p class="fcontact__mail" data-reveal style="--i: 4">
+        <span class="label">o por correo</span>
+        <a class="link" href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </div>
+
+    <form class="fcontact__form" action="https://api.web3forms.com/submit" method="POST" data-flat-form data-reveal style="--i: 2">
+      <p class="label fcontact__form-head">¿Prefieres contárnoslo por escrito?</p>
+
+      <input type="hidden" name="access_key" value={site.web3formsKey} />
+      <input type="hidden" name="subject" value="Nuevo mensaje desde la web de Nanai Studio" />
+      <input type="hidden" name="pagina" value={Astro.url.pathname} />
+      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" hidden />
+
+      <fieldset class="fcontact__kind">
+        <legend class="ffield__label">¿Para quién es el proyecto?</legend>
+        <div class="fcontact__chips">
+          {
+            contactOptions.map((option) => (
+              <label class="fchip">
+                <input type="radio" name="para" value={option.value} checked={option.kind === kind} />
+                <span class="chip">{option.value}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="fcontact__row">
+        <label class="ffield">
+          <span class="ffield__label">Nombre</span>
+          <input type="text" name="nombre" autocomplete="name" required />
+        </label>
+        <label class="ffield">
+          <span class="ffield__label">Email o teléfono</span>
+          <input type="text" name="contacto" autocomplete="email" required />
+        </label>
+      </div>
+
+      <label class="ffield">
+        <span class="ffield__label">¿Qué quieres crear?</span>
+        <textarea name="proyecto" rows="3" placeholder={contact.placeholders.what} required></textarea>
+      </label>
+
+      <div class="fcontact__row">
+        <label class="ffield">
+          <span class="ffield__label">Fecha o plazo</span>
+          <input type="text" name="cuando" placeholder={contact.placeholders.when} />
+        </label>
+        <label class="ffield">
+          <span class="ffield__label">¿Dónde se va a publicar?</span>
+          <input type="text" name="donde" placeholder={contact.placeholders.where} />
+        </label>
+      </div>
+
+      <label class="ffield">
+        <span class="ffield__label">Presupuesto aproximado <span class="ffield__opt">(opcional)</span></span>
+        <input type="text" name="presupuesto" placeholder={contact.placeholders.budget} />
+      </label>
+
+      <button class="btn fcontact__submit" type="submit">
+        Enviar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+
+      <p class="note" role="status" data-flat-note>{contact.note}</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-flat-form]').forEach((form) => {
+    const note = form.querySelector<HTMLElement>('[data-flat-note]');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    // Se envía a Web3Forms sin salir de la página (sin JS, el formulario hace un envío normal
+    // y Web3Forms enseña su página de confirmación). Los mensajes llegan al correo del estudio.
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (import.meta.env.DEV) {
+        if (note) note.textContent = 'Modo desarrollo: el envío está desactivado.';
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form));
+      const replyTo = String(data.contacto ?? '');
+      if (replyTo.includes('@')) data.replyto = replyTo;
+      data.from_name = `${data.nombre ?? 'Web'} · web de Nanai Studio`;
+
+      if (button) button.disabled = true;
+      if (note) note.textContent = 'Enviando…';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message);
+        form.reset();
+        if (note) note.textContent = '¡Recibido! Te responderemos en cuanto podamos. Si te corre prisa, escríbenos por WhatsApp.';
+      } catch {
+        if (note) note.textContent = 'No se ha podido enviar. Prueba otra vez o escríbenos por WhatsApp o por correo.';
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .fcontact__grid {
+    display: grid;
+    gap: clamp(48px, 6vw, 88px);
+  }
+
+  .fcontact__intro {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  .fcontact__title { font-size: clamp(52px, 6.4vw, 112px); }
+  .fcontact__title > span { display: block; }
+  .fcontact__lead { max-width: 34ch; color: var(--f-muted); }
+
+  /* WhatsApp: el camino principal, como un enlace grande y sin caja */
+  .fcontact__wa {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 14px;
+    margin-top: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--f-red);
+    color: var(--f-on-surface);
+    font-family: var(--font-display);
+    font-size: clamp(26px, 2.6vw, 40px);
+    font-weight: 620;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  .fcontact__wa svg {
+    width: 0.8em;
+    height: 0.8em;
+    color: var(--f-red);
+    transition: transform 320ms var(--f-ease-out);
+  }
+
+  .fcontact__wa:hover svg { transform: translate(4px, -4px); }
+
+  .fcontact__mail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+
+  .fcontact__form { display: grid; gap: 18px; }
+  .fcontact__form-head { padding-bottom: 6px; color: var(--f-on-surface); }
+
+  .fcontact__kind {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .fcontact__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .fchip { position: relative; display: inline-flex; }
+
+  .fchip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .fchip .chip {
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .fchip .chip:hover { border-color: var(--f-on-surface); }
+
+  .fchip input:checked + .chip {
+    border-color: transparent;
+    background: var(--f-inverse);
+    color: var(--f-on-inverse);
+  }
+
+  .fchip input:focus-visible + .chip {
+    outline: 2px solid var(--f-red);
+    outline-offset: 2px;
+  }
+
+  .fcontact__row { display: grid; gap: 18px; }
+
+  .ffield { display: grid; gap: 4px; }
+
+  .ffield__label {
+    color: var(--f-muted);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .ffield__opt { font-weight: 400; }
+
+  .ffield input,
+  .ffield textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 4px;
+    border: 0;
+    border-bottom: var(--f-hair) solid var(--f-line-strong);
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 17px;
+    transition: border-color var(--f-dur) var(--f-ease);
+  }
+
+  .ffield textarea { resize: vertical; }
+  .ffield input:focus, .ffield textarea:focus { border-color: var(--f-on-surface); }
+  .ffield input::placeholder, .ffield textarea::placeholder { color: var(--f-muted); opacity: 0.85; }
+
+  .fcontact__submit {
+    justify-self: start;
+    min-height: 52px;
+    margin-top: 6px;
+    padding-inline: 26px;
+  }
+
+  .fcontact__submit svg { transition: transform var(--f-dur) var(--f-ease); }
+  .fcontact__submit:hover svg { transform: translateX(4px); }
+
+  @media (min-width: 768px) {
+    .fcontact__row { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 1024px) {
+    .fcontact__grid { grid-template-columns: 1fr 1.1fr; }
+  }
+</style>

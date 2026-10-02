@@ -1,0 +1,485 @@
+---
+/**
+ * Inicio · Apertura. La web empieza «apagada»: fondo hueso con lecturas de cámara y el
+ * interruptor «Activar creatividad». Mientras se desliza, el interruptor se rellena con un
+ * degradado suave de borde difuminado, aparece «On» y «creatividad» pasa de un gris apagado
+ * al degradado de luz. Al encenderse: REC, timecode y un zoom rápido hacia la palabra.
+ *
+ * De serie va la sencilla: mono a tamaño de lectura e interruptor de ajustes. La grande
+ * (`?intro=grande`) queda para comparar. Todo el progreso sale de --rec-p (0 → 1).
+ * Una vez por sesión. No aparece sin JS, con un ancla en la URL ni si ya se abrió.
+ * `?intro` la fuerza para revisarla.
+ */
+import { site } from '../../data/site';
+
+const [latitude, longitude] = site.coordinates.split(' — ');
+---
+
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    var forced = /[?&]intro(&|=|$)/.test(location.search);
+    var variant = (location.search.match(/[?&]intro=(minimal|grande)(&|$)/) || [])[1] || 'minimal';
+    var seen = false;
+    try {
+      seen = sessionStorage.getItem('nanai-opened') === '1';
+    } catch (e) {}
+    if (variant !== 'grande') root.dataset.openerVariant = variant;
+    if (forced || (!seen && !location.hash)) root.classList.add('has-opener');
+  })();
+</script>
+
+<div class="opener" role="dialog" aria-modal="true" aria-labelledby="opener-title" data-opener>
+  <div class="opener__stage">
+    <span class="opener__corner opener__corner--tl" aria-hidden="true"></span>
+    <span class="opener__corner opener__corner--tr" aria-hidden="true"></span>
+    <span class="opener__corner opener__corner--bl" aria-hidden="true"></span>
+    <span class="opener__corner opener__corner--br" aria-hidden="true"></span>
+
+    <p class="label opener__hud opener__hud--tl" aria-hidden="true">
+      <span class="opener__rec"><span class="opener__rec-dot"></span><span data-rec-label>Stby</span></span>
+      <span class="opener__hud-extra">A001 · C012</span>
+    </p>
+    <p class="label opener__hud opener__hud--tr" aria-hidden="true">
+      <span>ISO 800 · 180°</span>
+      <span>24 FPS · 5600 K</span>
+    </p>
+    <p class="label opener__hud opener__hud--bl" aria-hidden="true">
+      <span>{latitude}</span>
+      <span>{longitude}</span>
+    </p>
+    <p class="label opener__hud opener__hud--br" aria-hidden="true">
+      <span class="opener__hud-extra">f/2.8 · 4K</span>
+      <span data-opener-tc>TC 00:00:00:00</span>
+    </p>
+
+    <div class="opener__face">
+      <p id="opener-title" class="headline headline--h1 opener__title">
+        <span>Activar</span>
+        <span class="opener__word" data-zoom-target>
+          <span class="opener__word-base">creatividad</span>
+          <span class="opener__word-lit" aria-hidden="true">creatividad</span>
+        </span>
+      </p>
+
+      <button
+        class="rec-switch"
+        type="button"
+        role="switch"
+        aria-checked="false"
+        aria-labelledby="opener-title"
+        data-rec-switch
+      >
+        <span class="rec-switch__text rec-switch__text--off" aria-hidden="true">Off</span>
+        <span class="rec-switch__fill" aria-hidden="true">
+          <span class="rec-switch__text rec-switch__text--on">On</span>
+        </span>
+        <span class="rec-switch__knob" aria-hidden="true"></span>
+      </button>
+
+      <!-- Propuesta -->
+      <p class="label opener__caption">Desliza para empezar a grabar</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const opener = document.querySelector<HTMLElement>('div[data-opener]');
+  const toggle = opener?.querySelector<HTMLButtonElement>('[data-rec-switch]');
+  const knob = toggle?.querySelector<HTMLElement>('.rec-switch__knob');
+  const word = opener?.querySelector<HTMLElement>('[data-zoom-target]');
+
+  if (opener && toggle && knob && word && root.classList.contains('has-opener')) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const recLabel = opener.querySelector<HTMLElement>('[data-rec-label]');
+    const timecode = opener.querySelector<HTMLElement>('[data-opener-tc]');
+
+    // Mientras la apertura está puesta, el resto de la página no recibe foco ni clics.
+    const blocked = [...document.body.children].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el !== opener && el.tagName !== 'SCRIPT',
+    );
+    blocked.forEach((el) => (el.inert = true));
+
+    const wait = (ms: number) =>
+      new Promise((resolve) => window.setTimeout(resolve, reduceMotion ? Math.min(ms, 150) : ms));
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const setProgress = (value: number) => opener.style.setProperty('--rec-p', String(value));
+    let on = false;
+
+    const turnOn = async () => {
+      if (on) return;
+      on = true;
+
+      opener.classList.remove('is-dragging');
+      setProgress(1);
+      toggle.setAttribute('aria-checked', 'true');
+      opener.classList.add('is-on');
+      if (recLabel) recLabel.textContent = 'Rec';
+      // Vibración breve en móvil; solo tras un gesto real (si no, el navegador lo bloquea y avisa).
+      if ('vibrate' in navigator && navigator.userActivation?.isActive) navigator.vibrate(12);
+
+      const recStart = performance.now();
+      root.dataset.recStart = String(recStart);
+      try {
+        sessionStorage.setItem('nanai-opened', '1');
+      } catch {
+        // Almacenamiento bloqueado: la apertura volverá a salir, sin más.
+      }
+
+      const tick = window.setInterval(() => {
+        const frame = Math.floor((performance.now() - recStart) / (1000 / 24));
+        const s = Math.floor(frame / 24);
+        if (timecode) {
+          timecode.textContent = `TC ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(frame % 24)}`;
+        }
+      }, 1000 / 24);
+
+      // Beat corto: el interruptor termina de encenderse y la palabra se ve entera en color.
+      await wait(450);
+      const box = word.getBoundingClientRect();
+      opener.style.setProperty('--zoom-x', `${box.left + box.width / 2}px`);
+      opener.style.setProperty('--zoom-y', `${box.top + box.height / 2}px`);
+      opener.classList.add('is-zooming');
+      root.classList.add('is-revealing');
+
+      await wait(470);
+      window.clearInterval(tick);
+      const hadFocus = opener.contains(document.activeElement);
+      opener.remove();
+      root.classList.remove('has-opener', 'is-revealing');
+      blocked.forEach((el) => (el.inert = false));
+
+      if (hadFocus) {
+        const main = document.getElementById('contenido');
+        if (main) {
+          main.tabIndex = -1;
+          main.focus({ preventScroll: true });
+        }
+      }
+    };
+
+    // Arrastre: el progreso sigue al dedo; pasada la mitad, se enciende. Un toque también enciende.
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let progress = 0;
+
+    const travel = () => {
+      const padding = parseFloat(getComputedStyle(toggle).paddingLeft);
+      return toggle.clientWidth - knob.offsetWidth - padding * 2;
+    };
+
+    toggle.addEventListener('pointerdown', (event) => {
+      if (on) return;
+      dragging = true;
+      moved = false;
+      progress = 0;
+      startX = event.clientX;
+      opener.classList.add('is-dragging');
+      try {
+        toggle.setPointerCapture(event.pointerId);
+      } catch {
+        // Puntero sintético o ya liberado.
+      }
+    });
+
+    toggle.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      const dx = event.clientX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      progress = Math.max(0, Math.min(1, dx / travel()));
+      setProgress(progress);
+    });
+
+    const release = () => {
+      if (!dragging) return;
+      dragging = false;
+      opener.classList.remove('is-dragging');
+      if (moved && progress >= 0.5) void turnOn();
+      else if (moved) setProgress(0);
+    };
+
+    toggle.addEventListener('pointerup', release);
+    toggle.addEventListener('pointercancel', release);
+
+    // Toque, Espacio o Intro. Un arrastre que no llega a la mitad no cuenta como toque.
+    toggle.addEventListener('click', () => {
+      if (moved) {
+        moved = false;
+        return;
+      }
+      void turnOn();
+    });
+  }
+</script>
+
+<style>
+  /* Registrada para que el progreso se pueda animar (toque o teclado) igual que al arrastrar */
+  @property --rec-p {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
+  /* Sin la clase (sin JS, ya vista o con ancla) la apertura no existe */
+  .opener {
+    --rec-p: 0;
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    overflow: hidden;
+    transition: --rec-p var(--dur-slide) var(--ease-standard);
+  }
+
+  .opener.is-dragging { transition: none; }
+
+  :global(html.has-opener) .opener { display: block; }
+  :global(html.has-opener) { overflow: hidden; }
+
+  /* Mientras tanto la nav espera oculta y el hero, un poco alejado */
+  :global(html.has-opener [data-hero]) { transform: scale(0.96); }
+
+  :global(html.has-opener.is-revealing [data-hero]) {
+    transform: scale(1);
+    transition: transform var(--dur-zoom) var(--ease-standard);
+  }
+
+  :global(html.has-opener .topnav) { opacity: 0; }
+
+  :global(html.has-opener.is-revealing .topnav) {
+    opacity: 1;
+    transition: opacity var(--dur-reveal) var(--ease-standard) 150ms;
+  }
+
+  /* ── Escenario: todo lo que se ve, y lo que hace zoom ────────── */
+  .opener__stage {
+    position: absolute;
+    inset: 0;
+    background: var(--bone);
+    color: var(--text-on-bone);
+    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+  }
+
+  .opener.is-zooming .opener__stage {
+    animation: opener-zoom var(--dur-zoom) var(--ease-zoom) both;
+  }
+
+  @keyframes opener-zoom {
+    0% { transform: scale(1); opacity: 1; }
+    40% { opacity: 1; }
+    100% { transform: scale(var(--zoom-scale)); opacity: 0; }
+  }
+
+  /* ── Lecturas de cámara ─────────────────────────────────────── */
+  .opener__corner {
+    position: absolute;
+    width: var(--frame-mark);
+    height: var(--frame-mark);
+    border: 0 solid var(--text-on-bone);
+  }
+
+  .opener__corner--tl { top: var(--space-3); left: var(--space-3); border-top-width: var(--hairline); border-left-width: var(--hairline); }
+  .opener__corner--tr { top: var(--space-3); right: var(--space-3); border-top-width: var(--hairline); border-right-width: var(--hairline); }
+  .opener__corner--bl { bottom: var(--space-3); left: var(--space-3); border-bottom-width: var(--hairline); border-left-width: var(--hairline); }
+  .opener__corner--br { bottom: var(--space-3); right: var(--space-3); border-bottom-width: var(--hairline); border-right-width: var(--hairline); }
+
+  .opener__hud {
+    position: absolute;
+    display: grid;
+    color: var(--text-on-bone);
+    white-space: nowrap;
+  }
+
+  .opener__hud--tl { top: var(--space-6); left: var(--space-8); }
+  .opener__hud--tr { top: var(--space-6); right: var(--space-8); text-align: right; }
+  .opener__hud--bl { bottom: var(--space-6); left: var(--space-8); }
+  .opener__hud--br { bottom: var(--space-6); right: var(--space-8); text-align: right; }
+
+  .opener__rec {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .opener__rec-dot {
+    width: var(--space-1);
+    height: var(--space-1);
+    border-radius: var(--radius-pill);
+    background: var(--muted-on-bone);
+  }
+
+  .opener.is-on .opener__rec-dot {
+    background: var(--red);
+    animation: rec-blink 1s steps(1) infinite;
+  }
+
+  @keyframes rec-blink {
+    50% { opacity: 0; }
+  }
+
+  /* ── Centro: título e interruptor ───────────────────────────── */
+  .opener__face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-4);
+    padding: var(--gutter);
+    text-align: center;
+  }
+
+  /* «creatividad»: gris apagado debajo y el degradado encima, descubierto de izquierda a
+     derecha según el progreso, con el borde suave */
+  .opener__word {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .opener__word-base { color: var(--opener-dim); }
+
+  .opener__word-lit {
+    position: absolute;
+    inset: 0;
+    background: var(--light-active);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      var(--ink) calc(var(--rec-p) * 130% - 30%),
+      transparent calc(var(--rec-p) * 130%)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      var(--ink) calc(var(--rec-p) * 130% - 30%),
+      transparent calc(var(--rec-p) * 130%)
+    );
+  }
+
+  .rec-switch {
+    --pad: calc((var(--rec-switch-h) - var(--rec-knob)) / 2);
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: var(--rec-switch-w);
+    height: var(--rec-switch-h);
+    padding: var(--pad);
+    border: var(--hairline) solid var(--text-on-bone);
+    border-radius: var(--radius-pill);
+    background: var(--hairline-bone);
+    color: var(--text-on-bone);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .opener.is-dragging .rec-switch { cursor: grabbing; }
+
+  /* Relleno suave con el borde de avance difuminado: sin cortes limpios.
+     A 0 no se ve nada; a 1 cubre todo el interruptor. */
+  .rec-switch__fill {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-pill);
+    background: var(--light-active-soft);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      var(--ink) calc(var(--rec-p) * (100% + var(--rec-feather)) - var(--rec-feather)),
+      transparent calc(var(--rec-p) * (100% + var(--rec-feather)))
+    );
+    mask-image: linear-gradient(
+      90deg,
+      var(--ink) calc(var(--rec-p) * (100% + var(--rec-feather)) - var(--rec-feather)),
+      transparent calc(var(--rec-p) * (100% + var(--rec-feather)))
+    );
+  }
+
+  .rec-switch__knob {
+    position: relative;
+    z-index: 1;
+    width: var(--rec-knob);
+    height: var(--rec-knob);
+    border-radius: var(--radius-pill);
+    background: var(--ink);
+    transform: translateX(calc(var(--rec-p) * (100cqw - var(--rec-knob))));
+  }
+
+  .rec-switch__text {
+    position: absolute;
+    top: 50%;
+    color: var(--text-on-bone);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    transform: translateY(-50%);
+  }
+
+  /* «On» vive dentro del relleno: aparece a medida que el relleno se descubre */
+  .rec-switch__text--on { left: var(--space-4); }
+
+  .rec-switch__text--off {
+    right: var(--space-4);
+    opacity: clamp(0, calc(1 - var(--rec-p) * 2), 1);
+  }
+
+  @media (max-width: 767px) {
+    .opener__hud--tl,
+    .opener__hud--bl { left: var(--space-4); }
+
+    .opener__hud--tr,
+    .opener__hud--br { right: var(--space-4); }
+  }
+
+  /* ── Variante sencilla (la de serie; /?intro=grande da la grande) ──
+     Todo en mono a tamaño legible, interruptor de ajustes y solo REC y timecode. */
+  :global(html[data-opener-variant='minimal']) .opener {
+    --rec-switch-w: var(--rec-switch-w-sm);
+    --rec-switch-h: var(--rec-switch-h-sm);
+    --rec-knob: var(--rec-knob-sm);
+    --rec-feather: var(--rec-feather-sm);
+    --zoom-scale: var(--zoom-scale-minimal);
+  }
+
+  :global(html[data-opener-variant='minimal']) .opener__corner,
+  :global(html[data-opener-variant='minimal']) .opener__hud--tr,
+  :global(html[data-opener-variant='minimal']) .opener__hud--bl,
+  :global(html[data-opener-variant='minimal']) .opener__hud-extra,
+  :global(html[data-opener-variant='minimal']) .opener__caption {
+    display: none;
+  }
+
+  :global(html[data-opener-variant='minimal']) .opener__face {
+    gap: var(--space-3);
+  }
+
+  /* Mono a tamaño de lectura: «Activar» normal y «creatividad» en negrita */
+  :global(html[data-opener-variant='minimal']) .opener__title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-opener-sm);
+    font-weight: var(--weight-regular);
+    line-height: var(--lh-body);
+    letter-spacing: normal;
+  }
+
+  :global(html[data-opener-variant='minimal']) .opener__word {
+    font-weight: var(--weight-headline);
+  }
+
+  :global(html[data-opener-variant='minimal']) .opener__word-base {
+    color: var(--opener-dim-sm);
+  }
+
+  /* El rótulo cabe dentro del interruptor pequeño si se acerca a los bordes */
+  :global(html[data-opener-variant='minimal']) .rec-switch__text--on { left: var(--space-3); }
+  :global(html[data-opener-variant='minimal']) .rec-switch__text--off { right: var(--space-3); }
+
+  :global(html[data-opener-variant='minimal']) .opener__hud--tl,
+  :global(html[data-opener-variant='minimal']) .opener__hud--br {
+    color: var(--muted-on-bone);
+  }
+</style>

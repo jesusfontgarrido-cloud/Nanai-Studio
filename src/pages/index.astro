@@ -1,0 +1,48 @@
+---
+/**
+ * Inicio. Orden: hero · cinta de oficios · cómo trabajamos (en bloques, un solo método
+ * para marcas y artistas) · proceso (franja sin número) · el trabajo · la idea firmada por quien dirige · preguntas ·
+ * contacto. La piel anterior sigue en `_retirado/`.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/flat.css';
+import FlatOpener from '../components/flat/FlatOpener.astro';
+import FlatMotion from '../components/flat/FlatMotion.astro';
+import FlatNav from '../components/flat/FlatNav.astro';
+import FlatHero from '../components/flat/FlatHero.astro';
+import FlatMethod from '../components/flat/FlatMethod.astro';
+import FlatSteps from '../components/flat/FlatSteps.astro';
+import FlatWork from '../components/flat/FlatWork.astro';
+import FlatManifesto from '../components/flat/FlatManifesto.astro';
+import FlatFaq from '../components/flat/FlatFaq.astro';
+import FlatReviews from '../components/flat/FlatReviews.astro';
+import FlatContact from '../components/flat/FlatContact.astro';
+import FlatFooter from '../components/flat/FlatFooter.astro';
+import { featuredWork, homeFaq } from '../data/copy';
+import { featuredProjects } from '../data/work';
+---
+
+<BaseLayout
+  title="Nanai Studio | Productora audiovisual creativa en Sevilla"
+  description="Productora audiovisual creativa en Sevilla. Dirección creativa y producción audiovisual para marcas, artistas y creadores."
+  path="/"
+>
+  <div class="flat">
+    <FlatMotion />
+    <FlatOpener />
+    <FlatNav />
+
+    <main id="contenido">
+      <FlatHero />
+      <FlatMethod />
+      <FlatSteps />
+      <FlatWork projects={featuredProjects} title={featuredWork.title} deck={featuredWork.deck} more={{ href: '/trabajos', label: 'Ver todos los trabajos' }} />
+      <FlatManifesto />
+      <FlatFaq items={homeFaq} />
+      <FlatReviews />
+      <FlatContact />
+    </main>
+
+    <FlatFooter />
+  </div>
+</BaseLayout>

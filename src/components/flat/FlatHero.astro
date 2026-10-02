@@ -1,0 +1,182 @@
+---
+/**
+ * Hero. La estructura de la web publicada de Nanai (bien resuelta): la foto ocupa toda la
+ * pantalla y el texto va encima, centrado en la pantalla, en claro sobre una sombra suave
+ * que solo oscurece lo que hay detrás de las letras. Abajo, la foto se funde con el papel:
+ * así el hero y el resto de la página son del mismo color y no hay corte.
+ *
+ * Foto: rodaje de Fama de Maleante (operador con gimbal, Ana Vas, el Mustang rojo y el
+ * equipo grabando): una productora trabajando. En el claim, dos fotogramas recortados con
+ * formas suaves (píldora y arco). Debajo, los dos botones: ver el trabajo o WhatsApp.
+ */
+import { getImage } from 'astro:assets';
+import heroImage from '../../assets/media/bts/fama-rodaje-mustang.jpg';
+import feeling from '../../assets/media/bts/fama-retrato-rojo.jpg';
+import tradersPoster from '../../assets/media/traders-poster.jpg';
+import FlatSlideCta from './FlatSlideCta.astro';
+import { site } from '../../data/site';
+
+const feelingFrame = await getImage({ src: feeling, format: 'webp', width: 480, height: 240, fit: 'cover' });
+
+/* La foto, con dirección de arte: en pantallas verticales (móvil) va un recorte vertical
+   propio; si no, el navegador bajaría la foto apaisada pequeña y la estiraría (borrosa). */
+const wide = [1024, 1440, 1920, 2560];
+const tall = [[900, 1600], [1260, 2240]];
+const set = async (format: 'avif' | 'webp') => ({
+  wide: (await Promise.all(wide.map((width) => getImage({ src: heroImage, format, width })))).map((img, i) => `${img.src} ${wide[i]}w`).join(', '),
+  tall: (await Promise.all(tall.map(([width, height]) => getImage({ src: heroImage, format, width, height, fit: 'cover' })))).map((img, i) => `${img.src} ${tall[i][0]}w`).join(', '),
+});
+const avif = await set('avif');
+const webp = await set('webp');
+const fallback = await getImage({ src: heroImage, format: 'jpg', width: 1920 });
+const portrait = '(max-aspect-ratio: 2/3)';
+const wideSizes = '(max-aspect-ratio: 3/2) 150vh, 100vw';
+const workFrame = await getImage({ src: tradersPoster, format: 'webp', width: 400, height: 320, fit: 'cover' });
+---
+
+<section class="fhero" aria-label="Presentación" data-hero>
+  <figure class="fhero__photo" data-reveal="focus">
+    <picture>
+      <source media={portrait} type="image/avif" srcset={avif.tall} sizes="100vw" />
+      <source media={portrait} type="image/webp" srcset={webp.tall} sizes="100vw" />
+      <source type="image/avif" srcset={avif.wide} sizes={wideSizes} />
+      <source type="image/webp" srcset={webp.wide} sizes={wideSizes} />
+      <img
+        src={fallback.src}
+        width={heroImage.width}
+        height={heroImage.height}
+        alt="Rodaje del videoclip Fama de Maleante: un operador con gimbal graba a Ana Vas junto a un Mustang rojo, con el equipo alrededor"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+  </figure>
+  <span class="fhero__shade" aria-hidden="true"></span>
+  <span class="fhero__fade" aria-hidden="true"></span>
+
+  <div class="wrap fhero__content">
+    <p class="label fhero__label" data-reveal>Productora creativa en Sevilla</p>
+
+    <h1 class="display fhero__title" data-reveal="lines" style="--i: 1">
+      <span>
+        Que se <span class="inframe inframe--pill" aria-hidden="true"><img src={feelingFrame.src} alt="" width="480" height="240" decoding="async" /></span>
+        <em class="accent">sienta</em>,
+      </span>
+      <span>
+        y que <span class="inframe inframe--arch" aria-hidden="true"><img src={workFrame.src} alt="" width="400" height="320" decoding="async" /></span>
+        funcione
+      </span>
+    </h1>
+
+    <div class="fhero__actions" data-reveal style="--i: 4">
+      <FlatSlideCta href="#trabajo" label="Ver trabajos" />
+      <FlatSlideCta href={site.whatsapp} label="WhatsApp" variant="outline" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .fhero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: hidden;
+    background: var(--f-bg);
+  }
+
+  /* La foto, a sangre: ocupa toda la pantalla */
+  .fhero__photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    margin: 0;
+  }
+
+  .fhero__photo :global(picture),
+  .fhero__photo :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 36%;
+  }
+
+  /* Sombra solo detrás del texto, para leerlo sin apagar la foto entera */
+  .fhero__shade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 46%, rgba(12, 12, 11, 0.62), rgba(12, 12, 11, 0.3) 62%, rgba(12, 12, 11, 0) 100%),
+      linear-gradient(rgba(12, 12, 11, 0.06), rgba(12, 12, 11, 0.06));
+  }
+
+  /* Abajo del todo, la foto se funde con el papel: sin corte con lo que sigue */
+  .fhero__fade {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to bottom,
+      rgba(244, 244, 241, 0) 82%,
+      rgba(244, 244, 241, 0.75) 93%,
+      #F4F4F1 100%
+    );
+  }
+
+  /* Texto en claro sobre la foto */
+  .fhero__content {
+    --f-on-surface: #F4F4F1;
+    --f-line-strong: rgba(244, 244, 241, 0.6);
+    --f-inverse: #F4F4F1;
+    --f-on-inverse: #151514;
+    --f-surface-3: rgba(244, 244, 241, 0.2);
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+    padding-top: 72px;
+    padding-bottom: clamp(40px, 9vh, 110px);
+    color: var(--f-on-surface);
+    text-align: center;
+    text-shadow: 0 1px 28px rgba(12, 12, 11, 0.28);
+  }
+
+  .fhero__label { color: var(--f-on-surface); }
+
+  .fhero__title {
+    font-size: clamp(44px, 8vw, 140px);
+    color: var(--f-on-surface);
+  }
+
+  .fhero__title .inframe { box-shadow: 0 0 0 2px rgba(244, 244, 241, 0.9); }
+
+  /* Todo el claim en claro: «sienta» en rojo no se leía sobre la foto */
+  .fhero__title .accent { color: inherit; }
+
+  .fhero__title > span { display: block; }
+
+  .fhero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 699px) {
+    .fhero__photo :global(img) { object-position: 50% 40%; }
+
+    .fhero__shade {
+      background:
+        radial-gradient(ellipse 95% 42% at 50% 47%, rgba(12, 12, 11, 0.64), rgba(12, 12, 11, 0.3) 70%, rgba(12, 12, 11, 0) 100%),
+        linear-gradient(rgba(12, 12, 11, 0.16), rgba(12, 12, 11, 0.16));
+    }
+
+    .fhero__title { font-size: clamp(42px, 12vw, 64px); }
+  }
+</style>

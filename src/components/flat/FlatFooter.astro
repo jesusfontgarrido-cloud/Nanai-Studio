@@ -1,0 +1,122 @@
+---
+/**
+ * Pie: el cierre en negro, como el final de una película. Arriba, los datos del estudio y
+ * los enlaces; abajo, el logo oficial a todo el ancho, cortado por el borde inferior como un
+ * rótulo que sale de plano (el único sitio donde va así de grande; nunca un nombre compuesto
+ * con otras tipografías). Sin llamada a la acción: el contacto va justo encima.
+ */
+import { site } from '../../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="sec tone-dark ffooter">
+  <div class="wrap ffooter__inner">
+    <div class="ffooter__top">
+      <dl class="ffooter__data">
+        <div><dt class="label">Estudio</dt><dd>Productora audiovisual creativa</dd></div>
+        <div><dt class="label">Base</dt><dd>Sevilla · {site.coordinates}</dd></div>
+        <div><dt class="label">Contacto</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
+      </dl>
+
+      <nav class="ffooter__links" aria-label="Pie">
+        <a class="chip" href="/trabajos">Trabajos</a>
+        <a class="chip" href="/sobre-nosotros">Sobre nosotros</a>
+        <a class="chip" href={site.instagram}>Instagram</a>
+        <a class="chip" href={site.whatsapp}>WhatsApp</a>
+        <a class="chip" href="#pendiente-weddings" data-pending="url">Nanai Weddings</a>
+      </nav>
+    </div>
+
+    <div class="ffooter__legal">
+      <a href="#pendiente-aviso-legal" data-pending="page">Aviso legal</a>
+      <a href="#pendiente-privacidad" data-pending="page">Política de privacidad</a>
+      <span class="readout ffooter__end"><span class="readout__key">©</span>{year} Nanai Studio</span>
+    </div>
+  </div>
+
+  <div class="ffooter__logo-wrap" aria-hidden="true">
+    <img class="ffooter__logo" src="/brand/logo-horizontal-blanco.svg" alt="" width="478" height="61" loading="lazy" />
+  </div>
+</footer>
+
+<style>
+  .ffooter {
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  .ffooter__inner {
+    display: grid;
+    gap: clamp(40px, 5vw, 72px);
+  }
+
+  .ffooter__top {
+    display: grid;
+    gap: 36px;
+  }
+
+  .ffooter__data {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .ffooter__data div { display: grid; gap: 2px; }
+  .ffooter__data dd { margin: 0; color: var(--f-on-surface); }
+  .ffooter__data a { display: inline-block; padding-block: 7px; text-decoration: none; }
+  .ffooter__data a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+
+  .ffooter__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+    gap: 8px;
+  }
+
+  .ffooter__links .chip:hover {
+    border-color: transparent;
+    background: var(--f-inverse);
+    color: var(--f-on-inverse);
+  }
+
+  .ffooter__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    padding-top: 18px;
+    border-top: var(--f-hair) solid var(--f-line);
+    color: var(--f-muted);
+    font-size: 15px;
+  }
+
+  .ffooter__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+
+  .ffooter__end { margin-left: auto; }
+
+  /* El logo sale de plano por abajo: se ve el 78 % superior */
+  .ffooter__logo-wrap {
+    width: 100%;
+    max-width: var(--f-maxw);
+    margin: clamp(32px, 4vw, 56px) auto 0;
+    padding-inline: var(--f-gutter);
+    aspect-ratio: 478 / 48;
+    overflow: hidden;
+  }
+
+  .ffooter__logo {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (min-width: 900px) {
+    .ffooter__top { grid-template-columns: 1fr 1fr; align-items: start; }
+    .ffooter__links { justify-content: flex-end; }
+  }
+</style>

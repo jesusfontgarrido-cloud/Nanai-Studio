@@ -1,0 +1,459 @@
+---
+/**
+ * El trabajo: la sala de proyección, en negro. Fotogramas limpios con solo su título debajo.
+ * Al pasar el ratón, el propio vídeo se oscurece y aparecen su información (tipo y rol) y
+ * el botón de reproducir. En táctil, el botón se ve siempre.
+ *
+ * El trabajo se ve sin salir de la web: al pulsar una pieza se abre el reproductor dentro de
+ * la página (YouTube sin cookies hasta que se reproduce, o el vídeo propio). Sin JS, o con
+ * Ctrl/Cmd, el enlace sigue llevando a YouTube.
+ */
+import { getImage } from 'astro:assets';
+import tradersPoster from '../../assets/media/traders-poster.jpg';
+import { projectHref, ytSrcset, ytThumb, type Project } from '../../data/work';
+
+interface Props {
+  projects: Project[];
+  /** Titular de la sección. */
+  title?: string;
+  /** Una línea bajo el titular. */
+  deck?: string;
+  /** Enlace junto al titular (p. ej. «Ver todos los trabajos»). */
+  more?: { href: string; label: string };
+  /** Adónde lleva una pieza que no está publicada en abierto (sin JS). */
+  fallbackHref?: string;
+  /** Ancla de la sección. Solo la de «trabajo» lleva además la de la web anterior. */
+  id?: string;
+  /** La primera pieza a todo el ancho. */
+  lead?: boolean;
+  /** Columnas en escritorio ancho (por defecto 2). */
+  cols?: 2 | 3;
+}
+
+const {
+  projects,
+  title = 'Trabajo seleccionado',
+  deck,
+  more,
+  fallbackHref = '/trabajos',
+  id = 'trabajo',
+  lead = false,
+  cols = 2,
+} = Astro.props;
+
+const playerTitle = `${id}-player-title`;
+const poster = await getImage({ src: tradersPoster, format: 'webp', width: 1280 });
+const mediaSrc = (project: Project) =>
+  project.youtubeId ? ytThumb(project.youtubeId) : project.poster === 'traders' ? poster.src : '';
+const sizes = cols === 3 ? '(min-width: 1200px) 31vw, (min-width: 900px) 47vw, 94vw' : '(min-width: 900px) 47vw, 94vw';
+const pieceName = (project: Project) => [project.client, project.title].filter(Boolean).join(' · ');
+---
+
+<section id={id} class="sec tone-dark fwork" aria-labelledby={`${id}-title`}>
+  {id === 'trabajo' && <span id="proyectos" class="fwork__anchor" aria-hidden="true" />}
+
+  <div class="wrap">
+    <div class="fwork__head">
+      <div class="fwork__titles">
+        <h2 id={`${id}-title`} class="h2" data-reveal="lines"><span>{title}</span></h2>
+        {deck && <p class="fwork__deck" data-reveal style="--i: 2">{deck}</p>}
+      </div>
+      {more && <a class="link fwork__more" href={more.href} data-reveal>{more.label} →</a>}
+    </div>
+
+    <ul class:list={['fwork__grid', { 'fwork__grid--lead': lead, 'fwork__grid--3': cols === 3 }]} role="list" data-stagger>
+      {
+        projects.map((project) => {
+          const youtube = Boolean(project.youtubeId);
+          const href = projectHref(project) ?? fallbackHref;
+          return (
+            <li class="fpiece">
+              <a
+                class="fpiece__link"
+                href={href}
+                {...(youtube ? { target: '_blank', rel: 'noopener' } : {})}
+                data-play={youtube ? 'youtube' : project.video ? 'file' : undefined}
+                data-play-id={project.youtubeId}
+                data-play-src={project.video}
+                data-play-name={pieceName(project)}
+                data-play-meta={`${project.type} · ${project.role}`}
+              >
+                <span class="fpiece__media">
+                  {project.video ? (
+                    <video src={project.video} poster={mediaSrc(project)} width="1280" height="720" muted loop playsinline preload="none" data-hover-video />
+                  ) : (
+                    <img
+                      src={mediaSrc(project)}
+                      srcset={project.youtubeId ? ytSrcset(project.youtubeId) : undefined}
+                      sizes={sizes}
+                      alt=""
+                      width="1280"
+                      height="720"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+
+                  <!-- Al pasar el ratón: el vídeo se oscurece y aparece lo demás -->
+                  <span class="fpiece__over" aria-hidden="true">
+                    <span class="fpiece__info">
+                      <span class="label">{project.type}</span>
+                      <span class="label fpiece__role">{project.role}</span>
+                    </span>
+                    <span class="fpiece__play">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z" /></svg>
+                      Reproducir
+                    </span>
+                  </span>
+                </span>
+
+                <span class="fpiece__caption">
+                  <span class="fpiece__client">{project.client}</span>
+                  {project.title && <span class="fpiece__name">{project.title}</span>}
+                </span>
+                <span class="visually-hidden">(reproducir vídeo)</span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+
+  <!-- Reproductor: uno por sección, se llena al abrir y se vacía al cerrar -->
+  <dialog class="fplayer" aria-labelledby={playerTitle} data-player>
+    <div class="fplayer__bar">
+      <p id={playerTitle} class="fplayer__title" data-player-title>Reproductor</p>
+      <span class="label fplayer__meta" data-player-meta></span>
+      <button class="fplayer__close" type="button" data-player-close>
+        Cerrar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+    <div class="fplayer__screen" data-player-screen></div>
+    <a class="label fplayer__out" href="#" target="_blank" rel="noopener" data-player-out hidden>Ver en YouTube ↗</a>
+  </dialog>
+</section>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // Bucle de vista previa al pasar el ratón (solo vídeo propio).
+  if (finePointer && !reduceMotion) {
+    document.querySelectorAll<HTMLVideoElement>('video[data-hover-video]').forEach((video) => {
+      const host = video.closest('a') ?? video;
+      host.addEventListener('mouseenter', () => void video.play().catch(() => {}));
+      host.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    });
+  }
+
+  // Reproductor dentro de la web.
+  document.querySelectorAll<HTMLElement>('.fwork').forEach((section) => {
+    const dialog = section.querySelector<HTMLDialogElement>('dialog[data-player]');
+    const screen = dialog?.querySelector<HTMLElement>('[data-player-screen]');
+    const titleNode = dialog?.querySelector<HTMLElement>('[data-player-title]');
+    const metaNode = dialog?.querySelector<HTMLElement>('[data-player-meta]');
+    const out = dialog?.querySelector<HTMLAnchorElement>('[data-player-out]');
+    if (!dialog || !screen || typeof dialog.showModal !== 'function') return;
+
+    let opener: HTMLElement | null = null;
+
+    const open = (link: HTMLAnchorElement) => {
+      const kind = link.dataset.play;
+      screen.replaceChildren();
+
+      if (kind === 'youtube' && link.dataset.playId) {
+        const frame = document.createElement('iframe');
+        frame.src = `https://www.youtube-nocookie.com/embed/${link.dataset.playId}?autoplay=1&rel=0&playsinline=1`;
+        frame.title = `Vídeo: ${link.dataset.playName ?? ''}`;
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        frame.allowFullscreen = true;
+        screen.append(frame);
+        if (out) {
+          out.href = link.href;
+          out.hidden = false;
+        }
+      } else if (kind === 'file' && link.dataset.playSrc) {
+        const video = document.createElement('video');
+        video.src = link.dataset.playSrc;
+        video.controls = true;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        screen.append(video);
+        if (out) out.hidden = true;
+      } else {
+        return false;
+      }
+
+      if (titleNode) titleNode.textContent = link.dataset.playName ?? '';
+      if (metaNode) metaNode.textContent = link.dataset.playMeta ?? '';
+      opener = link;
+      dialog.showModal();
+      return true;
+    };
+
+    section.querySelectorAll<HTMLAnchorElement>('a[data-play]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (open(link)) event.preventDefault();
+      });
+    });
+
+    const close = () => dialog.close();
+    dialog.querySelector('[data-player-close]')?.addEventListener('click', close);
+    // Un clic fuera de la pantalla (en el fondo) también cierra.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+    dialog.addEventListener('close', () => {
+      screen.replaceChildren();
+      opener?.focus({ preventScroll: true });
+    });
+  });
+</script>
+
+<style>
+  .fwork__anchor {
+    position: absolute;
+    top: -80px;
+  }
+
+  .fwork__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px 32px;
+    margin-bottom: clamp(28px, 3.6vw, 48px);
+  }
+
+  .fwork__head h2 > span { display: block; }
+  .fwork__titles { display: grid; gap: 10px; }
+  .fwork__deck { max-width: 52ch; color: var(--f-muted); }
+
+  .fwork__grid {
+    display: grid;
+    gap: clamp(32px, 3.6vw, 52px) var(--f-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fpiece__link {
+    display: grid;
+    gap: 14px;
+    text-decoration: none;
+  }
+
+  .fpiece__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--f-r-media);
+    background: var(--f-surface-2);
+  }
+
+  .fwork__grid--lead > :first-child .fpiece__media { aspect-ratio: 21 / 9; }
+
+  .fpiece__media img,
+  .fpiece__media video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--f-ease-out);
+  }
+
+  .fwork__grid--lead > :first-child .fpiece__media video,
+  .fwork__grid--lead > :first-child .fpiece__media img { object-position: 50% 22%; }
+
+  /* Capa que oscurece el vídeo y descubre la información */
+  .fpiece__over {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(16px, 2vw, 26px);
+    background: rgba(10, 10, 10, 0.62);
+    color: #F4F4F1;
+    opacity: 0;
+    transition: opacity 320ms var(--f-ease-out);
+  }
+
+  .fpiece__info {
+    display: grid;
+    gap: 2px;
+    transform: translateY(-6px);
+    transition: transform 420ms var(--f-ease-out);
+  }
+
+  .fpiece__info .label { color: #F4F4F1; }
+  .fpiece__role { opacity: 0.8; }
+
+  .fpiece__play {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    padding-inline: 16px;
+    border-radius: var(--f-r);
+    background: var(--f-red);
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 600;
+    transform: translateY(6px);
+    transition: transform 420ms var(--f-ease-out);
+  }
+
+  .fpiece__play svg { width: 13px; height: 13px; }
+
+  .fpiece__link:hover .fpiece__over,
+  .fpiece__link:focus-visible .fpiece__over { opacity: 1; }
+
+  .fpiece__link:hover .fpiece__info,
+  .fpiece__link:hover .fpiece__play,
+  .fpiece__link:focus-visible .fpiece__info,
+  .fpiece__link:focus-visible .fpiece__play { transform: none; }
+
+  .fpiece__link:hover .fpiece__media img,
+  .fpiece__link:hover .fpiece__media video { transform: scale(1.03); }
+
+  /* En táctil no hay ratón: el botón de reproducir se ve siempre, sin oscurecer */
+  @media (hover: none) {
+    .fpiece__over {
+      justify-content: flex-end;
+      background: none;
+      opacity: 1;
+    }
+
+    .fpiece__info { display: none; }
+    .fpiece__play { transform: none; }
+  }
+
+  /* Debajo, solo el título */
+  .fpiece__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .fpiece__client { color: var(--f-on-surface); font-weight: 600; }
+  .fpiece__name { color: var(--f-muted); }
+
+  /* ── Reproductor ─────────────────────────────────────────── */
+  .fplayer {
+    width: min(1280px, calc(100vw - 2 * var(--f-gutter)));
+    max-width: none;
+    max-height: calc(100dvh - 2 * var(--f-gutter));
+    margin: auto;
+    padding: 0;
+    border: var(--f-hair) solid var(--f-line);
+    border-radius: var(--f-r);
+    background: #000;
+    color: var(--f-on-surface);
+    overflow: hidden;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 280ms var(--f-ease-out),
+      transform 420ms var(--f-ease-out),
+      overlay 280ms allow-discrete,
+      display 280ms allow-discrete;
+  }
+
+  .fplayer:not([open]) {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  @starting-style {
+    .fplayer[open] {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+
+  .fplayer::backdrop { background: rgba(0, 0, 0, 0.9); }
+
+  .fplayer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+    padding: 10px 10px 10px 18px;
+    border-bottom: var(--f-hair) solid var(--f-line);
+  }
+
+  .fplayer__title { font-weight: 600; }
+  .fplayer__meta { color: var(--f-muted); }
+
+  .fplayer__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    margin-left: auto;
+    padding-inline: 14px;
+    border: var(--f-hair) solid var(--f-line-strong);
+    border-radius: var(--f-r);
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-type);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .fplayer__close:hover { background: var(--f-surface-2); }
+  .fplayer__close svg { width: 16px; height: 16px; }
+
+  .fplayer__screen {
+    aspect-ratio: 16 / 9;
+    max-height: calc(100dvh - 2 * var(--f-gutter) - 110px);
+    margin-inline: auto;
+    background: #000;
+  }
+
+  .fplayer__screen :global(iframe),
+  .fplayer__screen :global(video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .fplayer__out {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 6px 18px 10px;
+    color: var(--f-muted);
+  }
+
+  .fplayer__out[hidden] { display: none; }
+
+  @media (max-width: 599px) {
+    .fplayer__meta { display: none; }
+  }
+
+  @media (min-width: 900px) {
+    .fwork__grid { grid-template-columns: 1fr 1fr; }
+    .fwork__grid--lead > :first-child { grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 1200px) {
+    .fwork__grid--3 { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

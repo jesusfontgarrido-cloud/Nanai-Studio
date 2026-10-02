@@ -1,0 +1,143 @@
+---
+/**
+ * Los dos caminos: Marcas y Artistas y creadores. Van a la vista desde el primer scroll,
+ * sin interacción de por medio: quien llega tiene que saber en dos segundos si esto es
+ * para él y dónde pulsar. Cada bloque entero es el enlace.
+ */
+import Arrow from '../ui/Arrow.astro';
+import { audiences, pathsIntro, type Audience } from '../../data/copy';
+
+interface Props {
+  label?: string;
+}
+
+const { label = 'Qué hacemos y para quién' } = Astro.props;
+const order: Audience[] = ['brands', 'creators'];
+---
+
+<section class="section zone-night paths" aria-label={label}>
+  <div class="container">
+    <p class="label paths__label">{label}</p>
+    <p class="paths__intro">{pathsIntro}</p>
+
+    <ul class="paths__grid" role="list">
+      {
+        order.map((key, i) => {
+          const audience = audiences[key];
+          return (
+            <li class="path">
+              <a class="path__link" href={audience.href}>
+                <span class="label path__index">{String(i + 1).padStart(2, '0')}</span>
+                <h2 class="headline headline--h2 path__title">{audience.label}</h2>
+                <span class="path__deck">{audience.deck}</span>
+                <span class="path__cta text-link">
+                  Ver proyectos <Arrow />
+                </span>
+              </a>
+
+              <ul class="path__formats" role="list">
+                {audience.formats.map((format) => (
+                  <li class="label path__format">{format}</li>
+                ))}
+              </ul>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .paths__label { color: var(--muted-on-ink); }
+
+  .paths__intro {
+    max-width: var(--measure-statement);
+    margin-top: var(--space-3);
+    font-size: var(--fs-statement);
+    font-weight: var(--weight-statement);
+    line-height: var(--lh-statement);
+    text-wrap: balance;
+  }
+
+  .paths__grid {
+    display: grid;
+    gap: var(--space-8);
+    margin-top: var(--space-6);
+  }
+
+  .path {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: var(--hairline) solid var(--rule);
+  }
+
+  .path__link {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+    text-decoration: none;
+  }
+
+  .path__index { color: var(--muted-on-ink); }
+
+  .path__title { letter-spacing: var(--tracking-headline); }
+
+  .path__deck {
+    max-width: var(--measure-deck);
+    font-size: var(--fs-deck);
+    line-height: var(--lh-statement);
+  }
+
+  .path__cta { margin-top: var(--space-1); }
+
+  .path__link:hover .path__cta,
+  .path__link:focus-visible .path__cta {
+    text-decoration: underline;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.25em;
+  }
+
+  /* Formatos: lo que se puede contratar, en una lista escaneable */
+  .path__formats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+  }
+
+  .path__format {
+    padding: calc(var(--space-1) / 2) var(--space-2);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-pill);
+    color: var(--text-on-ink);
+  }
+
+  /* Adorno: al pasar el ratón, la píldora se enciende */
+  @media (hover: hover) and (pointer: fine) {
+    .path__format {
+      transition:
+        border-color var(--dur-switch) var(--ease-standard),
+        background-color var(--dur-switch) var(--ease-standard),
+        box-shadow var(--dur-switch) var(--ease-standard),
+        transform var(--dur-switch) var(--ease-standard);
+    }
+
+    .path__format:hover {
+      border-color: var(--glow-edge);
+      background: var(--glow-fill);
+      box-shadow: var(--glow-halo);
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .paths__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+    }
+
+    .path + .path { padding-left: var(--space-6); }
+  }
+</style>

@@ -1,0 +1,88 @@
+---
+/**
+ * Estudio · En rodaje. Galería en rejilla: crece sola al añadir fotos a la lista. Cada foto
+ * lleva su encuadre (--focus) para que el recorte cuadrado no corte lo importante.
+ */
+import { Picture } from 'astro:assets';
+import crew from '../../assets/media/rodaje-equipo.jpg';
+import curtain from '../../assets/media/rodaje-cortina.jpg';
+import monitor from '../../assets/media/rodaje-monitor.jpg';
+import tablet from '../../assets/media/rodaje-tableta.jpg';
+
+interface Props {
+  /** Va después del amanecer, así que por defecto vive en el día. */
+  zone?: 'day' | 'night';
+}
+
+const { zone = 'day' } = Astro.props;
+
+const photos = [
+  { src: crew, alt: 'Equipo de Nanai Studio preparando un plano en exteriores', focus: '50% 30%' },
+  { src: monitor, alt: 'Monitor de cámara durante un rodaje con luz roja', focus: '40% 50%' },
+  { src: curtain, alt: 'Sonrisa entre tomas, detrás de una cortina, durante un rodaje', focus: '50% 45%' },
+  { src: tablet, alt: 'Anotaciones en una tableta durante un rodaje', focus: '100% 50%' },
+];
+---
+
+<section class:list={['section', `zone-${zone}`, 'bts']} aria-labelledby="bts-title">
+  <div class="container">
+    <div class="bts__head">
+      <h2 id="bts-title" class="label">En rodaje</h2>
+      <p class="label bts__count">{String(photos.length).padStart(2, '0')} fotos</p>
+    </div>
+    <ul class="bts__grid" role="list">
+      {
+        photos.map((photo) => (
+          <li class="bts__item" style={`--focus: ${photo.focus}`}>
+            <Picture
+              src={photo.src}
+              formats={['avif', 'webp']}
+              widths={[480, 800, 1200]}
+              sizes="(min-width: 1024px) 30vw, (min-width: 768px) 46vw, 92vw"
+              alt={photo.alt}
+              loading="lazy"
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .bts__head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .bts__grid {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .bts__item {
+    overflow: hidden;
+    background: var(--hairline-bone);
+  }
+
+  .zone-night .bts__item { background: var(--hairline-ink); }
+
+  .bts__item :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: var(--focus);
+  }
+
+  @media (min-width: 768px) {
+    .bts__grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 1024px) {
+    .bts__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

@@ -1,0 +1,128 @@
+---
+/**
+ * Cinta de términos de marketing audiovisual. Desplazamiento continuo, pausa al pasar el
+ * ratón y botón de pausa (movimiento de más de 5 s). Con movimiento reducido, quieta.
+ */
+import { tickerTerms } from '../../data/copy';
+
+// Dos copias seguidas: al llegar a -50 % el bucle empalma sin salto.
+const copies = [0, 1];
+---
+
+<section class="marquee zone-night" aria-label="Qué hacemos" data-marquee>
+  <p class="visually-hidden">{tickerTerms.join(', ')}.</p>
+
+  <div class="marquee__viewport" aria-hidden="true">
+    <ul class="label marquee__track" role="list">
+      {
+        copies.map(() =>
+          tickerTerms.map((term) => (
+            <li class="marquee__item">
+              {term}
+              <span class="marquee__dot" />
+            </li>
+          )),
+        )
+      }
+    </ul>
+  </div>
+
+  <button class="marquee__toggle" type="button" aria-pressed="false" data-marquee-toggle>
+    <span class="visually-hidden">Pausar la cinta</span>
+    <span class="marquee__icon" aria-hidden="true"></span>
+  </button>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-marquee]').forEach((marquee) => {
+    const toggle = marquee.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+    toggle?.addEventListener('click', () => {
+      const paused = marquee.classList.toggle('is-paused');
+      toggle.setAttribute('aria-pressed', String(paused));
+    });
+  });
+</script>
+
+<style>
+  .marquee {
+    display: flex;
+    border-block: var(--hairline) solid var(--rule);
+  }
+
+  .marquee__viewport {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, var(--ink) var(--space-8), var(--ink) calc(100% - var(--space-8)), transparent);
+    mask-image: linear-gradient(to right, transparent, var(--ink) var(--space-8), var(--ink) calc(100% - var(--space-8)), transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    padding-block: var(--space-3);
+    color: var(--text-on-ink);
+    font-size: var(--fs-ticker);
+    white-space: nowrap;
+    animation: marquee var(--ticker-duration) linear infinite;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-inline-end: var(--space-4);
+  }
+
+  .marquee__dot {
+    width: var(--space-1);
+    height: var(--space-1);
+    border-radius: var(--radius-pill);
+    background: var(--muted-on-ink);
+  }
+
+  .marquee:hover .marquee__track,
+  .marquee.is-paused .marquee__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  .marquee__toggle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--cta-height);
+    border: 0;
+    border-left: var(--hairline) solid var(--rule);
+    background: var(--ink);
+    color: var(--muted-on-ink);
+    cursor: pointer;
+  }
+
+  .marquee__toggle:hover { color: var(--text-on-ink); }
+
+  /* Pausa: dos barras. Reanudar: triángulo. */
+  .marquee__icon {
+    width: calc(var(--space-2) * 0.75);
+    height: calc(var(--space-2) * 0.75);
+    background: linear-gradient(
+      to right,
+      currentColor 0 35%,
+      transparent 35% 65%,
+      currentColor 65% 100%
+    );
+  }
+
+  .marquee.is-paused .marquee__icon {
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track { animation: none; }
+    .marquee__toggle { display: none; }
+  }
+</style>

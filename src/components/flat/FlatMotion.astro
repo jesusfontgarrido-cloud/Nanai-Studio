@@ -1,0 +1,64 @@
+---
+/**
+ * Motor de movimiento de la piel plana. Va el primero dentro de .flat en cada página.
+ *
+ * 1. Un script en línea pone html.motion antes de pintar (si hay JS y no se pide
+ *    movimiento reducido), así lo que va a entrar animado no parpadea.
+ * 2. El módulo marca .is-in en cada [data-reveal] y en los hijos de [data-stagger]
+ *    cuando llegan a pantalla. Si hay apertura, espera a que se cierre.
+ * 3. Red de seguridad: si el módulo no llega a cargar, a los 4 s se quita html.motion
+ *    y todo se ve quieto.
+ *
+ * Los estilos viven en flat.css (§ Movimiento).
+ */
+---
+
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.classList.add('motion');
+    window.setTimeout(function () {
+      if (!root.classList.contains('motion-ready')) root.classList.remove('motion');
+    }, 4000);
+  })();
+</script>
+
+<script>
+  const root = document.documentElement;
+
+  if (root.classList.contains('motion')) {
+    root.classList.add('motion-ready');
+
+    // Los hijos de un grupo entran uno detrás de otro.
+    document.querySelectorAll<HTMLElement>('[data-stagger]').forEach((group) => {
+      [...group.children].forEach((child, i) => (child as HTMLElement).style.setProperty('--i', String(i)));
+    });
+
+    const targets = [
+      ...document.querySelectorAll<HTMLElement>('[data-reveal]'),
+      ...document.querySelectorAll<HTMLElement>('[data-stagger] > *'),
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-in');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -6% 0px', threshold: 0.08 },
+    );
+
+    const start = () => targets.forEach((target) => observer.observe(target));
+
+    // Con la apertura puesta, lo de debajo espera a que se encienda la cámara.
+    if (root.classList.contains('has-opener')) {
+      window.addEventListener('nanai:opened', start, { once: true });
+    } else {
+      start();
+    }
+  }
+</script>

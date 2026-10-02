@@ -1,0 +1,42 @@
+---
+/**
+ * Wordmark gigante con las letras del logotipo: SVG en línea, no una fuente.
+ * El contenedor recorta con overflow: hidden y deja ver el 62 % superior.
+ */
+import logo from '../../assets/brand/logo-horizontal-blanco.svg?raw';
+
+interface Props {
+  text: 'nanai' | 'nanai-studio';
+}
+
+const { text } = Astro.props;
+
+const paths = logo.match(/<path[\s\S]*?\/>/g) ?? [];
+// En el logo horizontal, los paths 1–7 dibujan NANAI y los 8–13, STUDIO.
+const shapes = text === 'nanai' ? paths.slice(0, 7) : paths;
+// Anchos medidos con getBBox(): NANAI 260,43 y NANAI STUDIO 477,22.
+const width = text === 'nanai' ? 261 : 478;
+const height = 61;
+// Monocromo: el logo trae un trazo en #DE1212 y a este tamaño sería un segundo rojo en pantalla.
+const markup = shapes.join('').replace(/fill="(white|#DE1212)"/gi, 'fill="currentColor"');
+---
+
+<div class="wordmark" style={`--wm-w: ${width}; --wm-h: ${height}`} aria-hidden="true">
+  <svg class="wordmark__svg" viewBox={`0 0 ${width} ${height}`} focusable="false" set:html={markup} />
+</div>
+
+<style>
+  .wordmark {
+    width: 100%;
+    max-width: calc(var(--fs-wordmark) * var(--wm-w) / var(--wm-h));
+    margin-inline: auto;
+    aspect-ratio: var(--wm-w) / calc(var(--wm-h) * var(--wordmark-visible));
+    overflow: hidden;
+    color: var(--text-on-ink);
+  }
+
+  .wordmark__svg {
+    width: 100%;
+    height: auto;
+  }
+</style>

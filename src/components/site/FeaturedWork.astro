@@ -1,0 +1,211 @@
+---
+/**
+ * El trabajo. Primero se enseña, después se explica: cada pieza lleva cliente, tipo de
+ * proyecto, rol de Nanai Studio y formato. Sin resultados si no hay datos que enseñar.
+ * El primer proyecto ocupa el ancho completo; el resto van en rejilla.
+ */
+import { getImage } from 'astro:assets';
+import tradersPoster from '../../assets/media/traders-poster.jpg';
+import Arrow from '../ui/Arrow.astro';
+import FrameMarks from '../ui/FrameMarks.astro';
+import { audiences } from '../../data/copy';
+import { projectHref, ytThumb, type Project } from '../../data/work';
+
+interface Props {
+  label: string;
+  title: string;
+  projects: Project[];
+  /** Enlaces del pie de la sección. */
+  more?: { href: string; label: string }[];
+  /** Aviso del pie, p. ej. que hay más casos sin publicar. */
+  note?: string;
+  /** El primero a ancho completo (inicio) o todos iguales (páginas interiores). */
+  lead?: boolean;
+}
+
+const { label, title, projects, more, note, lead = false } = Astro.props;
+const poster = await getImage({ src: tradersPoster, format: 'webp', width: 1280 });
+
+const mediaSrc = (project: Project) =>
+  project.youtubeId ? ytThumb(project.youtubeId) : (project.poster === 'traders' ? poster.src : '');
+---
+
+<section id="trabajo" class="section zone-night work" aria-labelledby="work-title">
+  <!-- Ancla de la web anterior -->
+  <span id="proyectos" class="work__anchor" aria-hidden="true"></span>
+
+  <div class="container">
+    <div class="work__head">
+      <p class="label">{label}</p>
+      <h2 id="work-title" class="headline headline--h2">{title}</h2>
+    </div>
+
+    <ul class:list={['work__grid', { 'work__grid--lead': lead }]} role="list">
+      {
+        projects.map((project) => {
+          const href = projectHref(project) ?? audiences[project.audience].href;
+          const external = Boolean(project.youtubeId);
+          return (
+            <li class="work__item">
+              <a class="piece" href={href} {...(external ? { target: '_blank', rel: 'noopener' } : {})}>
+                <span class="piece__media">
+                  {project.video ? (
+                    <video
+                      src={project.video}
+                      poster={mediaSrc(project)}
+                      width="1280"
+                      height="720"
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      data-hover-video
+                    />
+                  ) : (
+                    <img src={mediaSrc(project)} alt="" width="1280" height="720" loading="lazy" decoding="async" />
+                  )}
+                  <FrameMarks />
+                </span>
+
+                <span class="piece__meta">
+                  <span class="piece__client">
+                    {project.client}
+                    {project.title && <span class="piece__title"> · {project.title}</span>}
+                  </span>
+                  <span class="label piece__line">{project.type} · {project.format}</span>
+                  <span class="label piece__role">{project.role}</span>
+                  {external && <span class="visually-hidden">(abre YouTube en otra pestaña)</span>}
+                </span>
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <div class="work__foot">
+      {note && <p class="label work__note">{note}</p>}
+      {
+        more?.map((link) => (
+          <a class="text-link" href={link.href}>
+            {link.label} <Arrow />
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  // Los bucles de vídeo solo se mueven al pasar el ratón por encima.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (finePointer && !reduceMotion) {
+    document.querySelectorAll<HTMLVideoElement>('video[data-hover-video]').forEach((video) => {
+      const host = video.closest('a') ?? video;
+      host.addEventListener('mouseenter', () => void video.play().catch(() => {}));
+      host.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    });
+  }
+</script>
+
+<style>
+  .work__anchor {
+    position: absolute;
+    margin-top: calc(var(--space-12) * -1);
+  }
+
+  .work__head {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+
+  .work__grid {
+    display: grid;
+    gap: var(--space-8) var(--space-3);
+  }
+
+  .piece {
+    display: grid;
+    gap: var(--space-3);
+    text-decoration: none;
+  }
+
+  .piece__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--hairline-ink);
+  }
+
+  .piece__media img,
+  .piece__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-reveal) var(--ease-standard);
+  }
+
+  .piece__media :global(.frame-marks) {
+    z-index: 2;
+    opacity: 0;
+    transition: opacity var(--dur-switch) var(--ease-standard);
+  }
+
+  .piece:hover .piece__media img,
+  .piece:hover .piece__media video,
+  .piece:focus-visible .piece__media img,
+  .piece:focus-visible .piece__media video {
+    transform: scale(var(--hover-zoom));
+  }
+
+  .piece:hover .piece__media :global(.frame-marks),
+  .piece:focus-visible .piece__media :global(.frame-marks) {
+    opacity: 1;
+  }
+
+  .piece__meta {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .piece__client {
+    font-size: var(--fs-name);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-statement);
+    letter-spacing: var(--tracking-headline);
+  }
+
+  .piece__title { color: var(--muted-on-ink); }
+  .piece__role { color: var(--muted-on-ink); }
+
+  .piece:hover .piece__client,
+  .piece:focus-visible .piece__client {
+    text-decoration: underline;
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: 0.2em;
+  }
+
+  .work__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  .work__note { color: var(--muted-on-ink); }
+
+  @media (min-width: 768px) {
+    .work__grid { grid-template-columns: 1fr 1fr; }
+
+    /* En inicio la primera pieza abre a ancho completo: el trabajo manda */
+    .work__grid--lead > :first-child { grid-column: 1 / -1; }
+  }
+</style>

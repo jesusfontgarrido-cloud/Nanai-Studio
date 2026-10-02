@@ -1,0 +1,48 @@
+---
+/** Claqueta: cuadrado «NS» y tres líneas de metadatos en mono. Con mark={false}, solo el texto. */
+interface Props {
+  code: string;
+  format: string;
+  credit: string;
+  mark?: boolean;
+}
+
+const { code, format, credit, mark = true } = Astro.props;
+---
+
+<div class="slate">
+  {mark && <span class="slate__mark" aria-hidden="true">NS</span>}
+  <p class="label slate__lines">
+    <span class="slate__code">{code}</span>
+    <span>{format}</span>
+    <span>{credit}</span>
+  </p>
+</div>
+
+<style>
+  .slate {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .slate__mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--slate-size);
+    height: var(--slate-size);
+    background: var(--bone);
+    color: var(--text-on-bone);
+    font-size: var(--fs-slate-mark);
+    font-weight: var(--weight-headline);
+    line-height: var(--lh-headline);
+    letter-spacing: var(--tracking-headline);
+  }
+
+  .slate__lines {
+    display: grid;
+    align-content: center;
+  }
+
+  .slate__code { color: var(--tone-1); }
+</style>

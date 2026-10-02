@@ -1,0 +1,98 @@
+---
+/** Preguntas frecuentes (día). <details> nativo: sin JS. */
+import type { Faq } from '../../data/copy';
+
+interface Props {
+  items: Faq[];
+  label?: string;
+}
+
+const { items, label = 'Preguntas' } = Astro.props;
+---
+
+<section class="section zone-day faq" aria-labelledby="faq-title">
+  <div class="container faq__grid">
+    <div>
+      <p class="label">{label}</p>
+      <!-- docs/estrategia-nanai.md § 7 -->
+      <h2 id="faq-title" class="headline headline--h2 faq__title">
+        <span>Antes de escribirnos,</span>
+        <span class="tone-2">quizá te preguntas…</span>
+      </h2>
+    </div>
+
+    <div class="faq__list">
+      {
+        items.map((item) => (
+          <details class="faq__item">
+            <summary class="faq__question">
+              {item.q}
+              <span class="faq__icon" aria-hidden="true" />
+            </summary>
+            <p class="faq__answer">{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .faq__title { margin-top: var(--space-2); }
+  .faq__title span { display: block; }
+
+  .faq__list { border-top: var(--hairline) solid var(--rule); }
+
+  .faq__item { border-bottom: var(--hairline) solid var(--rule); }
+
+  .faq__question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--tap-min);
+    padding-block: var(--space-3);
+    font-weight: var(--weight-headline);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .faq__question::-webkit-details-marker { display: none; }
+
+  .faq__icon {
+    position: relative;
+    flex: none;
+    width: var(--space-2);
+    height: var(--space-2);
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: var(--hairline);
+    background: currentColor;
+    transition: transform var(--dur-switch) var(--ease-standard);
+  }
+
+  .faq__icon::after { transform: rotate(90deg); }
+
+  .faq__item[open] .faq__icon::after { transform: rotate(0deg); }
+
+  .faq__answer {
+    max-width: var(--measure);
+    padding-bottom: var(--space-3);
+  }
+
+  @media (min-width: 1024px) {
+    .faq__grid { grid-template-columns: 5fr 7fr; }
+  }
+</style>

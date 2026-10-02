@@ -1,0 +1,46 @@
+---
+/**
+ * Trabajos: el trabajo del estudio y nada más. El discurso (método, proceso, preguntas)
+ * vive en la home. /marcas, /artistas y /musica redirigen aquí.
+ *
+ * Una sola página, sin filtros: cada tipo de trabajo va en su propio plano
+ * (marcas, artistas y creadores), uno detrás de otro.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/flat.css';
+import FlatMotion from '../components/flat/FlatMotion.astro';
+import FlatNav from '../components/flat/FlatNav.astro';
+import FlatPageHeader from '../components/flat/FlatPageHeader.astro';
+import FlatWork from '../components/flat/FlatWork.astro';
+import FlatFaq from '../components/flat/FlatFaq.astro';
+import FlatReviews from '../components/flat/FlatReviews.astro';
+import FlatContact from '../components/flat/FlatContact.astro';
+import FlatFooter from '../components/flat/FlatFooter.astro';
+import FlatPhotos from '../components/flat/FlatPhotos.astro';
+import { contentProjects, marketingProjects, musicProjects, visible } from '../data/work';
+import { workFaq, workPage } from '../data/copy';
+---
+
+<BaseLayout
+  title="Trabajos: anuncios, branded content, videoclips y fotografía | Nanai Studio"
+  description="Proyectos de Nanai Studio: anuncios, branded content, podcasts, contenido para redes, videoclips y fotografía de producto, gastronomía y moda. Productora creativa en Sevilla."
+  path="/trabajos/"
+>
+  <div class="flat">
+    <FlatMotion />
+    <FlatNav />
+
+    <main id="contenido">
+      <FlatPageHeader num="01" label="Trabajos" title={workPage.title} deck={workPage.deck} />
+      <FlatWork id="trabajo" title="Marketing y anuncios" deck="Piezas para captar clientes, convertir y lanzar productos, también con inteligencia artificial." projects={visible(marketingProjects)} lead fallbackHref="#contacto" />
+      <FlatWork id="contenido" title="Branded content, eventos y redes" deck="Podcasts, entrevistas, eventos y contenido vertical: todo lo que una marca necesita para seguir hablando." projects={visible(contentProjects)} fallbackHref="#contacto" />
+      <FlatWork id="videoclips" title="Videoclips" deck="Concepto visual, iluminación y dirección de arte para artistas." projects={visible(musicProjects)} fallbackHref="#contacto" />
+      <FlatPhotos />
+      <FlatFaq items={workFaq} />
+      <FlatReviews />
+      <FlatContact />
+    </main>
+
+    <FlatFooter />
+  </div>
+</BaseLayout>
