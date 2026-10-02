@@ -1,0 +1,15 @@
+# Caché del navegador (Cloudflare Workers, static assets).
+# Los archivos de /_astro llevan una huella en el nombre: si cambian, cambia el nombre,
+# así que se pueden guardar un año sin volver a preguntar.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Tipografías, logos e imágenes fijas: un mes.
+/fonts/*
+  Cache-Control: public, max-age=2592000
+/brand/*
+  Cache-Control: public, max-age=2592000
+/og/*
+  Cache-Control: public, max-age=2592000
+/media/*
+  Cache-Control: public, max-age=2592000

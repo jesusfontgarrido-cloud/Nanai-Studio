@@ -31,9 +31,9 @@
   if (root.classList.contains('motion')) {
     root.classList.add('motion-ready');
 
-    // Los hijos de un grupo entran uno detrás de otro.
+    // Los hijos de un grupo entran uno detrás de otro (como mucho, 3 pasos de espera).
     document.querySelectorAll<HTMLElement>('[data-stagger]').forEach((group) => {
-      [...group.children].forEach((child, i) => (child as HTMLElement).style.setProperty('--i', String(i)));
+      [...group.children].forEach((child, i) => (child as HTMLElement).style.setProperty('--i', String(Math.min(i, 3))));
     });
 
     const targets = [
@@ -49,7 +49,7 @@
           observer.unobserve(entry.target);
         });
       },
-      { rootMargin: '0px 0px -6% 0px', threshold: 0.08 },
+      { rootMargin: '0px 0px 8% 0px', threshold: 0 },
     );
 
     const start = () => targets.forEach((target) => observer.observe(target));

@@ -64,7 +64,7 @@
   --f-ease: cubic-bezier(0.2, 0, 0, 1);
   --f-ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
   --f-dur: 220ms;
-  --f-dur-reveal: 820ms;
+  --f-dur-reveal: 560ms;
 
   min-height: 100vh;
   background: var(--f-bg);
@@ -465,7 +465,7 @@ html.motion .flat [data-stagger] > * {
   transition:
     opacity var(--f-dur-reveal) var(--f-ease-out),
     transform var(--f-dur-reveal) var(--f-ease-out);
-  transition-delay: calc(var(--i, 0) * 90ms);
+  transition-delay: calc(var(--i, 0) * 60ms);
 }
 
 html.motion .flat [data-reveal]:not(.is-in),
@@ -485,10 +485,10 @@ html.motion .flat [data-reveal='lines'] > * {
   display: block;
   clip-path: inset(-0.3em -0.3em -0.3em -0.3em);
   transition:
-    transform 900ms var(--f-ease-out),
-    clip-path 900ms var(--f-ease-out),
-    opacity 500ms var(--f-ease-out);
-  transition-delay: calc(var(--line, 0) * 110ms + var(--i, 0) * 90ms);
+    transform 650ms var(--f-ease-out),
+    clip-path 650ms var(--f-ease-out),
+    opacity 400ms var(--f-ease-out);
+  transition-delay: calc(var(--line, 0) * 80ms + var(--i, 0) * 60ms);
 }
 
 html.motion .flat [data-reveal='lines']:not(.is-in) > * {
@@ -508,12 +508,12 @@ html.motion .flat [data-reveal='focus']:not(.is-in) {
 
 html.motion .flat [data-reveal='focus'] img {
   transition:
-    filter 1300ms var(--f-ease-out),
-    transform 1500ms var(--f-ease-out);
+    filter 800ms var(--f-ease-out),
+    transform 900ms var(--f-ease-out);
 }
 
 html.motion .flat [data-reveal='focus']:not(.is-in) img {
-  filter: blur(16px) grayscale(1);
+  filter: blur(10px) grayscale(1);
   transform: scale(1.08);
 }
 

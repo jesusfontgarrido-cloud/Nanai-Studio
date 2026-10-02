@@ -63,7 +63,9 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
 
     <ul class:list={['fwork__grid', { 'fwork__grid--lead': lead, 'fwork__grid--3': cols === 3 }]} role="list" data-stagger>
       {
-        projects.map((project) => {
+        projects.map((project, index) => {
+          // La primera pieza a todo el ancho es lo primero que se ve: va sin esperar.
+          const first = lead && index === 0;
           const youtube = Boolean(project.youtubeId);
           const href = projectHref(project) ?? fallbackHref;
           return (
@@ -85,11 +87,12 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
                     <img
                       src={mediaSrc(project)}
                       srcset={project.youtubeId ? ytSrcset(project.youtubeId) : undefined}
-                      sizes={sizes}
+                      sizes={first ? '(min-width: 1200px) 1100px, 94vw' : sizes}
                       alt=""
                       width="1280"
                       height="720"
-                      loading="lazy"
+                      loading={first ? 'eager' : 'lazy'}
+                      fetchpriority={first ? 'high' : 'auto'}
                       decoding="async"
                     />
                   )}
