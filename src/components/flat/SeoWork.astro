@@ -1,0 +1,43 @@
+---
+/**
+ * Datos estructurados del portfolio (solo SEO, no pinta nada): cada vídeo público como
+ * VideoObject con su miniatura y su fecha real de YouTube. Sin cifras ni reseñas inventadas.
+ */
+import { uploadDates, ytThumb, type Project } from '../../data/work';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+const seen = new Set<string>();
+
+const videos = projects
+  .filter((project) => project.youtubeId && !project.hidden && !seen.has(project.youtubeId) && seen.add(project.youtubeId))
+  .map((project) => {
+    const id = project.youtubeId as string;
+    const name = [project.client, project.title].filter(Boolean).join(' · ');
+    return {
+      '@type': 'VideoObject',
+      name,
+      description: `${project.type}. ${project.role}. Producido por Nanai Studio, productora audiovisual en Sevilla.`,
+      thumbnailUrl: ytThumb(id, 'maxres'),
+      uploadDate: uploadDates[id],
+      embedUrl: `https://www.youtube.com/embed/${id}`,
+      contentUrl: `https://www.youtube.com/watch?v=${id}`,
+      inLanguage: 'es',
+    };
+  })
+  .filter((video) => video.uploadDate);
+
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Trabajos de Nanai Studio',
+  url: new URL('/trabajos/', Astro.site).toString(),
+  about: 'Portfolio de vídeo y fotografía de Nanai Studio, productora audiovisual creativa en Sevilla.',
+  mainEntity: { '@type': 'ItemList', itemListElement: videos.map((video, i) => ({ '@type': 'ListItem', position: i + 1, item: video })) },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

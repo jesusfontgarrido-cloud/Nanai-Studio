@@ -1,0 +1,22 @@
+---
+/** Datos estructurados de Jesús Font (solo SEO, no pinta nada): enlaza la persona con el estudio. */
+import { site } from '../../data/site';
+
+const home = new URL('/', Astro.site).toString();
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${home}#jesus-font`,
+  name: 'Jesús Font',
+  jobTitle: 'Director creativo y fundador de Nanai Studio',
+  description: 'Filmmaker creativo en Sevilla: audiovisual, estrategia y marketing.',
+  url: new URL('/sobre-nosotros/', Astro.site).toString(),
+  image: new URL('/og/nanai-studio.jpg', Astro.site).toString(),
+  worksFor: { '@id': `${home}#estudio` },
+  knowsAbout: ['Producción audiovisual', 'Dirección creativa', 'Vídeo publicitario', 'Videoclips', 'Fotografía', 'Marketing'],
+  address: { '@type': 'PostalAddress', addressLocality: 'Sevilla', addressCountry: 'ES' },
+  sameAs: [site.jesus.instagram, site.jesus.linkedin],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

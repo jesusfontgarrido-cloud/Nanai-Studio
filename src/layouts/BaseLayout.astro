@@ -34,7 +34,10 @@ const jsonLd = {
       '@type': 'ProfessionalService',
       '@id': `${home}#estudio`,
       name: site.name,
-      description: 'Productora audiovisual creativa en Sevilla: dirección creativa y producción audiovisual para marcas, artistas y creadores.',
+      description: 'Productora audiovisual creativa en Sevilla: vídeo publicitario, branded content, podcast, videoclips y fotografía para marcas, artistas y creadores.',
+      slogan: 'Que se sienta, y que funcione',
+      serviceType: ['Producción audiovisual', 'Vídeo publicitario', 'Branded content', 'Videoclips', 'Fotografía de producto y gastronomía', 'Fotografía de moda y retrato', 'Podcast'],
+      knowsAbout: ['Dirección creativa', 'Producción audiovisual', 'Marketing audiovisual'],
       url: home,
       logo: new URL('/brand/logo-apilado-negro.svg', Astro.site).toString(),
       image: imageUrl,
@@ -43,7 +46,7 @@ const jsonLd = {
       address: { '@type': 'PostalAddress', addressLocality: 'Sevilla', addressRegion: 'Andalucía', addressCountry: 'ES' },
       geo: { '@type': 'GeoCoordinates', latitude: lat, longitude: lng },
       areaServed: { '@type': 'Country', name: 'España' },
-      founder: { '@type': 'Person', name: 'Jesús Font', jobTitle: 'Director creativo y fundador' },
+      founder: { '@type': 'Person', '@id': `${home}#jesus-font`, name: 'Jesús Font', jobTitle: 'Director creativo y fundador' },
       sameAs: [site.instagram],
     },
     {
@@ -66,7 +69,7 @@ const jsonLd = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#F2EDE4" />
+    <meta name="theme-color" content="#F4F4F1" />
     <link
       rel="preload"
       href="/fonts/league-spartan-latin-wght-normal.woff2"
@@ -103,8 +106,15 @@ const jsonLd = {
     <meta property="og:image" content={imageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Nanai Studio: rodaje con luz roja" />
+    <meta property="og:image:alt" content="Nanai Studio, productora audiovisual creativa en Sevilla" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
+    <link rel="alternate" hreflang="es" href={canonical} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <slot name="head" />

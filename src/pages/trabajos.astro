@@ -16,16 +16,18 @@ import FlatFaq from '../components/flat/FlatFaq.astro';
 import FlatReviews from '../components/flat/FlatReviews.astro';
 import FlatContact from '../components/flat/FlatContact.astro';
 import FlatFooter from '../components/flat/FlatFooter.astro';
+import SeoWork from '../components/flat/SeoWork.astro';
 import FlatPhotos from '../components/flat/FlatPhotos.astro';
 import { contentProjects, marketingProjects, musicProjects, visible } from '../data/work';
 import { workFaq, workPage } from '../data/copy';
 ---
 
 <BaseLayout
-  title="Trabajos: anuncios, branded content, videoclips y fotografía | Nanai Studio"
-  description="Proyectos de Nanai Studio: anuncios, branded content, podcasts, contenido para redes, videoclips y fotografía de producto, gastronomía y moda. Productora creativa en Sevilla."
+  title="Trabajos | Vídeo publicitario, videoclips y fotografía en Sevilla | Nanai Studio"
+  description="Portfolio de Nanai Studio, productora audiovisual en Sevilla: anuncios y vídeo de producto, branded content, podcast, contenido para redes, videoclips y fotografía gastronómica y de moda."
   path="/trabajos/"
 >
+  <SeoWork projects={[...marketingProjects, ...contentProjects, ...musicProjects]} />
   <div class="flat">
     <FlatMotion />
     <FlatNav />

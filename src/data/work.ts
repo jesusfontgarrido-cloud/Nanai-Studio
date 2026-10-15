@@ -168,3 +168,12 @@ export const ytSrcset = (youtubeId: string) =>
 /** Enlace a la pieza publicada, si la hay. */
 export const projectHref = (project: Project) =>
   project.youtubeId ? `https://www.youtube.com/watch?v=${project.youtubeId}` : undefined;
+
+/** Fecha de publicación en YouTube (consultada el 15-10-2026), para los datos estructurados. */
+export const uploadDates: Record<string, string> = {
+  'yptl01VvWqs': '2026-10-02', 'e0-3fNZ9UlY': '2026-10-02', 'yRmsgPeNcUA': '2026-10-02', 'ErdE2j9k-R4': '2026-10-02',
+  'hbivGEOLbW8': '2026-10-02', 'x2hmLLqKDAU': '2025-05-29', '1EJ0qy_TeH8': '2025-01-16', 'X9rKRdIHmTI': '2025-01-15',
+  'BsLbH6UDpgo': '2025-01-15', 'hLExGC-A2lM': '2026-09-18', 'McFee5DrY8s': '2026-09-11', 'ZxRvXqU2u40': '2026-06-13',
+  'lSBKnSD0No4': '2025-09-09', 'tqWtqHeIXnc': '2026-06-05', 'BRB6WrXJZEA': '2026-02-20', 'Af81rQXx0Yo': '2025-01-15',
+  'iq7kOCV1Mj4': '2026-04-24',
+};

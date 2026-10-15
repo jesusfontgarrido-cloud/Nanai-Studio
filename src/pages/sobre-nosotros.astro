@@ -10,6 +10,7 @@ import FlatNav from '../components/flat/FlatNav.astro';
 import FlatPageHeader from '../components/flat/FlatPageHeader.astro';
 import FlatManifesto from '../components/flat/FlatManifesto.astro';
 import FlatGallery from '../components/flat/FlatGallery.astro';
+import SeoPerson from '../components/flat/SeoPerson.astro';
 import FlatFaq from '../components/flat/FlatFaq.astro';
 import FlatReviews from '../components/flat/FlatReviews.astro';
 import FlatContact from '../components/flat/FlatContact.astro';
@@ -19,10 +20,11 @@ import teamPhoto from '../assets/media/bts/juandi-equipo-guitarra.jpg';
 ---
 
 <BaseLayout
-  title="Sobre nosotros | Nanai Studio, firma audiovisual creativa en Sevilla"
-  description="Nanai Studio es la firma audiovisual de Jesús Font: dirección creativa y producción para marcas, artistas y creadores, con equipos que se forman según cada proyecto."
+  title="Sobre nosotros | Jesús Font y Nanai Studio, productora creativa en Sevilla"
+  description="Nanai Studio es una productora creativa de Sevilla fundada por Jesús Font, filmmaker que combina audiovisual, estrategia y marketing para que cada pieza cumpla su objetivo."
   path="/sobre-nosotros/"
 >
+  <SeoPerson />
   <div class="flat">
     <FlatMotion />
     <FlatNav />

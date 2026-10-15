@@ -12,8 +12,15 @@ interface Props {
   tone?: 'paper' | 'red';
 }
 
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: Astro.props.items.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })),
+};
 const { items, label = 'Preguntas', num = '05', tone = 'red' } = Astro.props;
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
 
 <section class:list={['sec', tone === 'red' && 'tone-red']} aria-label={label}>
   <div class="wrap">
