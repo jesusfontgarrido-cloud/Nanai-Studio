@@ -6,9 +6,9 @@ export const site = {
   instagram: 'https://www.instagram.com/nanaistudio.av',
   /** Buzón que usa el estudio (confirmado por el usuario el 24-09). */
   email: 'nanaistudio.audiovisual@gmail.com',
-  /** Pendientes: URL de LinkedIn y de Nanai Weddings. */
+  /** Pendiente: LinkedIn del estudio. */
   linkedin: null,
-  weddings: null,
+  weddings: 'https://weddings.nanaistudio.es/',
   /** Redes personales de Jesús Font: solo en Sobre nosotros, en «¿Quién hay detrás de Nanai?». */
   jesus: {
     instagram: 'https://www.instagram.com/itsjesusfont/',
