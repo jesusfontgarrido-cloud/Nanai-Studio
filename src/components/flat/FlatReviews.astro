@@ -74,7 +74,8 @@ const initials = (name: string) =>
       }
     </div>
 
-    <ul class="freviews__list" role="list" data-stagger data-reviews-list>
+    <div class="freviews__carousel" data-reveal style="--i: 2">
+    <ul class="freviews__list" role="list" tabindex="0" aria-label="Reseñas: desliza para ver más" data-reviews-list>
       {
         reviews.map((review) => (
           <li class="freview">
@@ -95,6 +96,12 @@ const initials = (name: string) =>
         ))
       }
     </ul>
+
+    <div class="freviews__nav">
+      <button class="freviews__btn" type="button" aria-label="Reseña anterior" data-reviews-prev>←</button>
+      <button class="freviews__btn" type="button" aria-label="Reseña siguiente" data-reviews-next>→</button>
+    </div>
+    </div>
 
     <p class="label freviews__credit">Reseñas de Google a través de Featurable</p>
   </div>
@@ -141,6 +148,21 @@ const initials = (name: string) =>
     return item;
   };
 
+  // Carrusel: las flechas avanzan una tarjeta; con el dedo o el trackpad se desliza solo.
+  const prev = section?.querySelector<HTMLButtonElement>('[data-reviews-prev]');
+  const next = section?.querySelector<HTMLButtonElement>('[data-reviews-next]');
+  const step = () => (list?.firstElementChild as HTMLElement | null)?.getBoundingClientRect().width ?? 320;
+  const sync = () => {
+    if (!list || !prev || !next) return;
+    prev.disabled = list.scrollLeft <= 4;
+    next.disabled = list.scrollLeft + list.clientWidth >= list.scrollWidth - 4;
+  };
+  prev?.addEventListener('click', () => list?.scrollBy({ left: -step(), behavior: 'smooth' }));
+  next?.addEventListener('click', () => list?.scrollBy({ left: step(), behavior: 'smooth' }));
+  list?.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+  sync();
+
   if (section && list) {
     const refresh = async () => {
       try {
@@ -151,6 +173,7 @@ const initials = (name: string) =>
           .sort((a: ApiReview, b: ApiReview) => b.publishedAt.localeCompare(a.publishedAt));
         if (!reviews.length || reviews.length === list.children.length) return;
         list.replaceChildren(...reviews.map(card));
+        sync();
         const total = data.widget.gbpLocationSummary?.reviewsCount;
         if (count && total) count.textContent = `${total} reseñas en Google`;
       } catch {
@@ -212,13 +235,48 @@ const initials = (name: string) =>
   .freviews__score .label { color: var(--f-muted); }
   .freviews__write { justify-self: start; }
 
+  /* Carrusel horizontal con imán: cada tarjeta encaja al soltar */
+  .freviews__carousel { display: grid; gap: 18px; min-width: 0; }
+
   .freviews__list {
-    display: grid;
+    display: flex;
     gap: var(--f-gap);
     margin: 0;
-    padding: 0;
+    padding: 0 0 4px;
     list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
   }
+
+  .freviews__list::-webkit-scrollbar { display: none; }
+  .freviews__list:focus-visible { outline: 2px solid var(--f-red); outline-offset: 4px; }
+
+  .freviews__list > .freview {
+    flex: 0 0 min(86%, 420px);
+    scroll-snap-align: start;
+  }
+
+  .freviews__nav { display: flex; gap: 10px; }
+
+  .freviews__btn {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: var(--f-hair) solid var(--f-line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--f-on-surface);
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color var(--f-dur) var(--f-ease), color var(--f-dur) var(--f-ease), opacity var(--f-dur) var(--f-ease);
+  }
+
+  .freviews__btn:hover:not(:disabled) { background: var(--f-inverse); color: var(--f-on-inverse); }
+  .freviews__btn:disabled { opacity: 0.3; cursor: default; }
 
   .freview {
     display: grid;
@@ -289,7 +347,7 @@ const initials = (name: string) =>
   }
 
   @media (min-width: 700px) {
-    .freviews__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .freviews__list > .freview { flex-basis: calc((100% - var(--f-gap)) / 2); }
   }
 
   /* Escritorio: la nota a la izquierda, las reseñas a la derecha */
