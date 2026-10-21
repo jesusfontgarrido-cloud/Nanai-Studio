@@ -1,112 +1,300 @@
 ---
 /**
- * Reseñas de Google (widget de Featurable, facilitado por el usuario el 2-10-2026). Va debajo
- * de las preguntas. El script de Featurable pesa y es de terceros, así que solo se carga
- * cuando la sección se acerca a la pantalla. Lo que pinta el widget se ajusta a la piel en
- * flat.css (bloque «Reseñas»), sin tocar su contenido.
+ * Reseñas de Google, pintadas por la web con los datos de la API de Featurable (decisión del
+ * usuario, 21-10-2026). Antes era su widget: un carrusel de terceros en un shadow DOM que
+ * pesaba, no casaba con la piel y en móvil ensanchaba la página.
+ *
+ * Se leen al construir la web (salen en el HTML: rápido y visible para Google). Si la API no
+ * responde al construir, se usa la última copia guardada (src/data/reviews-snapshot.json).
+ * En el navegador se vuelve a preguntar a la API y, si hay reseñas nuevas, se repinta: así no
+ * hace falta volver a publicar cada vez que llega una.
+ *
+ * Solo reseñas reales, con su texto original y sin retocar.
  */
-const widgetId = 'featurable-36ec07db-5cc2-4e0f-bd22-a063e1d82067';
+import snapshot from '../../data/reviews-snapshot.json';
+
+const API = 'https://api.featurable.com/v2/widgets/437dee1d-ba24-4335-ae8e-3197ec6162b7';
+
+interface Review {
+  id: string;
+  author: { name: string };
+  text: string;
+  originalText?: string | null;
+  rating: { value: number };
+  publishedAt: string;
+}
+
+type Widget = typeof snapshot.widget;
+
+let widget: Widget = snapshot.widget;
+try {
+  const response = await fetch(API, { signal: AbortSignal.timeout(6000) });
+  const data = await response.json();
+  if (data?.success && data.widget?.reviews?.length) widget = data.widget;
+} catch {
+  // Sin conexión al construir: se queda la copia guardada.
+}
+
+const reviews = (widget.reviews as Review[])
+  .filter((review) => (review.originalText ?? review.text)?.trim())
+  .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+const summary = widget.gbpLocationSummary;
+const rating = summary.rating.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const month = (iso: string) => new Date(iso).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 ---
 
-<section class="sec freviews" aria-labelledby="reviews-title">
-  <div class="wrap freviews__inner">
+<section class="sec freviews" aria-labelledby="reviews-title" data-reviews-api={API}>
+  <div class="wrap freviews__grid">
     <div class="freviews__head">
       <h2 id="reviews-title" class="h2" data-reveal="lines"><span>Lo que dicen de nosotros</span></h2>
-      <p class="freviews__deck" data-reveal style="--i: 2">Reseñas reales de clientes en Google.</p>
+
+      <div class="freviews__score" data-reveal style="--i: 2">
+        <p class="freviews__rating">{rating}</p>
+        <div>
+          <p class="freviews__stars" aria-hidden="true">★★★★★</p>
+          <p class="label" data-reviews-count>
+            {summary.reviewsCount} reseñas en Google
+          </p>
+        </div>
+      </div>
+      <p class="visually-hidden">Valoración media de {rating} sobre 5 en Google, con {summary.reviewsCount} reseñas.</p>
+
+      {
+        summary.writeAReviewUri && (
+          <a class="link freviews__write" href={summary.writeAReviewUri} target="_blank" rel="noopener" data-reveal style="--i: 3">
+            ¿Has trabajado con nosotros? Déjanos tu reseña →
+          </a>
+        )
+      }
     </div>
 
-    <div class="freviews__widget" data-reviews>
-      <div id={widgetId} data-featurable-async data-location-code="es"></div>
-    </div>
+    <ul class="freviews__list" role="list" data-stagger data-reviews-list>
+      {
+        reviews.map((review) => (
+          <li class="freview">
+            <p class="freview__stars" aria-label={`${review.rating.value} de 5 estrellas`}>
+              {'★'.repeat(review.rating.value)}
+            </p>
+            <blockquote class="freview__text">
+              <p>{(review.originalText ?? review.text).trim()}</p>
+            </blockquote>
+            <p class="freview__author">
+              <span class="freview__avatar" aria-hidden="true">{initials(review.author.name)}</span>
+              <span>
+                <span class="freview__name">{review.author.name}</span>
+                <span class="label">Google · {month(review.publishedAt)}</span>
+              </span>
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="label freviews__credit">Reseñas de Google a través de Featurable</p>
   </div>
 </section>
 
 <script>
-  const box = document.querySelector<HTMLElement>('[data-reviews]');
+  // Repinta si la API trae reseñas nuevas (texto con textContent: nada de HTML ajeno).
+  const section = document.querySelector<HTMLElement>('[data-reviews-api]');
+  const list = section?.querySelector<HTMLElement>('[data-reviews-list]');
+  const count = section?.querySelector<HTMLElement>('[data-reviews-count]');
 
-  const load = () => {
-    if (document.querySelector('script[data-featurable]')) return;
-    const script = document.createElement('script');
-    script.src = 'https://featurable.com/assets/bundle.js';
-    script.defer = true;
-    script.charset = 'UTF-8';
-    script.dataset.featurable = '';
-    document.body.appendChild(script);
+  type ApiReview = {
+    author: { name: string };
+    text: string;
+    originalText?: string | null;
+    rating: { value: number };
+    publishedAt: string;
   };
 
-  /*
-   * El widget se pinta dentro de un shadow DOM: los estilos de la web no le llegan. Cuando
-   * aparece, se le añade esta hoja para vestirlo con la piel (tipografía, papel, esquinas y
-   * estrellas en rojo). Selectores por prefijo: sus nombres de clase llevan un sufijo que
-   * puede cambiar.
-   */
-  const skin = `
-    :host, * { font-family: 'Archivo', 'Archivo Fallback', system-ui, sans-serif !important; }
-    [class*="Carousel-module__card"] { padding: 6px !important; }
-    [class*="ReviewCard-module__reviewCard"] {
-      background: #FBFBF9 !important;
-      border: 1px solid rgba(21, 21, 20, 0.12) !important;
-      border-radius: 10px !important;
-      box-shadow: none !important;
-      color: #151514 !important;
-    }
-    [class*="ReviewCard-module__reviewBody"] { color: #55554F !important; font-size: 15px !important; line-height: 1.5 !important; }
-    [class*="ReviewCard-module__reviewerName"] { color: #151514 !important; font-weight: 600 !important; }
-    [class*="ReviewCard-module__readMore"] { color: #B8231A !important; }
-    [class*="StarRating-module__container"] svg, [class*="StarRating"] svg { color: #D9291C !important; fill: #D9291C !important; }
-    [class*="Carousel-module__btn"] {
-      background: #F4F4F1 !important;
-      border: 1px solid rgba(21, 21, 20, 0.34) !important;
-      box-shadow: none !important;
-      color: #151514 !important;
-    }
-    [class*="Branding-module__container"] { background: transparent !important; box-shadow: none !important; opacity: 0.7; }
-  `;
+  const initials = (name: string) =>
+    name.split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join('');
 
-  const dress = () => {
-    const root = box?.querySelector<HTMLElement>('.shadow-wrapper')?.shadowRoot;
-    if (!root) return false;
-    if (!root.querySelector('style[data-nanai]')) {
-      const style = document.createElement('style');
-      style.dataset.nanai = '';
-      style.textContent = skin;
-      root.appendChild(style);
-    }
-    return true;
+  const el = (tag: string, className?: string, text?: string) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
   };
 
-  if (box) {
-    const watch = new MutationObserver(() => {
-      if (dress()) watch.disconnect();
-    });
-    watch.observe(box, { childList: true, subtree: true });
-    // Por si el shadow DOM se adjunta después de insertar el nodo (no lo ve el observador)
-    let tries = 0;
-    const poll = window.setInterval(() => {
-      if (dress() || ++tries > 60) window.clearInterval(poll);
-    }, 500);
+  const card = (review: ApiReview) => {
+    const item = el('li', 'freview is-in');
+    const stars = el('p', 'freview__stars', '★'.repeat(review.rating.value));
+    stars.setAttribute('aria-label', `${review.rating.value} de 5 estrellas`);
+    const quote = el('blockquote', 'freview__text');
+    quote.append(el('p', undefined, (review.originalText ?? review.text).trim()));
+    const author = el('p', 'freview__author');
+    const avatar = el('span', 'freview__avatar', initials(review.author.name));
+    avatar.setAttribute('aria-hidden', 'true');
+    const who = el('span');
+    const date = new Date(review.publishedAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    who.append(el('span', 'freview__name', review.author.name), el('span', 'label', `Google · ${date}`));
+    author.append(avatar, who);
+    item.append(stars, quote, author);
+    return item;
+  };
 
+  if (section && list) {
+    const refresh = async () => {
+      try {
+        const response = await fetch(section.dataset.reviewsApi as string);
+        const data = await response.json();
+        const reviews: ApiReview[] = (data?.widget?.reviews ?? [])
+          .filter((review: ApiReview) => (review.originalText ?? review.text)?.trim())
+          .sort((a: ApiReview, b: ApiReview) => b.publishedAt.localeCompare(a.publishedAt));
+        if (!reviews.length || reviews.length === list.children.length) return;
+        list.replaceChildren(...reviews.map(card));
+        const total = data.widget.gbpLocationSummary?.reviewsCount;
+        if (count && total) count.textContent = `${total} reseñas en Google`;
+      } catch {
+        // Si la API no responde, se quedan las del HTML.
+      }
+    };
+
+    // Se pregunta cuando la sección se acerca, no al cargar la página.
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (!entry.isIntersecting) return;
           observer.disconnect();
-          load();
+          refresh();
         },
-        { rootMargin: '800px 0px' },
+        { rootMargin: '600px 0px' },
       );
-      observer.observe(box);
-    } else {
-      load();
+      observer.observe(section);
     }
   }
 </script>
 
-<style>
-  /* minmax(0, 1fr): el carrusel del widget mide 1280 px por dentro; sin esto ensanchaba
-     toda la página en el móvil y la barra se salía de la pantalla */
-  .freviews__inner { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3vw, 40px); }
-  .freviews__head { display: grid; gap: 10px; }
-  .freviews__deck { color: var(--f-muted); }
-  .freviews__widget { min-width: 0; min-height: 280px; overflow: hidden; }
+<!-- Global: las tarjetas que se repintan desde el navegador no llevan la marca de Astro -->
+<style is:global>
+  .freviews__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 56px);
+  }
+
+  .freviews__head {
+    display: grid;
+    align-content: start;
+    gap: 22px;
+  }
+
+  /* La nota, en grande: el dato habla solo */
+  .freviews__score {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .freviews__rating {
+    font-family: var(--font-display);
+    font-size: clamp(64px, 7vw, 112px);
+    font-weight: 620;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+  }
+
+  .freviews__stars {
+    color: var(--f-red);
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+  }
+
+  .freviews__score .label { color: var(--f-muted); }
+  .freviews__write { justify-self: start; }
+
+  .freviews__list {
+    display: grid;
+    gap: var(--f-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .freview {
+    display: grid;
+    align-content: space-between;
+    gap: 18px;
+    padding: clamp(22px, 2.2vw, 30px);
+    border: var(--f-hair) solid var(--f-line);
+    border-radius: var(--f-r-media);
+    background: var(--f-surface-2);
+  }
+
+  .freview__stars {
+    color: var(--f-red);
+    font-size: 16px;
+    letter-spacing: 0.08em;
+  }
+
+  .freview__text { margin: 0; }
+
+  .freview__text p {
+    font-family: var(--font-display);
+    font-size: clamp(19px, 1.5vw, 23px);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap-style: pretty;
+  }
+
+  .freview__text p::before { content: '«'; }
+  .freview__text p::after { content: '»'; }
+
+  .freview__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .freview__author > span:last-child { display: grid; gap: 2px; }
+
+  .freview__avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--f-inverse);
+    color: var(--f-on-inverse);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .freview__name { font-weight: 600; text-transform: capitalize; }
+  .freview__author .label { color: var(--f-muted); }
+
+  .freviews__credit {
+    color: var(--f-dim);
+    font-size: 12px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 700px) {
+    .freviews__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  /* Escritorio: la nota a la izquierda, las reseñas a la derecha */
+  @media (min-width: 1024px) {
+    .freviews__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); column-gap: clamp(40px, 5vw, 96px); }
+    .freviews__credit { grid-column: 2; }
+  }
 </style>
