@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wireframe CV Jesús Font</title>
+<style>
+  :root {
+    --bg: #F4F4F1; --ink: #151514; --mute: #6A6A63; --box: #DEDED9; --box2: #CACAC4;
+    --line: rgba(20,20,18,.18); --red: #D9291C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#151514; --ink:#F4F4F1; --mute:#A3A39C; --box:#2A2A28; --box2:#3A3A37; --line:rgba(244,244,241,.18); }
+  }
+  :root[data-theme="dark"] { --bg:#151514; --ink:#F4F4F1; --mute:#A3A39C; --box:#2A2A28; --box2:#3A3A37; --line:rgba(244,244,241,.18); }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; padding: 32px 16px 80px; }
+  .page { max-width: 1100px; margin: 0 auto; display: grid; gap: 28px; }
+  h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1; letter-spacing: -.02em; }
+  .intro { display: grid; gap: 10px; max-width: 70ch; }
+  .intro p, .muted { color: var(--mute); }
+  .mono { font-family: ui-monospace, "Courier New", monospace; font-size: 13px; }
+  .sec { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .sec h2 { font-size: 22px; letter-spacing: -.01em; margin-bottom: 4px; }
+  .notes { display: grid; gap: 10px; align-content: start; }
+  .notes b { display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+  .notes a { color: var(--red); }
+  .frame { position: relative; aspect-ratio: 16/10; border: 2px solid var(--ink); border-radius: 10px; padding: 14px; display: grid; gap: 10px; overflow: hidden; }
+  .bx { background: var(--box); border-radius: 6px; display: grid; place-items: center; color: var(--mute); font-size: 12px; text-align: center; padding: 6px; }
+  .bx.d { background: var(--box2); }
+  .bar { height: 10px; background: var(--box2); border-radius: 3px; }
+  .t { font-weight: 800; letter-spacing: -.03em; line-height: .95; }
+  .tag { position: absolute; right: 10px; bottom: 8px; color: var(--red); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .pill { padding: 6px 12px; border-radius: 99px; background: var(--box2); font-size: 12px; }
+  @media (max-width: 760px) { .sec { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="intro">
+    <p class="mono">Nanai Studio · wireframe · 9-11-2026</p>
+    <h1>CV de Jesús Font: wireframe</h1>
+    <p>Página aislada en <span class="mono">/jesus-font</span>. Barra con solo el logo de Nanai y WhatsApp; se llega desde «¿Quién hay detrás de Nanai?». Cada escena une una animación de scroll a algo del oficio (diafragma, timecode, tira de película, claqueta). Contenido sacado del CV en PDF (<span class="mono">src/data/cv.ts</span>).</p>
+    <p>Regla: cada animación tiene que contar algo. Con movimiento reducido o sin JS, todo se ve quieto y completo.</p>
+  </header>
+
+  <!-- 0 -->
+  <section class="sec">
+    <div class="frame" style="aspect-ratio: 16/3; align-content: center;">
+      <div class="row" style="justify-content: space-between;">
+        <div class="bx" style="width: 140px; height: 28px;">Logo Nanai → /</div>
+        <div class="bx d" style="width: 120px; height: 34px;">WhatsApp</div>
+      </div>
+      <div style="height: 2px; width: 35%; background: var(--red);"></div>
+    </div>
+    <div class="notes">
+      <h2>0 · Barra</h2>
+      <p>Solo el logo (vuelve a la web del estudio) y el botón de WhatsApp con un mensaje ya escrito. Debajo, la barra de progreso en rojo.</p>
+      <p><b>Animación</b>La barra de progreso va con el scroll (CSS <span class="mono">animation-timeline: scroll()</span>, sin JS).</p>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section class="sec">
+    <div class="frame" style="background: var(--ink); place-items: center;">
+      <div class="bx" style="width: 46%; aspect-ratio: 1; border-radius: 50%;">Retrato / bucle de vídeo<br>visto por el diafragma</div>
+      <div class="t" style="position:absolute; left:14px; bottom:14px; color: var(--bg); font-size: clamp(28px, 5vw, 56px);">Jesús Font</div>
+      <span class="mono" style="position:absolute; top:12px; left:14px; color: var(--bg);">● REC 00:00:04:12</span>
+      <span class="mono tag">pin · 250vh</span>
+    </div>
+    <div class="notes">
+      <h2>1 · Hero: el diafragma</h2>
+      <p>Pantalla negra. Al bajar, el diafragma se abre sobre tu retrato (o un bucle corto de rodaje) hasta quedar a sangre. El nombre entra letra a letra; debajo, «Filmmaker creativo · Dos Hermanas, Sevilla».</p>
+      <p><b>Animación</b>Escena fijada; <span class="mono">clip-path: circle()</span> ligado al scroll + timecode que avanza con él.</p>
+      <p><b>Referencias</b><a href="https://www.awwwards.com/sites/luke-baffait">Luke Baffait</a> (movimiento de cine ligado al scroll) · <a href="https://www.awwwards.com/inspiration/scroll-animation-figurefilm">FIGUREFILM, scroll animation</a></p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="sec">
+    <div class="frame" style="align-content: center;">
+      <div class="t" style="font-size: clamp(30px, 5.6vw, 64px);">datos primero, <span style="opacity:.25">cámara después.</span></div>
+      <div class="bar" style="width: 60%; justify-self: end;"></div>
+      <div class="bar" style="width: 50%; justify-self: end;"></div>
+      <span class="mono tag">pin · scrub</span>
+    </div>
+    <div class="notes">
+      <h2>2 · El lema</h2>
+      <p>«Datos primero, cámara después.» a pantalla completa. Al terminar, el resumen: marketing audiovisual, de la producción multicámara al paid media; dirección, color e IA.</p>
+      <p><b>Animación</b>Las palabras pasan de gris a tinta una a una con el scroll (scrub). Al final, el resumen sube.</p>
+      <p><b>Referencias</b><a href="https://blog.openreplay.com/bring-ui-to-life-scrolltrigger-gsap/">OpenReplay: ScrollTrigger y revelados de texto</a> · <a href="https://zenn.dev/web_life_ch/articles/5b6b9bd49376c0">Zenn: texto que entra con pin</a></p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="sec">
+    <div class="frame" style="grid-template-columns: repeat(4, 1fr); align-content: center;">
+      <div><div class="t" style="font-size: 34px;">+100</div><div class="bar" style="margin-top:8px"></div></div>
+      <div><div class="t" style="font-size: 34px;">+100k€</div><div class="bar" style="margin-top:8px"></div></div>
+      <div><div class="t" style="font-size: 34px;">9,2</div><div class="bar" style="margin-top:8px"></div></div>
+      <div><div class="t" style="font-size: 34px;">2019</div><div class="bar" style="margin-top:8px"></div></div>
+      <span class="mono tag">al entrar</span>
+    </div>
+    <div class="notes">
+      <h2>3 · Cifras</h2>
+      <p>Solo las del CV: +100 piezas en TBS, +100k€ sobre el objetivo mensual, 9,2 de nota, desde 2019. Una línea debajo de cada una.</p>
+      <p><b>Animación</b>Cuentan hasta su valor al entrar (1,2 s, sale rápido y se posa). Una vez, sin repetir.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="sec">
+    <div class="frame" style="background: var(--ink); grid-template-rows: auto 1fr; padding-inline: 0;">
+      <div class="row" style="justify-content: space-between; padding-inline: 14px; color: var(--bg);"><span class="t" style="font-size:22px">experiencia</span><span class="mono">02 / 04</span></div>
+      <div class="row" style="gap: 10px; padding-inline: 14px; border-block: 6px dotted var(--box2); padding-block: 8px; overflow: hidden;">
+        <div class="bx" style="min-width: 42%; height: 100%;">TBS<br>feb. 2025 –</div>
+        <div class="bx" style="min-width: 42%; height: 100%;">Nanai Studio<br>ago. 2025 –</div>
+        <div class="bx" style="min-width: 42%; height: 100%;">Festival de Cortos</div>
+      </div>
+      <span class="mono tag">pin · horizontal</span>
+    </div>
+    <div class="notes">
+      <h2>4 · Experiencia: tira de película</h2>
+      <p>Cuatro fotogramas: TBS, Nanai Studio, Festival de Cortometrajes de Sevilla e independiente (Rubén Avilés, Zeling, Ana Vas, podcast «Con Arte»). Cada uno: foto, fechas, puesto, empresa y 1–2 logros.</p>
+      <p><b>Animación</b>Sección fijada; la tira corre en horizontal mientras bajas; contador 01/04. En el móvil, deslizar con imán.</p>
+      <p><b>Referencias</b><a href="https://webdesign.tutsplus.com/create-horizontal-scroll-animations-with-gsap-scrolltrigger--cms-108881t">Tuts+: scroll horizontal con ScrollTrigger</a> · <a href="https://codepen.io/humming-design/pen/ExeKeMj">CodePen: tarjetas en horizontal</a></p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="sec">
+    <div class="frame" style="align-content: start;">
+      <span class="t" style="font-size: 22px;">competencias</span>
+      <div class="row" style="flex-wrap: wrap;">
+        <span class="pill" style="rotate:-6deg">Premiere Pro</span><span class="pill" style="rotate:4deg">After Effects</span><span class="pill" style="rotate:-2deg">DaVinci Resolve</span><span class="pill" style="rotate:7deg">Photoshop</span><span class="pill">Lightroom</span><span class="pill" style="rotate:-5deg">Magnific</span><span class="pill" style="rotate:3deg">Claude</span>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: 8px;">
+        <div class="bx" style="height: 70px;">Producción</div><div class="bx" style="height: 70px;">Datos</div><div class="bx" style="height: 70px;">IA audiovisual</div>
+      </div>
+      <span class="mono tag">física · arrastrar</span>
+    </div>
+    <div class="notes">
+      <h2>5 · Competencias</h2>
+      <p>Las cápsulas de color del CV (tus herramientas) y tres bloques: Producción, Datos e IA audiovisual.</p>
+      <p><b>Animación</b>Las cápsulas caen sobre la mesa con física y se pueden arrastrar. Los bloques entran escalonados.</p>
+      <p><b>Referencias</b><a href="https://www.awwwards.com/sites/annemariesauerbier-com">Anne-Marie Sauerbier</a> (física al hacer scroll) · <a href="https://brm.io/matter-js/">Matter.js</a> para la física</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="sec">
+    <div class="frame" style="grid-template-columns: 1fr 1fr; gap: 0; padding: 0;">
+      <div class="bx" style="border-radius: 0;">Storyboard / IA</div>
+      <div class="bx d" style="border-radius: 0;">Plano final</div>
+      <div style="position:absolute; left:50%; top:0; bottom:0; width:3px; background: var(--red);"></div>
+      <span class="mono tag">pendiente de material</span>
+    </div>
+    <div class="notes">
+      <h2>6 · Del boceto al plano (opcional)</h2>
+      <p>Demuestra «IA integrada en todo el flujo»: un boceto o storyboard de IA frente al plano rodado o generado.</p>
+      <p><b>Animación</b>Cortinilla que barre con el scroll de un lado al otro.</p>
+      <p class="muted">Solo si hay un par real. Si no, se quita.</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="sec">
+    <div class="frame" style="grid-template-columns: .8fr 1.2fr;">
+      <span class="t" style="font-size: 22px;">formación</span>
+      <div style="display:grid; gap: 10px; border-left: 3px solid var(--red); padding-left: 12px;">
+        <div class="bx" style="height: 38px; place-items: center start;">Grado Superior de Imagen · 9,2</div>
+        <div class="bx" style="height: 38px; place-items: center start;">Grado Medio de Telecomunicaciones</div>
+        <div class="bx" style="height: 38px; place-items: center start;">Curso: paid media y respuesta directa</div>
+        <div class="bx" style="height: 38px; place-items: center start;">Curso: IA audiovisual aplicada</div>
+      </div>
+      <span class="mono tag">línea con el scroll</span>
+    </div>
+    <div class="notes">
+      <h2>7 · Formación</h2>
+      <p>Línea de tiempo con los dos grados y los dos cursos.</p>
+      <p><b>Animación</b>La línea roja se dibuja al bajar y cada hito se enciende al alcanzarlo.</p>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="sec">
+    <div class="frame" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="bx" style="rotate: -3deg;">Pieza 1</div><div class="bx d">Pieza 2</div><div class="bx" style="rotate: 3deg;">Pieza 3</div>
+      <span class="mono tag">tarjetas apiladas</span>
+    </div>
+    <div class="notes">
+      <h2>8 · Trabajo seleccionado</h2>
+      <p>Tres piezas (de <span class="mono">work.ts</span>) que se reproducen sin salir de la página, y un enlace a tu portfolio y a Trabajos de Nanai.</p>
+      <p><b>Animación</b>Tarjetas que se apilan al hacer scroll.</p>
+      <p><b>Referencias</b><a href="https://www.awwwards.com/sites/benjamin-jochims">Benjamin Jochims</a> (tarjetas apiladas) · <a href="https://www.awwwards.com/sites/nathan-smith">Nathan Smith</a></p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="sec">
+    <div class="frame" style="background: var(--ink); color: var(--bg); align-content: center;">
+      <div class="t" style="font-size: clamp(24px, 4vw, 42px);">hay más que contar, pero no cabe todo en un solo folio.</div>
+      <div class="bx d" style="width: 55%; height: 40px; justify-self: start;">Escríbeme por WhatsApp →</div>
+      <div class="row mono" style="gap: 16px; flex-wrap: wrap;"><span>correo</span><span>teléfono</span><span>Instagram</span><span>LinkedIn</span><span>portfolio</span></div>
+      <span class="mono tag">claqueta · fin</span>
+    </div>
+    <div class="notes">
+      <h2>9 · Cierre</h2>
+      <p>La última frase de tu CV, WhatsApp en grande y el resto del contacto. Abajo: «Conoce Nanai Studio».</p>
+      <p><b>Animación</b>Entra como un rótulo de final de película: claqueta que se cierra y la frase aparece por líneas.</p>
+      <p><b>Referencias</b><a href="https://www.awwwards.com/sites/run-rob-run">Run Rob Run</a> (tipografía y movimiento en una sola página)</p>
+    </div>
+  </section>
+
+  <footer class="intro" style="padding-top: 24px; border-top: 1px solid var(--line);">
+    <h2 style="font-size: 22px;">Técnica propuesta</h2>
+    <p>Astro + <a style="color: var(--red)" href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">GSAP ScrollTrigger</a> para las escenas fijadas y con scrub, y <a style="color: var(--red)" href="https://lenis.darkroom.engineering/">Lenis</a> para suavizar el scroll. Lo simple (barra de progreso, revelados) con <a style="color: var(--red)" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations">animaciones ligadas al scroll en CSS</a>. Solo transform, opacity y clip-path; criterio de movimiento de la skill de Emil Kowalski.</p>
+    <p>Más inspiración: <a style="color: var(--red)" href="https://www.awwwards.com/inspiration_search/film-tv/">Awwwards, Film &amp; TV</a> · <a style="color: var(--red)" href="https://www.awwwards.com/inspiration/portfolio-scroll">Awwwards, portfolio scroll</a> · <a style="color: var(--red)" href="https://www.awwwards.com/cargo-the-film-a-case-study.html">Cargo: The Film, caso de estudio</a></p>
+  </footer>
+</div>
+</body>
+</html>
