@@ -1,5 +1,6 @@
 <title>Wireframe CV Jesús Font</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Courier+Prime&family=League+Spartan:wght@600;700&display=swap">
 <style>
   :root {
     --bg: #F4F4F1; --ink: #151514; --mute: #6A6A63; --box: #DEDED9; --box2: #CACAC4;
@@ -10,12 +11,16 @@
   }
   :root[data-theme="dark"] { --bg:#151514; --ink:#F4F4F1; --mute:#A3A39C; --box:#2A2A28; --box2:#3A3A37; --line:rgba(244,244,241,.18); color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; }
-  body { background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; padding-block: 32px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  body { background: var(--bg); color: var(--ink); font: 16px/1.5 'Archivo', system-ui, sans-serif; padding-block: 32px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   .page { max-width: 1100px; margin: 0 auto; display: grid; gap: 28px; }
   h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1; letter-spacing: -.02em; }
   .intro { display: grid; gap: 10px; max-width: 70ch; }
   .intro p, .muted { color: var(--mute); }
-  .mono { font-family: ui-monospace, "Courier New", monospace; font-size: 13px; }
+  .mono { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 13px; }
+  h1, .sec h2, .t { font-family: 'League Spartan', system-ui, sans-serif; text-transform: lowercase; }
+  body::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .5; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .rules { display: grid; gap: 6px; padding: 16px 18px; border-radius: 10px; background: var(--box); }
+  .rules li { margin-left: 18px; }
   .sec { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; padding-top: 24px; border-top: 1px solid var(--line); }
   .sec h2 { font-size: 22px; letter-spacing: -.01em; margin-bottom: 4px; }
   .notes { display: grid; gap: 10px; align-content: start; }
@@ -37,6 +42,16 @@
     <h1>CV de Jesús Font: wireframe</h1>
     <p>Página aislada en <span class="mono">/jesus-font</span>. Barra con solo el logo de Nanai y WhatsApp; se llega desde «¿Quién hay detrás de Nanai?». Cada escena une una animación de scroll a algo del oficio (diafragma, timecode, tira de película, claqueta). Contenido sacado del CV en PDF (<span class="mono">src/data/cv.ts</span>).</p>
     <p>Regla: cada animación tiene que contar algo. Con movimiento reducido o sin JS, todo se ve quieto y completo.</p>
+    <div class="rules">
+      <strong>La estética es la de Nanai Studio; de Luke Baffait solo cogemos el ritmo</strong>
+      <ul>
+        <li>Papel <span class="mono">#F4F4F1</span> con grano en toda la página. El negro solo en cápsulas con esquinas suaves y margen de papel (la sala de proyección: experiencia y cierre). Rojo <span class="mono">#D9291C</span>, un plano por página.</li>
+        <li>League Spartan en minúscula para titulares, Archivo para el texto y Courier Prime solo en notas pequeñas.</li>
+        <li>Imágenes con esquinas de 10 px y formas suaves (píldora, arco). Fotos de rodaje en blanco y negro que se encienden a color.</li>
+        <li>Economizar: cada bloque dice una cosa, sin cabeceras numeradas, sin lecturas de cámara de adorno y sin botones repetidos.</li>
+        <li>De Baffait: una sola página que se recorre como una película, scroll suave y paso entre bloques como un corte de montaje (fundido sobre el mismo papel, nunca un corte seco).</li>
+      </ul>
+    </div>
   </header>
 
   <!-- 0 -->
@@ -57,17 +72,16 @@
 
   <!-- 1 -->
   <section class="sec">
-    <div class="frame" style="background: var(--ink); place-items: center;">
-      <div class="bx" style="width: 46%; aspect-ratio: 1; border-radius: 50%;">Retrato / bucle de vídeo<br>visto por el diafragma</div>
-      <div class="t" style="position:absolute; left:14px; bottom:14px; color: var(--bg); font-size: clamp(28px, 5vw, 56px);">Jesús Font</div>
-      <span class="mono" style="position:absolute; top:12px; left:14px; color: var(--bg);">● REC 00:00:04:12</span>
-      <span class="mono tag">pin · 250vh</span>
+    <div class="frame" style="align-content: center;">
+      <div class="t" style="font-size: clamp(30px, 6vw, 68px); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">jesús <span class="bx d" style="display: inline-grid; width: 4.4em; height: .8em; border-radius: 99px; font-size: .2em; font-family: 'Archivo', sans-serif; text-transform: none;">retrato en píldora</span> font</div>
+      <p class="muted" style="font-size: 14px;">Filmmaker creativo · Dos Hermanas, Sevilla</p>
+      <span class="mono tag">pin · la píldora se abre</span>
     </div>
     <div class="notes">
-      <h2>1 · Hero: el diafragma</h2>
-      <p>Pantalla negra. Al bajar, el diafragma se abre sobre tu retrato (o un bucle corto de rodaje) hasta quedar a sangre. El nombre entra letra a letra; debajo, «Filmmaker creativo · Dos Hermanas, Sevilla».</p>
-      <p><b>Animación</b>Escena fijada; <span class="mono">clip-path: circle()</span> ligado al scroll + timecode que avanza con él.</p>
-      <p><b>Referencias</b><a href="https://www.awwwards.com/sites/luke-baffait">Luke Baffait</a> (movimiento de cine ligado al scroll) · <a href="https://www.awwwards.com/inspiration/scroll-animation-figurefilm">FIGUREFILM, scroll animation</a></p>
+      <h2>1 · Hero: tu nombre con un fotograma dentro</h2>
+      <p>Sobre el papel, «jesús font» en grande con tu retrato (o un bucle corto de rodaje) metido en una píldora entre las dos palabras, como los titulares de Nanai. Debajo, una línea: filmmaker creativo y dónde.</p>
+      <p><b>Animación</b>Al bajar, la píldora crece hasta ser una imagen grande con esquinas suaves y margen de papel; el nombre se aparta. Es la apertura de plano de Baffait, con las formas de Nanai.</p>
+      <p><b>Referencias</b><a href="https://www.lukebaffait.fr">Luke Baffait</a> (movimiento de cine ligado al scroll) · <a href="https://www.awwwards.com/inspiration/scroll-animation-figurefilm">FIGUREFILM, scroll animation</a></p>
     </div>
   </section>
 
@@ -106,8 +120,8 @@
   <!-- 4 -->
   <section class="sec">
     <div class="frame" style="background: var(--ink); grid-template-rows: auto 1fr; padding-inline: 0;">
-      <div class="row" style="justify-content: space-between; padding-inline: 14px; color: var(--bg);"><span class="t" style="font-size:22px">experiencia</span><span class="mono">02 / 04</span></div>
-      <div class="row" style="gap: 10px; padding-inline: 14px; border-block: 6px dotted var(--box2); padding-block: 8px; overflow: hidden;">
+      <div class="row" style="justify-content: space-between; padding-inline: 14px; color: var(--bg);"><span class="t" style="font-size:22px">experiencia</span></div>
+      <div class="row" style="gap: 10px; padding-inline: 14px; padding-block: 8px; overflow: hidden;">
         <div class="bx" style="min-width: 42%; height: 100%;">TBS<br>feb. 2025 –</div>
         <div class="bx" style="min-width: 42%; height: 100%;">Nanai Studio<br>ago. 2025 –</div>
         <div class="bx" style="min-width: 42%; height: 100%;">Festival de Cortos</div>
@@ -115,9 +129,10 @@
       <span class="mono tag">pin · horizontal</span>
     </div>
     <div class="notes">
-      <h2>4 · Experiencia: tira de película</h2>
+      <h2>4 · Experiencia: los fotogramas</h2>
       <p>Cuatro fotogramas: TBS, Nanai Studio, Festival de Cortometrajes de Sevilla e independiente (Rubén Avilés, Zeling, Ana Vas, podcast «Con Arte»). Cada uno: foto, fechas, puesto, empresa y 1–2 logros.</p>
-      <p><b>Animación</b>Sección fijada; la tira corre en horizontal mientras bajas; contador 01/04. En el móvil, deslizar con imán.</p>
+      <p>Va en la cápsula negra (la sala de proyección). Fotos de rodaje en blanco y negro que se encienden a color.</p>
+      <p><b>Animación</b>Sección fijada; los fotogramas corren en horizontal mientras bajas. En el móvil, deslizar con imán.</p>
       <p><b>Referencias</b><a href="https://webdesign.tutsplus.com/create-horizontal-scroll-animations-with-gsap-scrolltrigger--cms-108881t">Tuts+: scroll horizontal con ScrollTrigger</a> · <a href="https://codepen.io/humming-design/pen/ExeKeMj">CodePen: tarjetas en horizontal</a></p>
     </div>
   </section>
@@ -136,7 +151,7 @@
     </div>
     <div class="notes">
       <h2>5 · Competencias</h2>
-      <p>Las cápsulas de color del CV (tus herramientas) y tres bloques: Producción, Datos e IA audiovisual.</p>
+      <p>Tus herramientas como cápsulas y tres bloques: Producción, Datos e IA audiovisual. Las cápsulas, en papel y tinta con el borde fino, no con los colores del CV en PDF: la página es de Nanai.</p>
       <p><b>Animación</b>Las cápsulas caen sobre la mesa con física y se pueden arrastrar. Los bloques entran escalonados.</p>
       <p><b>Referencias</b><a href="https://www.awwwards.com/sites/annemariesauerbier-com">Anne-Marie Sauerbier</a> (física al hacer scroll) · <a href="https://brm.io/matter-js/">Matter.js</a> para la física</p>
     </div>
@@ -197,19 +212,19 @@
       <div class="t" style="font-size: clamp(24px, 4vw, 42px);">hay más que contar, pero no cabe todo en un solo folio.</div>
       <div class="bx d" style="width: 55%; height: 40px; justify-self: start;">Escríbeme por WhatsApp →</div>
       <div class="row mono" style="gap: 16px; flex-wrap: wrap;"><span>correo</span><span>teléfono</span><span>Instagram</span><span>LinkedIn</span><span>portfolio</span></div>
-      <span class="mono tag">claqueta · fin</span>
+      <span class="mono tag">cápsula negra</span>
     </div>
     <div class="notes">
       <h2>9 · Cierre</h2>
       <p>La última frase de tu CV, WhatsApp en grande y el resto del contacto. Abajo: «Conoce Nanai Studio».</p>
-      <p><b>Animación</b>Entra como un rótulo de final de película: claqueta que se cierra y la frase aparece por líneas.</p>
+      <p><b>Animación</b>La frase sube línea a línea desde una máscara, como los titulares de Nanai. Nada más: el final es tranquilo.</p>
       <p><b>Referencias</b><a href="https://www.awwwards.com/sites/run-rob-run">Run Rob Run</a> (tipografía y movimiento en una sola página)</p>
     </div>
   </section>
 
   <footer class="intro" style="padding-top: 24px; border-top: 1px solid var(--line);">
     <h2 style="font-size: 22px;">Técnica propuesta</h2>
-    <p>Astro + <a style="color: var(--red)" href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">GSAP ScrollTrigger</a> para las escenas fijadas y con scrub, y <a style="color: var(--red)" href="https://lenis.darkroom.engineering/">Lenis</a> para suavizar el scroll. Lo simple (barra de progreso, revelados) con <a style="color: var(--red)" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations">animaciones ligadas al scroll en CSS</a>. Solo transform, opacity y clip-path; criterio de movimiento de la skill de Emil Kowalski.</p>
+    <p>Astro + <a style="color: var(--red)" href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">GSAP ScrollTrigger</a> para las escenas fijadas y con scrub, y <a style="color: var(--red)" href="https://lenis.darkroom.engineering/">Lenis</a> para suavizar el scroll. Lo simple (barra de progreso, revelados) con <a style="color: var(--red)" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations">animaciones ligadas al scroll en CSS</a>. Solo transform, opacity y clip-path; criterio de movimiento de la skill de Emil Kowalski. Base visual: <span class="mono">src/styles/flat.css</span> y la skill <span class="mono">estilo-nanai</span>.</p>
     <p>Más inspiración: <a style="color: var(--red)" href="https://www.awwwards.com/inspiration_search/film-tv/">Awwwards, Film &amp; TV</a> · <a style="color: var(--red)" href="https://www.awwwards.com/inspiration/portfolio-scroll">Awwwards, portfolio scroll</a> · <a style="color: var(--red)" href="https://www.awwwards.com/cargo-the-film-a-case-study.html">Cargo: The Film, caso de estudio</a></p>
   </footer>
 </div>
