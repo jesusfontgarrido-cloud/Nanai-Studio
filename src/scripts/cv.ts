@@ -274,13 +274,19 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     const sBot = sTop + swing.offsetHeight;
     const yEnd = offsetIn($('#contacto'), main).y + 80;
 
+    // Ondulación suave: cada nudo tiene la tangente vertical, así los tramos enlazan sin picos
     const wiggle = (x: number, from: number, to: number, dir = 1) => {
+      const count = Math.max(1, Math.round((to - from) / 700));
+      const step = (to - from) / count;
       let d = '';
-      let y = from;
-      while (y < to - 1) {
-        const step = Math.min(560, to - y);
-        d += ` C ${x + amp * dir} ${y + step / 3} ${x - amp * dir} ${y + (step * 2) / 3} ${x} ${y + step}`;
-        y += step;
+      let px = x;
+      let py = from;
+      for (let i = 1; i <= count; i++) {
+        const nx = i === count ? x : x + amp * dir;
+        const ny = from + step * i;
+        d += ` C ${px} ${py + step * 0.5} ${nx} ${ny - step * 0.5} ${nx} ${ny}`;
+        px = nx;
+        py = ny;
         dir *= -1;
       }
       return d;
