@@ -1,15 +1,16 @@
 ---
 /**
- * CV de Jesús Font (segunda versión, para pulir en local). Página aislada: barra abajo con
- * solo el logo de Nanai y WhatsApp. Se llega desde «¿Quién hay detrás de Nanai?».
+ * CV de Jesús Font (tercera versión, según el boceto del usuario del 10-11-2026). Página
+ * aislada; se llega desde «¿Quién hay detrás de Nanai?».
  *
- * Recorrido (inspirado en lukebaffait.fr, con la estética de Nanai y sin cápsulas):
- *  1. Apertura continua: una línea roja cruza la pantalla, el nombre sube y aparece la barra.
- *  2. Perfil en 3D: el nombre se aleja y el retrato se monta con fragmentos que llegan
- *     desde el fondo; al lado, el lema.
- *  3. La línea roja baja serpenteando y a su paso llegan los mejores trabajos (se ven aquí).
- *  4. La experiencia: un texto que se enciende y los puestos, que entran en 3D. Cifras.
- *  5. Competencias, formación y cierre con el contacto.
+ *  1. Apertura: «Jesús Font» y el menú debajo. Al bajar, el nombre se coloca junto al retrato
+ *     (que se monta con fragmentos en 3D) y la bio sube a su lado.
+ *  2. Trabajos por categoría (Marcas, Videoclips, Social): la lista a la izquierda y los
+ *     vídeos subiendo a la derecha. Se apagan las luces: la página entera pasa a negro.
+ *  3. «Más de 6 años de experiencia» con fotos de rodaje flotando en 3D, y la información de
+ *     valor (qué aporto y cifras), rodeada por la línea roja.
+ *  4. Experiencia, formación y herramientas. 5. Contacto y botón a todos los trabajos.
+ *  Una línea roja recorre la página por el margen y se dibuja con el scroll.
  *
  * Movimiento en src/scripts/cv.ts (GSAP ScrollTrigger + Lenis; criterio de Emil Kowalski).
  * Sin JS o con movimiento reducido, todo se ve quieto y completo.
@@ -21,17 +22,33 @@ import '../styles/cv.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
-import { marketingProjects, musicProjects, filmProjects, contentProjects, ytThumb, ytSrcset, type Project } from '../data/work';
+import { marketingProjects, musicProjects, contentProjects, creatorProjects, visible, ytThumb, ytSrcset, type Project } from '../data/work';
 import portrait from '../assets/media/jesus-font-4x5.jpg';
+import f1 from '../assets/media/bts/fama-monitor-rojo.jpg';
+import f2 from '../assets/media/bts/juandi-playa-operadora.jpg';
+import f3 from '../assets/media/bts/lqd-claqueta.jpg';
+import f4 from '../assets/media/bts/impostora-gimbal.jpg';
+import f5 from '../assets/media/bts/tati-noche.jpg';
+import f6 from '../assets/media/bts/qv-claqueta.jpg';
 
-// El retrato que se monta en 3D: una sola imagen repartida en fragmentos
 const portraitTile = await getImage({ src: portrait, format: 'webp', width: 1000 });
 
-// Los mejores trabajos, en el orden en que aparecen junto a la línea
-const best: Project[] = [marketingProjects[0], musicProjects[0], musicProjects[1], contentProjects[3], filmProjects[0]];
+const impostora = visible(creatorProjects).find((p) => p.title === 'La Impostora');
+const categories: { id: string; name: string; projects: Project[] }[] = [
+  { id: 'marcas', name: 'Marcas', projects: [marketingProjects[0], marketingProjects[1], marketingProjects[3]] },
+  { id: 'videoclips', name: 'Videoclips', projects: [musicProjects[0], musicProjects[1], ...(impostora ? [impostora] : [])] },
+  { id: 'social', name: 'Social', projects: [contentProjects[3], contentProjects[1], contentProjects[0]] },
+];
 
-const statement =
-  'Desde 2019 detrás de la cámara. Hoy, filmmaker creativo en Traders Business School y director de Nanai Studio.';
+// Fotos de rodaje que flotan alrededor de «Más de 6 años»: forma y sitio de cada una
+const floaters = [
+  { src: f1, shape: 'pill', pos: 'left: 4%; top: 6%; width: 18%' },
+  { src: f2, shape: 'arch', pos: 'right: 6%; top: 2%; width: 13%' },
+  { src: f3, shape: 'tilt', pos: 'left: 14%; bottom: 4%; width: 12%' },
+  { src: f4, shape: 'circle', pos: 'right: 18%; bottom: 0%; width: 10%' },
+  { src: f5, shape: 'square', pos: 'left: 40%; top: -4%; width: 9%' },
+  { src: f6, shape: 'diamond', pos: 'right: 2%; top: 46%; width: 8%' },
+];
 
 const home = new URL('/', Astro.site).toString();
 const personLd = {
@@ -50,6 +67,11 @@ const personLd = {
     sameAs: [site.jesus.instagram, site.jesus.linkedin, cv.portfolio],
   },
 };
+const menu = [
+  { href: '#trabajos', label: 'Trabajos' },
+  { href: '#experiencia', label: 'Experiencia' },
+  { href: '#contacto', label: 'Contacto' },
+];
 const waIcon =
   'M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z';
 ---
@@ -76,38 +98,47 @@ const waIcon =
       })();
     </script>
 
-    <!-- Barra abajo: el logo de Nanai y WhatsApp -->
+    <!-- Barra abajo: logo de Nanai, menú y WhatsApp -->
     <header class="cvnav" data-nav>
       <a class="cvnav__logo" href="/" aria-label="Nanai Studio, ir a la web del estudio">
         <img src="/brand/logo-horizontal-negro.svg" alt="" width="478" height="61" />
       </a>
-      <span class="cvnav__name label">Jesús Font · Filmmaker creativo</span>
+      <nav class="cvnav__menu" aria-label="Secciones">
+        {menu.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
       <a class="cvnav__wa" href={cv.whatsapp} target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={waIcon} /></svg>
         <span>WhatsApp</span>
       </a>
     </header>
 
-    <main id="contenido">
-      <!-- 1–2 · Apertura y perfil en 3D -->
+    <main id="contenido" class="cv__main" data-main>
+      <!-- La línea roja que recorre la página (se traza en cv.ts) -->
+      <svg class="cvline" aria-hidden="true" data-redline><path /></svg>
+
+      <!-- 1 · Apertura y perfil -->
       <section class="cvh" data-cvh>
         <div class="cvh__stage">
           <div class="cvh__intro" data-intro>
             <span class="cvh__line" data-line aria-hidden="true"></span>
-            <h1 class="cvh__title" aria-label="Jesús Font, filmmaker creativo">
+            <h1 class="cvh__title" data-title aria-label="Jesús Font, filmmaker creativo">
               <span class="cvh__word" data-split aria-hidden="true">Jesús</span>
               <span class="cvh__word" data-split aria-hidden="true">Font</span>
             </h1>
-            <p class="cvh__role" data-role>{cv.role} · {cv.city}</p>
+            <nav class="cvh__menu" aria-label="Secciones (inicio)" data-menu>
+              {menu.map((item) => <a href={item.href}>{item.label}</a>)}
+            </nav>
             <p class="cvh__hint label" data-hint aria-hidden="true">Desliza</p>
           </div>
 
           <div class="cvh__profile">
-            <div class="cvh__claim">
-              <p class="cvh__claim-words" data-claim>
-                {cv.claim.split(' ').map((word) => <span class="cvh__w">{word} </span>)}
-              </p>
-              <p class="cvh__summary" data-summary>{cv.summary}</p>
+            <div class="cvh__bio">
+              <p class="cvh__name" data-name aria-hidden="true">Jesús Font</p>
+              <div class="cvh__text" data-bio>
+                <p class="cvh__role label">{cv.role} · {cv.city}</p>
+                <p class="cvh__claim">{cv.claim}</p>
+                <p class="cvh__summary">{cv.summary}</p>
+              </div>
             </div>
             <div class="cvh__space" data-space>
               <div class="cvh__portrait" data-portrait style={`--img: url(${portraitTile.src})`}>
@@ -118,46 +149,74 @@ const waIcon =
         </div>
       </section>
 
-      <!-- 3 · La línea roja y los mejores trabajos -->
-      <section class="cvw" data-cvw aria-labelledby="cvw-title">
-        <svg class="cvw__line" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
-          <path data-path d="M50 0 C 50 60, 88 90, 86 180 S 14 300, 16 400 S 86 520, 84 610 S 14 720, 18 820 S 50 940, 50 1000" />
-        </svg>
-        <div class="wrap cvw__head">
-          <p class="label">Trabajo seleccionado</p>
-          <h2 id="cvw-title" class="h2" data-reveal="lines"><span>Lo que mejor cuenta quién soy</span></h2>
-        </div>
-        <ol class="cvw__list wrap" role="list">
-          {
-            best.map((project, i) => (
-              <li class={`cvw__item cvw__item--${i % 2 ? 'right' : 'left'}`} data-work>
-                <button class="cvw__play" type="button" data-play={project.youtubeId} data-title={[project.client, project.title].filter(Boolean).join(' · ')}>
-                  <span class="cvw__media">
-                    <img src={ytThumb(project.youtubeId!)} srcset={ytSrcset(project.youtubeId!)} sizes="(min-width: 900px) 44vw, 88vw" alt="" loading="lazy" width="1280" height="720" />
-                    <span class="cvw__btn" aria-hidden="true">Reproducir</span>
-                  </span>
-                  <span class="cvw__meta">
-                    <span class="cvw__title">{project.title ?? project.client}</span>
-                    <span class="label">{project.client} · {project.type}</span>
-                  </span>
-                </button>
-              </li>
-            ))
-          }
-        </ol>
-        <div class="wrap cvw__more">
-          <a class="link" href="/trabajos">Ver todo el trabajo en Nanai Studio →</a>
+      <!-- 2 · Trabajos por categoría (las luces se apagan) -->
+      <section id="trabajos" class="cvw" data-cvw aria-labelledby="cvw-title">
+        <div class="cvw__grid wrap">
+          <div class="cvw__side">
+            <h2 id="cvw-title" class="label cvw__kicker">Trabajos</h2>
+            <ol class="cvw__cats" role="list">
+              {
+                categories.map((cat) => (
+                  <li>
+                    <a href={`#cat-${cat.id}`} data-cat-link={cat.id}>{cat.name}</a>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+
+          <div class="cvw__reel">
+            {
+              categories.map((cat) => (
+                <div id={`cat-${cat.id}`} class="cvw__group" data-cat={cat.id}>
+                  <h3 class="cvw__cat-name">{cat.name}</h3>
+                  {cat.projects.map((project) => (
+                    <div class="cvw__card" data-card>
+                      <button class="cvw__play" type="button" data-play={project.youtubeId} data-title={[project.client, project.title].filter(Boolean).join(' · ')}>
+                        <span class="cvw__media">
+                          <img src={ytThumb(project.youtubeId!)} srcset={ytSrcset(project.youtubeId!)} sizes="(min-width: 900px) 52vw, 92vw" alt="" loading="lazy" width="1280" height="720" />
+                          <span class="cvw__btn" aria-hidden="true">Reproducir</span>
+                        </span>
+                        <span class="cvw__meta">
+                          <span class="cvw__title">{project.title ?? project.client}</span>
+                          <span class="label">{project.client} · {project.type}</span>
+                        </span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))
+            }
+          </div>
         </div>
       </section>
 
-      <!-- 4 · La experiencia -->
-      <section class="cvx" aria-labelledby="cvx-title">
-        <div class="wrap">
-          <h2 id="cvx-title" class="cvx__statement" data-statement>
-            {statement.split(' ').map((word) => <span class="cvx__w">{word} </span>)}
-          </h2>
+      <!-- 3 · Más de 6 años de experiencia + información de valor -->
+      <section id="experiencia" class="cvy" data-cvy aria-labelledby="cvy-title">
+        <hr class="cvy__rule wrap" data-rule />
+        <div class="cvy__stage" data-years>
+          {
+            floaters.map((f) => (
+              <figure class={`cvy__float cvy__float--${f.shape}`} style={f.pos} data-float aria-hidden="true">
+                <Image src={f.src} alt="" widths={[240, 420]} sizes="18vw" loading="lazy" class="bw" />
+              </figure>
+            ))
+          }
+          <h2 id="cvy-title" class="cvy__title">Más de 6 años<br />de experiencia</h2>
+        </div>
 
-          <ul class="cvn__list" role="list" data-stagger aria-label="En cifras">
+        <div class="cvv wrap" data-swing>
+          <div class="cvv__grid" data-stagger>
+            {
+              cv.skills.map((skill) => (
+                <article class="cvv__item">
+                  <h3 class="h3">{skill.title}</h3>
+                  <p>{skill.text}</p>
+                </article>
+              ))
+            }
+          </div>
+          <ul class="cvn__list" role="list" aria-label="En cifras">
             {
               cv.numbers.map((n) => (
                 <li class="cvn__item">
@@ -167,48 +226,30 @@ const waIcon =
               ))
             }
           </ul>
-
-          <ol class="cvx__list" role="list" data-depth>
-            {
-              cv.experience.map((job) => (
-                <li class="cvx__row" data-row>
-                  <p class="label">{job.dates}</p>
-                  <div>
-                    <h3 class="cvx__role">{job.role}</h3>
-                    <p class="cvx__org">{job.org}</p>
-                  </div>
-                  <ul class="cvx__points" role="list">
-                    {job.points.map((point) => <li>{point}</li>)}
-                  </ul>
-                </li>
-              ))
-            }
-          </ol>
         </div>
       </section>
 
-      <!-- 5 · Competencias -->
-      <section class="cvs wrap" aria-labelledby="cvs-title">
-        <h2 id="cvs-title" class="h2" data-reveal="lines"><span>Competencias</span></h2>
-        <div class="cvs__table" data-table>
-          <ul class="cvs__tools" role="list" aria-label="Herramientas">
-            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7][i]}deg`}>{tool.name}</li>)}
-          </ul>
-          <p class="cvs__hint label" aria-hidden="true">Puedes moverlas</p>
-        </div>
-        <div class="cvs__grid" data-stagger>
+      <!-- 4 · El resto: experiencia, formación y herramientas -->
+      <section class="cvx wrap" aria-labelledby="cvx-title">
+        <h2 id="cvx-title" class="h2" data-reveal="lines"><span>Dónde he trabajado</span></h2>
+        <ol class="cvx__list" role="list" data-depth>
           {
-            cv.skills.map((skill) => (
-              <article class="cvs__item">
-                <h3 class="h3">{skill.title}</h3>
-                <p>{skill.text}</p>
-              </article>
+            cv.experience.map((job) => (
+              <li class="cvx__row" data-row>
+                <p class="label">{job.dates}</p>
+                <div>
+                  <h3 class="cvx__role">{job.role}</h3>
+                  <p class="cvx__org">{job.org}</p>
+                </div>
+                <ul class="cvx__points" role="list">
+                  {job.points.map((point) => <li>{point}</li>)}
+                </ul>
+              </li>
             ))
           }
-        </div>
+        </ol>
       </section>
 
-      <!-- 6 · Formación -->
       <section class="cve wrap" aria-labelledby="cve-title">
         <h2 id="cve-title" class="h2" data-reveal="lines"><span>Formación</span></h2>
         <ol class="cve__list" role="list" data-edu>
@@ -225,19 +266,32 @@ const waIcon =
         </ol>
       </section>
 
-      <!-- 7 · Cierre -->
-      <section class="cvc wrap" aria-labelledby="cvc-title">
+      <section class="cvs wrap" aria-labelledby="cvs-title">
+        <h2 id="cvs-title" class="h2" data-reveal="lines"><span>Herramientas</span></h2>
+        <div class="cvs__table" data-table>
+          <ul class="cvs__tools" role="list">
+            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7][i]}deg`}>{tool.name}</li>)}
+          </ul>
+          <p class="cvs__hint label" aria-hidden="true">Puedes moverlas</p>
+        </div>
+      </section>
+
+      <!-- 5 · Contacto -->
+      <section id="contacto" class="cvc wrap" aria-labelledby="cvc-title">
         <h2 id="cvc-title" class="display cvc__title" data-reveal="lines">
           <span>Hay más que contar,</span>
           <span>pero no cabe todo</span>
           <span>en un solo folio.</span>
         </h2>
 
-        <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener" data-reveal style="--i: 2">
-          <span class="cvc__dot" aria-hidden="true"></span>
-          Escríbeme por WhatsApp
-          <span class="cvc__arrow" aria-hidden="true">→</span>
-        </a>
+        <div class="cvc__actions" data-reveal style="--i: 2">
+          <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener">
+            <span class="cvc__dot" aria-hidden="true"></span>
+            Escríbeme por WhatsApp
+            <span class="cvc__arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="cvc__all" href="/trabajos">Ver todos los trabajos</a>
+        </div>
 
         <ul class="cvc__links" role="list" data-reveal style="--i: 3">
           <li><span class="label">Correo</span><a href={`mailto:${cv.email}`}>{cv.email}</a></li>
