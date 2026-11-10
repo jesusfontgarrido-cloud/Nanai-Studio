@@ -1,34 +1,38 @@
 ---
 /**
- * CV de Jesús Font (primera versión, para pulir en local). Página aislada: barra con solo
- * el logo de Nanai y WhatsApp. Se llega desde «¿Quién hay detrás de Nanai?».
+ * CV de Jesús Font (segunda versión, para pulir en local). Página aislada: barra abajo con
+ * solo el logo de Nanai y WhatsApp. Se llega desde «¿Quién hay detrás de Nanai?».
  *
- * Plan: docs/cv-jesus-font/wireframe.html (estética de Nanai; ritmo de Luke Baffait;
- * movimiento con el criterio de Emil Kowalski). Escenas en src/scripts/cv.ts con GSAP
- * ScrollTrigger y Lenis. Sin JS o con movimiento reducido, todo se ve quieto y completo.
+ * Recorrido (inspirado en lukebaffait.fr, con la estética de Nanai y sin cápsulas):
+ *  1. Apertura continua: una línea roja cruza la pantalla, el nombre sube y aparece la barra.
+ *  2. Perfil en 3D: el nombre se aleja y el retrato se monta con fragmentos que llegan
+ *     desde el fondo; al lado, el lema.
+ *  3. La línea roja baja serpenteando y a su paso llegan los mejores trabajos (se ven aquí).
+ *  4. La experiencia: un texto que se enciende y los puestos, que entran en 3D. Cifras.
+ *  5. Competencias, formación y cierre con el contacto.
+ *
+ * Movimiento en src/scripts/cv.ts (GSAP ScrollTrigger + Lenis; criterio de Emil Kowalski).
+ * Sin JS o con movimiento reducido, todo se ve quieto y completo.
  */
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/flat.css';
 import '../styles/cv.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
-import FlatWork from '../components/flat/FlatWork.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
-import { marketingProjects, musicProjects, filmProjects } from '../data/work';
-import heroPhoto from '../assets/media/DSC09907.jpg';
+import { marketingProjects, musicProjects, filmProjects, contentProjects, ytThumb, ytSrcset, type Project } from '../data/work';
 import portrait from '../assets/media/jesus-font-4x5.jpg';
-import tbsFrame from '../assets/media/traders-poster.jpg';
-import nanaiFrame from '../assets/media/hero-luz-roja.jpg';
-import indieFrame from '../assets/media/bts/concierto-camara.jpg';
 
-const frames = [
-  { src: tbsFrame, alt: 'Fotograma de una pieza de Traders Business School' },
-  { src: nanaiFrame, alt: 'Rodaje de Nanai Studio con luz roja' },
-  null,
-  { src: indieFrame, alt: 'Cámara en un concierto' },
-];
-const work = [marketingProjects[0], musicProjects[0], filmProjects[0]];
+// El retrato que se monta en 3D: una sola imagen repartida en fragmentos
+const portraitTile = await getImage({ src: portrait, format: 'webp', width: 1000 });
+
+// Los mejores trabajos, en el orden en que aparecen junto a la línea
+const best: Project[] = [marketingProjects[0], musicProjects[0], musicProjects[1], contentProjects[3], filmProjects[0]];
+
+const statement =
+  'Desde 2019 detrás de la cámara. Hoy, filmmaker creativo en Traders Business School y director de Nanai Studio.';
+
 const home = new URL('/', Astro.site).toString();
 const personLd = {
   '@context': 'https://schema.org',
@@ -60,14 +64,24 @@ const waIcon =
   <div class="flat cv">
     <FlatMotion />
     <script is:inline>
-      // Las escenas de scroll solo se preparan si hay JS y no se pide movimiento reducido.
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('cv-js');
+      // Las escenas solo se preparan si hay JS y no se pide movimiento reducido.
+      // Red de seguridad: si el módulo no llega en 4 s, todo se ve quieto.
+      (function () {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var root = document.documentElement;
+        root.classList.add('cv-js');
+        setTimeout(function () {
+          if (!root.classList.contains('cv-ready')) root.classList.remove('cv-js');
+        }, 4000);
+      })();
     </script>
 
-    <header class="cvnav">
+    <!-- Barra abajo: el logo de Nanai y WhatsApp -->
+    <header class="cvnav" data-nav>
       <a class="cvnav__logo" href="/" aria-label="Nanai Studio, ir a la web del estudio">
         <img src="/brand/logo-horizontal-negro.svg" alt="" width="478" height="61" />
       </a>
+      <span class="cvnav__name label">Jesús Font · Filmmaker creativo</span>
       <a class="cvnav__wa" href={cv.whatsapp} target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={waIcon} /></svg>
         <span>WhatsApp</span>
@@ -75,93 +89,101 @@ const waIcon =
     </header>
 
     <main id="contenido">
-      <!-- 1 · Hero: el nombre con un fotograma dentro, que se abre en plano -->
+      <!-- 1–2 · Apertura y perfil en 3D -->
       <section class="cvh" data-cvh>
         <div class="cvh__stage">
-          <h1 class="cvh__title" aria-label="Jesús Font, filmmaker creativo">
-            <span class="cvh__word" data-split aria-hidden="true">Jesús</span>
-            <span class="cvh__pill" data-pill aria-hidden="true">
-              <Image src={heroPhoto} alt="" widths={[320, 640]} sizes="20vw" loading="eager" class="bw" />
-            </span>
-            <span class="cvh__word" data-split aria-hidden="true">Font</span>
-          </h1>
-          <p class="cvh__role" data-hero-fade>{cv.role} · {cv.city}</p>
-
-          <div class="cvh__media" data-media aria-hidden="true">
-            <Image src={heroPhoto} alt="" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" class="cvh__img cvh__img--bw" />
-            <Image src={heroPhoto} alt="" widths={[800, 1400, 2000]} sizes="100vw" loading="eager" class="cvh__img cvh__img--color" data-color />
-            <p class="cvh__caption" data-caption>Detrás de la cámara desde 2019.</p>
+          <div class="cvh__intro" data-intro>
+            <span class="cvh__line" data-line aria-hidden="true"></span>
+            <h1 class="cvh__title" aria-label="Jesús Font, filmmaker creativo">
+              <span class="cvh__word" data-split aria-hidden="true">Jesús</span>
+              <span class="cvh__word" data-split aria-hidden="true">Font</span>
+            </h1>
+            <p class="cvh__role" data-role>{cv.role} · {cv.city}</p>
+            <p class="cvh__hint label" data-hint aria-hidden="true">Desliza</p>
           </div>
 
-          <p class="cvh__hint label" data-hero-fade aria-hidden="true">Desliza</p>
+          <div class="cvh__profile">
+            <div class="cvh__claim">
+              <p class="cvh__claim-words" data-claim>
+                {cv.claim.split(' ').map((word) => <span class="cvh__w">{word} </span>)}
+              </p>
+              <p class="cvh__summary" data-summary>{cv.summary}</p>
+            </div>
+            <div class="cvh__space" data-space>
+              <div class="cvh__portrait" data-portrait style={`--img: url(${portraitTile.src})`}>
+                <Image src={portrait} alt="Jesús Font con una cámara de cine al hombro" widths={[480, 800, 1100]} sizes="(min-width: 900px) 34vw, 72vw" class="cvh__still" loading="eager" />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- 2 · El lema -->
-      <section class="cvl" data-cvl aria-label="Quién soy">
-        <div class="cvl__stage wrap">
-          <div class="cvl__text">
-            <p class="cvl__words display">
-              {cv.claim.split(' ').map((word) => <span class="cvl__w">{word} </span>)}
-            </p>
-            <p class="cvl__summary lead muted" data-summary>{cv.summary}</p>
-          </div>
-          <figure class="cvl__portrait">
-            <Image src={portrait} alt="Jesús Font con una cámara de cine al hombro" widths={[480, 800, 1100]} sizes="(min-width: 900px) 34vw, 70vw" data-focus />
-          </figure>
-        </div>
-      </section>
-
-      <!-- 3 · Cifras -->
-      <section class="cvn wrap" aria-label="En cifras" data-cvn>
-        <svg class="cvn__curve" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true">
-          <path data-curve d="M-60 470 C 260 520, 380 250, 640 300 S 1080 520, 1200 300 S 1380 40, 1520 90" />
+      <!-- 3 · La línea roja y los mejores trabajos -->
+      <section class="cvw" data-cvw aria-labelledby="cvw-title">
+        <svg class="cvw__line" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true">
+          <path data-path d="M50 0 C 50 60, 88 90, 86 180 S 14 300, 16 400 S 86 520, 84 610 S 14 720, 18 820 S 50 940, 50 1000" />
         </svg>
-        <ul class="cvn__list" role="list" data-stagger>
+        <div class="wrap cvw__head">
+          <p class="label">Trabajo seleccionado</p>
+          <h2 id="cvw-title" class="h2" data-reveal="lines"><span>Lo que mejor cuenta quién soy</span></h2>
+        </div>
+        <ol class="cvw__list wrap" role="list">
           {
-            cv.numbers.map((n) => (
-              <li class="cvn__item">
-                <span class="cvn__value">{n.prefix}<span data-count={n.value} data-decimals={'decimals' in n ? n.decimals : 0} data-from={'plain' in n ? n.value - 25 : 0}>{'decimals' in n ? String(n.value).replace('.', ',') : n.value}</span>{n.suffix}</span>
-                <span class="cvn__label">{n.label}</span>
+            best.map((project, i) => (
+              <li class={`cvw__item cvw__item--${i % 2 ? 'right' : 'left'}`} data-work>
+                <button class="cvw__play" type="button" data-play={project.youtubeId} data-title={[project.client, project.title].filter(Boolean).join(' · ')}>
+                  <span class="cvw__media">
+                    <img src={ytThumb(project.youtubeId!)} srcset={ytSrcset(project.youtubeId!)} sizes="(min-width: 900px) 44vw, 88vw" alt="" loading="lazy" width="1280" height="720" />
+                    <span class="cvw__btn" aria-hidden="true">Reproducir</span>
+                  </span>
+                  <span class="cvw__meta">
+                    <span class="cvw__title">{project.title ?? project.client}</span>
+                    <span class="label">{project.client} · {project.type}</span>
+                  </span>
+                </button>
               </li>
             ))
           }
-        </ul>
+        </ol>
+        <div class="wrap cvw__more">
+          <a class="link" href="/trabajos">Ver todo el trabajo en Nanai Studio →</a>
+        </div>
       </section>
 
-      <!-- 4 · Experiencia: lista con fotograma (el activo en claro, los demás en gris) -->
-      <section class="sec tone-dark cvx" data-cvx aria-labelledby="cvx-title">
-        <div class="cvx__grid wrap">
-          <div class="cvx__col">
-            <h2 id="cvx-title" class="h2" data-reveal="lines"><span>Experiencia</span></h2>
-            <ol class="cvx__list" role="list">
-              {
-                cv.experience.map((job, i) => (
-                  <li class="cvx__item" data-item={i}>
-                    <p class="label">{job.dates}</p>
-                    <h3 class="cvx__role">{job.role}</h3>
-                    <p class="cvx__org">{job.org}</p>
-                    <ul class="cvx__points" role="list">
-                      {job.points.map((point) => <li>{point}</li>)}
-                    </ul>
-                  </li>
-                ))
-              }
-            </ol>
-          </div>
-          <div class="cvx__frame" aria-hidden="true">
+      <!-- 4 · La experiencia -->
+      <section class="cvx" aria-labelledby="cvx-title">
+        <div class="wrap">
+          <h2 id="cvx-title" class="cvx__statement" data-statement>
+            {statement.split(' ').map((word) => <span class="cvx__w">{word} </span>)}
+          </h2>
+
+          <ul class="cvn__list" role="list" data-stagger aria-label="En cifras">
             {
-              frames.map((frame, i) => (
-                <div class="cvx__shot" data-shot={i}>
-                  {frame ? (
-                    <Image src={frame.src} alt="" widths={[600, 1000]} sizes="40vw" loading="lazy" />
-                  ) : (
-                    <span class="cvx__type">Gala</span>
-                  )}
-                </div>
+              cv.numbers.map((n) => (
+                <li class="cvn__item">
+                  <span class="cvn__value">{n.prefix}<span data-count={n.value} data-decimals={'decimals' in n ? n.decimals : 0} data-from={'plain' in n ? n.value - 25 : 0}>{'decimals' in n ? String(n.value).replace('.', ',') : n.value}</span>{n.suffix}</span>
+                  <span class="cvn__label">{n.label}</span>
+                </li>
               ))
             }
-          </div>
+          </ul>
+
+          <ol class="cvx__list" role="list" data-depth>
+            {
+              cv.experience.map((job) => (
+                <li class="cvx__row" data-row>
+                  <p class="label">{job.dates}</p>
+                  <div>
+                    <h3 class="cvx__role">{job.role}</h3>
+                    <p class="cvx__org">{job.org}</p>
+                  </div>
+                  <ul class="cvx__points" role="list">
+                    {job.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                </li>
+              ))
+            }
+          </ol>
         </div>
       </section>
 
@@ -203,40 +225,44 @@ const waIcon =
         </ol>
       </section>
 
-      <!-- 7 · Trabajo: el reproductor de Nanai, sin salir de la página -->
-      <FlatWork projects={work} title="Trabajo seleccionado" cols={3} id="cv-trabajo" more={{ href: '/trabajos', label: 'Ver todo en Nanai Studio' }} />
+      <!-- 7 · Cierre -->
+      <section class="cvc wrap" aria-labelledby="cvc-title">
+        <h2 id="cvc-title" class="display cvc__title" data-reveal="lines">
+          <span>Hay más que contar,</span>
+          <span>pero no cabe todo</span>
+          <span>en un solo folio.</span>
+        </h2>
 
-      <!-- 8 · Cierre -->
-      <section class="sec tone-dark cvc" aria-labelledby="cvc-title">
-        <div class="wrap cvc__inner">
-          <h2 id="cvc-title" class="display cvc__title" data-reveal="lines">
-            <span>Hay más que contar,</span>
-            <span>pero no cabe todo</span>
-            <span>en un solo folio.</span>
-          </h2>
+        <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener" data-reveal style="--i: 2">
+          <span class="cvc__dot" aria-hidden="true"></span>
+          Escríbeme por WhatsApp
+          <span class="cvc__arrow" aria-hidden="true">→</span>
+        </a>
 
-          <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener" data-reveal style="--i: 2">
-            <span class="cvc__dot" aria-hidden="true"></span>
-            Escríbeme por WhatsApp
-            <span class="cvc__arrow" aria-hidden="true">→</span>
-          </a>
+        <ul class="cvc__links" role="list" data-reveal style="--i: 3">
+          <li><span class="label">Correo</span><a href={`mailto:${cv.email}`}>{cv.email}</a></li>
+          <li><span class="label">Teléfono</span><a href={`tel:+34${cv.phone.replace(/\s/g, '')}`}>{cv.phone}</a></li>
+          <li><span class="label">Instagram</span><a href={site.jesus.instagram} target="_blank" rel="noopener me">{site.jesus.instagramHandle}</a></li>
+          <li><span class="label">LinkedIn</span><a href={site.jesus.linkedin} target="_blank" rel="noopener me">Jesús Font Garrido</a></li>
+          <li><span class="label">Portfolio</span><a href={cv.portfolio} target="_blank" rel="noopener me">jesusfont.framer.website</a></li>
+        </ul>
 
-          <ul class="cvc__links" role="list" data-reveal style="--i: 3">
-            <li><span class="label">Correo</span><a href={`mailto:${cv.email}`}>{cv.email}</a></li>
-            <li><span class="label">Teléfono</span><a href={`tel:+34${cv.phone.replace(/\s/g, '')}`}>{cv.phone}</a></li>
-            <li><span class="label">Instagram</span><a href={site.jesus.instagram} target="_blank" rel="noopener me">{site.jesus.instagramHandle}</a></li>
-            <li><span class="label">LinkedIn</span><a href={site.jesus.linkedin} target="_blank" rel="noopener me">Jesús Font Garrido</a></li>
-            <li><span class="label">Portfolio</span><a href={cv.portfolio} target="_blank" rel="noopener me">jesusfont.framer.website</a></li>
-          </ul>
-
-          <a class="cvc__studio" href="/">
-            <img src="/brand/isotipo-blanco.svg" alt="" width="28" height="28" />
-            <span>Conoce Nanai Studio, la productora que dirijo</span>
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
+        <a class="cvc__studio" href="/">
+          <img src="/brand/isotipo-negro.svg" alt="" width="28" height="28" />
+          <span>Conoce Nanai Studio, la productora que dirijo</span>
+          <span aria-hidden="true">→</span>
+        </a>
       </section>
     </main>
+
+    <!-- Reproductor: los trabajos se ven sin salir de la página -->
+    <dialog class="cvplayer" data-player aria-label="Reproductor">
+      <div class="cvplayer__bar">
+        <p class="cvplayer__title" data-player-title></p>
+        <button class="cvplayer__close" type="button" data-player-close>Cerrar</button>
+      </div>
+      <div class="cvplayer__screen" data-player-screen></div>
+    </dialog>
   </div>
 </BaseLayout>
 

@@ -1,10 +1,10 @@
 /**
  * Escenas del CV de Jesús Font (/jesus-font).
  *
- * Criterio (skill de Emil Kowalski): lo ligado al scroll avanza 1:1 con él (scrub) y Lenis
- * pone la suavidad; las entradas, con ease-out fuerte; solo transform, opacity y clip-path.
- * Todo vive dentro de gsap.matchMedia: con movimiento reducido no se monta nada y la página
- * se queda quieta y completa (html.cv-js no se pone).
+ * Criterio (skill de Emil Kowalski): la apertura se ve una vez y admite su momento; lo ligado
+ * al scroll avanza 1:1 con él y Lenis pone la suavidad; las entradas, con ease-out fuerte; el
+ * movimiento en pantalla, con ease-in-out. Solo transform y opacity (y clip-path).
+ * Todo vive dentro de gsap.matchMedia: con movimiento reducido no se monta nada.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -14,11 +14,39 @@ import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger, Draggable, InertiaPlugin);
 
+const root = document.documentElement;
+root.classList.add('cv-ready');
+
 const EASE_OUT = 'expo.out'; // ≈ cubic-bezier(0.23, 1, 0.32, 1)
+const EASE_MOVE = 'power3.inOut'; // ≈ cubic-bezier(0.77, 0, 0.175, 1)
 const $ = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = document) => scope.querySelector<T>(sel)!;
 const $$ = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = document) => [...scope.querySelectorAll<T>(sel)];
+const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
-/** Parte una palabra en letras (para la entrada del nombre). */
+// ── Reproductor (también sin movimiento) ─────────────────────────
+const player = $<HTMLDialogElement>('[data-player]');
+const screen = $('[data-player-screen]', player);
+$$<HTMLButtonElement>('[data-play]').forEach((button) =>
+  button.addEventListener('click', () => {
+    if (typeof player.showModal !== 'function') {
+      window.open(`https://www.youtube.com/watch?v=${button.dataset.play}`, '_blank', 'noopener');
+      return;
+    }
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${button.dataset.play}?autoplay=1&rel=0&playsinline=1`;
+    frame.title = button.dataset.title ?? 'Vídeo';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    screen.replaceChildren(frame);
+    $('[data-player-title]', player).textContent = button.dataset.title ?? '';
+    player.showModal();
+  }),
+);
+$('[data-player-close]', player).addEventListener('click', () => player.close());
+player.addEventListener('click', (event) => event.target === player && player.close());
+player.addEventListener('close', () => screen.replaceChildren());
+
+/** Parte una palabra en letras (para la apertura). */
 function splitChars(el: HTMLElement) {
   const text = el.textContent ?? '';
   el.textContent = '';
@@ -31,106 +59,162 @@ function splitChars(el: HTMLElement) {
   });
 }
 
+/** Reparte el retrato en fragmentos (una sola imagen como fondo). */
+function buildTiles(host: HTMLElement, cols: number, rows: number) {
+  const frag = document.createDocumentFragment();
+  const tiles: HTMLElement[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const t = document.createElement('span');
+      t.className = 'cvh__tile';
+      t.style.cssText = `left:${(c / cols) * 100}%;top:${(r / rows) * 100}%;width:${100 / cols + 0.15}%;height:${100 / rows + 0.15}%;background-size:${cols * 100}% ${rows * 100}%;background-position:${(c / (cols - 1)) * 100}% ${(r / (rows - 1)) * 100}%`;
+      frag.appendChild(t);
+      tiles.push(t);
+    }
+  }
+  host.appendChild(frag);
+  return tiles;
+}
+
 const mm = gsap.matchMedia();
 
 mm.add('(prefers-reduced-motion: no-preference)', () => {
   // ── Scroll suave ─────────────────────────────────────────────
-  const lenis = new Lenis({ lerp: 0.1 });
+  const lenis = new Lenis({ lerp: 0.09 });
   lenis.on('scroll', ScrollTrigger.update);
   const raf = (time: number) => lenis.raf(time * 1000);
   gsap.ticker.add(raf);
   gsap.ticker.lagSmoothing(0);
 
-  // ── 1 · Hero ─────────────────────────────────────────────────
+  // ── 1 · Apertura: línea, nombre y barra ──────────────────────
   const hero = $('[data-cvh]');
-  const stage = $('.cvh__stage', hero);
-  const pill = $('[data-pill]', hero);
-  const media = $('[data-media]', hero);
-  const words = $$('[data-split]', hero);
-  const chars = words.flatMap(splitChars);
+  const chars = $$('[data-split]', hero).flatMap(splitChars);
+  const nav = $('[data-nav]');
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem('cv-intro') === '1';
+    sessionStorage.setItem('cv-intro', '1');
+  } catch {
+    // Sin almacenamiento: la apertura entera.
+  }
 
-  // Recorte de la imagen grande que coincide con la píldora del titular
-  const pillInset = () => {
-    const m = media.getBoundingClientRect();
-    const p = pill.getBoundingClientRect();
-    return `inset(${p.top - m.top}px ${m.right - p.right}px ${m.bottom - p.bottom}px ${p.left - m.left}px round ${p.height / 2}px)`;
-  };
-  const radius = () => getComputedStyle(media).getPropertyValue('--radius').trim() || '24px';
+  gsap.set(chars, { yPercent: 110 });
+  gsap.set(nav, { yPercent: 160 });
+  const intro = gsap.timeline({ defaults: { ease: EASE_OUT }, delay: 0.15 });
+  intro
+    .fromTo('[data-line]', { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.9, ease: EASE_MOVE })
+    .to('[data-line]', { scaleX: 0, transformOrigin: '100% 50%', duration: 0.7, ease: EASE_MOVE }, '+=0.05')
+    .to(chars, { yPercent: 0, duration: 1, stagger: 0.045 }, '<0.1')
+    .fromTo('[data-role]', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+    .to(nav, { yPercent: 0, duration: 0.9 }, '-=0.6')
+    .fromTo('[data-hint]', { opacity: 0 }, { opacity: 1, duration: 0.6 }, '-=0.4');
+  if (seen) intro.timeScale(2.2);
 
-  // Entrada al cargar: letras y luego la píldora
-  gsap.from(chars, { yPercent: 60, opacity: 0, duration: 0.8, stagger: 0.035, ease: EASE_OUT, delay: 0.1 });
-  gsap.from(media, { opacity: 0, scale: 0.96, duration: 0.8, ease: EASE_OUT, delay: 0.35, transformOrigin: '50% 50%' });
+  // ── 2 · Perfil en 3D: el nombre se aleja y el retrato se monta ──
+  const portrait = $('[data-portrait]', hero);
+  const small = innerWidth < 700;
+  const tiles = buildTiles(portrait, small ? 6 : 8, small ? 8 : 10);
 
   const heroTl = gsap.timeline({
     defaults: { ease: 'none' },
-    scrollTrigger: { trigger: hero, start: 'top top', end: '+=140%', scrub: true, pin: stage, invalidateOnRefresh: true },
+    scrollTrigger: { trigger: hero, start: 'top top', end: '+=260%', scrub: true, pin: $('.cvh__stage', hero) },
   });
   heroTl
-    .fromTo(media, { clipPath: pillInset }, { clipPath: () => `inset(0px 0px 0px 0px round ${radius()})`, duration: 1 }, 0)
-    // En la píldora se ve tu cara; al abrirse, la cámara se aleja hasta el plano entero
-    .fromTo($$('.cvh__img', media), { xPercent: -24, yPercent: 10, scale: 1.2 }, { xPercent: 0, yPercent: 0, scale: 1, duration: 1 }, 0)
-    .to(words[0], { xPercent: -60, opacity: 0, duration: 0.6 }, 0)
-    .to(words[1], { xPercent: 60, opacity: 0, duration: 0.6 }, 0)
-    .to('[data-hero-fade]', { opacity: 0, duration: 0.25 }, 0)
-    .to('[data-color]', { opacity: 1, duration: 0.6 }, 0.35)
-    .fromTo('[data-caption]', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.25 }, 0.8);
+    .to('[data-intro]', { scale: 0.5, yPercent: -12, opacity: 0, duration: 0.3 }, 0)
+    .fromTo(
+      tiles,
+      {
+        x: () => rand(-0.7, 0.7) * innerWidth,
+        y: () => rand(-0.8, 0.8) * innerHeight,
+        z: () => rand(-1800, 700),
+        rotationX: () => rand(-110, 110),
+        rotationY: () => rand(-110, 110),
+        opacity: 0,
+      },
+      { x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, opacity: 1, duration: 0.45, stagger: { amount: 0.25, from: 'random' } },
+      0.04,
+    )
+    .fromTo(portrait, { rotationY: 38, rotationX: 10 }, { rotationY: 0, rotationX: 0, duration: 0.75 }, 0)
+    .to('.cvh__still', { opacity: 1, duration: 0.08 }, 0.76)
+    .to(tiles, { opacity: 0, duration: 0.01 }, 0.84)
+    .fromTo('[data-claim]', { opacity: 0 }, { opacity: 1, duration: 0.05 }, 0.5)
+    .fromTo($$('.cvh__w', hero), { opacity: 0.12, y: 24 }, { opacity: 1, y: 0, stagger: 0.07, duration: 0.12 }, 0.52)
+    .fromTo('[data-summary]', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.12 }, 0.86);
 
-  // ── 2 · El lema: palabra a palabra, y el retrato enfoca a la vez ──
-  const claim = $('[data-cvl]');
-  gsap
-    .timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: claim, start: 'top top', end: '+=130%', scrub: true, pin: $('.cvl__stage', claim) } })
-    .fromTo($$('.cvl__w', claim), { opacity: 0.14 }, { opacity: 1, stagger: 0.25, duration: 0.25 }, 0)
-    .fromTo('[data-focus]', { filter: 'blur(16px)', scale: 1.08 }, { filter: 'blur(0px)', scale: 1, duration: 1 }, 0)
-    .fromTo('[data-summary]', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4 });
+  // Al mover el ratón, el retrato gira un poco (decorativo, solo con ratón)
+  mm.add('(hover: hover) and (pointer: fine)', () => {
+    const space = $('[data-space]', hero);
+    const rx = gsap.quickTo(space, 'rotationX', { duration: 0.8, ease: 'power3.out' });
+    const ry = gsap.quickTo(space, 'rotationY', { duration: 0.8, ease: 'power3.out' });
+    const move = (e: PointerEvent) => {
+      ry((e.clientX / innerWidth - 0.5) * 12);
+      rx((e.clientY / innerHeight - 0.5) * -8);
+    };
+    addEventListener('pointermove', move);
+    return () => removeEventListener('pointermove', move);
+  });
 
-  // La curva roja se dibuja al pasar por las cifras
-  const curve = $<SVGPathElement>('[data-curve]');
-  const len = curve.getTotalLength();
+  // ── 3 · La línea roja baja y los trabajos llegan desde el fondo ──
+  const works = $('[data-cvw]');
+  const svg = $<SVGSVGElement>('.cvw__line', works);
+  const path = $<SVGPathElement>('[data-path]', works);
+  // La curva está escrita en un lienzo de 100 × 1000; se reescala a píxeles reales para que
+  // el trazo tenga siempre el mismo grosor y se dibuje de una pieza.
+  const template = path.getAttribute('d') ?? '';
+  const fitLine = () => {
+    const w = works.clientWidth;
+    const h = works.clientHeight;
+    let i = 0;
+    const d = template.replace(/-?\d+(\.\d+)?/g, (n) => String(Math.round(Number(n) * (i++ % 2 === 0 ? w / 100 : h / 1000))));
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    path.setAttribute('d', d);
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}`;
+    return len;
+  };
   gsap.fromTo(
-    curve,
-    { strokeDasharray: len, strokeDashoffset: len },
-    { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: '[data-cvn]', start: 'top 85%', end: 'bottom 25%', scrub: true } },
+    path,
+    { strokeDashoffset: () => fitLine() },
+    { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: works, start: 'top 75%', end: 'bottom 60%', scrub: true, invalidateOnRefresh: true } },
   );
+  $$('[data-work]', works).forEach((item) => {
+    const side = item.classList.contains('cvw__item--right') ? 1 : -1;
+    gsap.fromTo(
+      item,
+      { z: -900, rotationX: 22, rotationY: side * -24, yPercent: 30, opacity: 0 },
+      {
+        z: 0,
+        rotationX: 0,
+        rotationY: 0,
+        yPercent: 0,
+        opacity: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: item, start: 'top 105%', end: 'top 40%', scrub: true },
+      },
+    );
+  });
 
-  // ── 3 · Cifras: cuentan una vez al entrar ────────────────────
+  // ── 4 · La experiencia: el texto se enciende y los puestos entran en 3D ──
+  gsap.fromTo(
+    $$('.cvx__w'),
+    { opacity: 0.12 },
+    { opacity: 1, stagger: 0.05, ease: 'none', scrollTrigger: { trigger: '[data-statement]', start: 'top 80%', end: 'bottom 35%', scrub: true } },
+  );
+  $$('[data-row]').forEach((row) =>
+    gsap.fromTo(
+      row,
+      { rotationX: -70, z: -260, opacity: 0, transformOrigin: '50% 0%' },
+      { rotationX: 0, z: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: row, start: 'top 98%', end: 'top 62%', scrub: true } },
+    ),
+  );
   $$('[data-count]').forEach((el) => {
     const to = Number(el.dataset.count);
     const decimals = Number(el.dataset.decimals || 0);
     const value = { v: Number(el.dataset.from || 0) };
     const fmt = () => (el.textContent = decimals ? value.v.toFixed(decimals).replace('.', ',') : String(Math.round(value.v)));
     fmt();
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => gsap.to(value, { v: to, duration: 1.2, ease: EASE_OUT, onUpdate: fmt }),
-    });
-  });
-
-  // ── 4 · Experiencia: en escritorio la sección se fija y el scroll cambia de puesto ──
-  mm.add('(min-width: 900px)', () => {
-    const section = $('[data-cvx]');
-    const items = $$('[data-item]', section);
-    const shots = $$('[data-shot]', section);
-    let current = -1;
-    const show = (i: number) => {
-      if (i === current) return;
-      current = i;
-      items.forEach((el, k) => el.classList.toggle('is-active', k === i));
-      shots.forEach((el, k) => el.classList.toggle('is-active', k === i));
-    };
-    show(0);
-    ScrollTrigger.create({
-      trigger: section,
-      start: 'top top+=12',
-      end: `+=${items.length * 55}%`,
-      pin: true,
-      onUpdate: (self) => show(Math.min(items.length - 1, Math.floor(self.progress * items.length))),
-    });
-    return () => {
-      items.forEach((el) => el.classList.remove('is-active'));
-      shots.forEach((el) => el.classList.remove('is-active'));
-    };
+    ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => gsap.to(value, { v: to, duration: 1.2, ease: EASE_OUT, onUpdate: fmt }) });
   });
 
   // ── 5 · Competencias: las cápsulas caen y se pueden mover ────
@@ -157,7 +241,6 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     { '--edu': 1, ease: 'none', scrollTrigger: { trigger: '[data-edu]', start: 'top 75%', end: 'bottom 55%', scrub: true } },
   );
 
-  // Las fuentes y las imágenes cambian medidas: se recalcula al terminar de cargar
   addEventListener('load', () => ScrollTrigger.refresh());
 
   return () => {
