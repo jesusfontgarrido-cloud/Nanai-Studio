@@ -222,6 +222,38 @@
     </div>
   </section>
 
+  <section class="intro" style="padding-top: 24px; border-top: 1px solid var(--line); max-width: none;">
+    <h2 style="font-size: 22px; font-family: 'League Spartan', sans-serif; text-transform: lowercase;">Plan de movimiento (criterio de Emil Kowalski)</h2>
+    <p>Antes de animar algo, cuatro preguntas: ¿se debe animar?, ¿para qué?, ¿con qué curva?, ¿cuánto dura? Esta página se ve una vez por visita, así que admite momentos especiales; lo que se toca a menudo (enlaces, botones), casi nada.</p>
+    <div class="rules">
+      <strong>Curvas y reglas comunes</strong>
+      <ul>
+        <li>Entradas: <span class="mono">cubic-bezier(0.23, 1, 0.32, 1)</span>. Movimiento en pantalla: <span class="mono">cubic-bezier(0.77, 0, 0.175, 1)</span>. Nunca ease-in.</li>
+        <li>Escenas ligadas al scroll: el avance sigue al scroll 1:1 (sin curva propia); Lenis pone la suavidad.</li>
+        <li>Solo transform, opacity y clip-path. Nada aparece desde <span class="mono">scale(0)</span>: como mínimo 0,95 con opacidad.</li>
+        <li>Los hover solo con <span class="mono">@media (hover: hover) and (pointer: fine)</span>; los botones, <span class="mono">scale(0.97)</span> al pulsar (160 ms).</li>
+        <li>Movimiento reducido: fuera los desplazamientos; quedan fundidos cortos (200 ms) y todo el contenido visible.</li>
+      </ul>
+    </div>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px;">
+        <thead><tr style="text-align: left; border-bottom: 2px solid var(--ink);"><th style="padding: 8px;">Bloque</th><th style="padding: 8px;">Para qué</th><th style="padding: 8px;">Cómo</th><th style="padding: 8px;">Duración / curva</th><th style="padding: 8px;">Movimiento reducido</th></tr></thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Barra</td><td style="padding: 8px;">Saber cuánto queda</td><td style="padding: 8px;">Progreso en rojo con <span class="mono">animation-timeline: scroll()</span></td><td style="padding: 8px;">Lineal, con el scroll</td><td style="padding: 8px;">Igual (no se mueve nada)</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Hero</td><td style="padding: 8px;">Del fotograma al plano: que el retrato «se abra»</td><td style="padding: 8px;">El nombre entra por letras al cargar; al bajar, la píldora crece con clip-path (inset)</td><td style="padding: 8px;">Letras 600 ms, 40 ms entre cada una, ease-out · píldora 1:1 con el scroll</td><td style="padding: 8px;">Imagen ya abierta, nombre quieto</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Lema</td><td style="padding: 8px;">Leer la frase al ritmo del scroll</td><td style="padding: 8px;">Cada palabra pasa de gris a tinta (opacidad)</td><td style="padding: 8px;">1:1 con el scroll</td><td style="padding: 8px;">Frase entera en tinta</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Cifras</td><td style="padding: 8px;">Que el dato se note</td><td style="padding: 8px;">Cuentan hasta su valor al entrar, una vez</td><td style="padding: 8px;">1.200 ms, ease-out</td><td style="padding: 8px;">Valor final</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Experiencia</td><td style="padding: 8px;">Recorrer tu trayectoria como un rollo</td><td style="padding: 8px;">Escritorio: sección fijada, fotogramas en horizontal · móvil: deslizar nativo con imán (sin fijar) · fotos que se encienden a color</td><td style="padding: 8px;">1:1 con el scroll · color 300 ms, ease</td><td style="padding: 8px;">Lista con deslizar nativo</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Competencias</td><td style="padding: 8px;">Un momento de juego (se ve una vez)</td><td style="padding: 8px;">Las cápsulas caen con muelle y se pueden arrastrar (captura del puntero, se lanzan con velocidad, frenan en los bordes)</td><td style="padding: 8px;">Muelle con rebote 0,2 · 60 ms entre cápsulas</td><td style="padding: 8px;">Quietas y ordenadas</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Formación</td><td style="padding: 8px;">Ver el orden en el tiempo</td><td style="padding: 8px;">La línea roja crece (scaleY); cada hito se enciende al alcanzarlo</td><td style="padding: 8px;">Línea 1:1 · hitos 200 ms</td><td style="padding: 8px;">Línea completa</td></tr>
+          <tr style="border-bottom: 1px solid var(--line);"><td style="padding: 8px;">Trabajo</td><td style="padding: 8px;">Pasar de una pieza a otra sin salir</td><td style="padding: 8px;">Tarjetas que se apilan (sticky + scale de 0,95 a 1) · al pasar, se oscurece el vídeo</td><td style="padding: 8px;">1:1 · hover 200 ms</td><td style="padding: 8px;">Tarjetas en columna</td></tr>
+          <tr><td style="padding: 8px;">Cierre</td><td style="padding: 8px;">Un final tranquilo</td><td style="padding: 8px;">La frase sube por líneas desde una máscara · la flecha de WhatsApp se adelanta 4 px al pasar</td><td style="padding: 8px;">700 ms, 80 ms entre líneas, ease-out · flecha 200 ms</td><td style="padding: 8px;">Frase visible</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">Sin animar: enlaces de la barra, correo, teléfono y redes (se tocan a menudo), y nada que se active con el teclado.</p>
+  </section>
+
   <footer class="intro" style="padding-top: 24px; border-top: 1px solid var(--line);">
     <h2 style="font-size: 22px;">Técnica propuesta</h2>
     <p>Astro + <a style="color: var(--red)" href="https://gsap.com/docs/v3/Plugins/ScrollTrigger/">GSAP ScrollTrigger</a> para las escenas fijadas y con scrub, y <a style="color: var(--red)" href="https://lenis.darkroom.engineering/">Lenis</a> para suavizar el scroll. Lo simple (barra de progreso, revelados) con <a style="color: var(--red)" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations">animaciones ligadas al scroll en CSS</a>. Solo transform, opacity y clip-path; criterio de movimiento de la skill de Emil Kowalski. Base visual: <span class="mono">src/styles/flat.css</span> y la skill <span class="mono">estilo-nanai</span>.</p>
