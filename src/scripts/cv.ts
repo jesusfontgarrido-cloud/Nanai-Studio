@@ -63,17 +63,30 @@ function splitChars(el: HTMLElement) {
 function buildTiles(host: HTMLElement, cols: number, rows: number) {
   const frag = document.createDocumentFragment();
   const tiles: HTMLElement[] = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const t = document.createElement('span');
-      t.className = 'cvh__tile';
-      t.style.cssText = `left:${(c / cols) * 100}%;top:${(r / rows) * 100}%;width:${100 / cols}%;height:${100 / rows}%;background-size:${cols * 100}% ${rows * 100}%;background-position:${(c / (cols - 1)) * 100}% ${(r / (rows - 1)) * 100}%`;
-      frag.appendChild(t);
-      tiles.push(t);
-    }
+  for (let i = 0; i < cols * rows; i++) {
+    const t = document.createElement('span');
+    t.className = 'cvh__tile';
+    frag.appendChild(t);
+    tiles.push(t);
   }
   host.appendChild(frag);
-  return tiles;
+  // En píxeles y con 1 px de solape, para que no asomen juntas entre fragmentos
+  const size = () => {
+    const w = host.offsetWidth;
+    const h = host.offsetHeight;
+    const tw = w / cols;
+    const th = h / rows;
+    tiles.forEach((t, i) => {
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      // Las esquinas del retrato, redondeadas como la foto final
+      const tl = c === 0 && r === 0, tr = c === cols - 1 && r === 0, bl = c === 0 && r === rows - 1, br = c === cols - 1 && r === rows - 1;
+      const radius = [tl, tr, br, bl].map((on) => (on ? 'var(--f-r-media)' : '0')).join(' ');
+      t.style.cssText = `left:${c * tw}px;top:${r * th}px;width:${tw + (c < cols - 1 ? 1 : 0)}px;height:${th + (r < rows - 1 ? 1 : 0)}px;border-radius:${radius};background-size:${w}px ${h}px;background-position:${-c * tw}px ${-r * th}px`;
+    });
+  };
+  size();
+  return { tiles, size };
 }
 
 /** Posición de un elemento dentro de un antepasado, sin contar transformaciones. */
@@ -129,7 +142,8 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
   // ── 2 · El nombre se coloca junto al retrato, que se monta en 3D ──
   const portrait = $('[data-portrait]', hero);
   const small = innerWidth < 700;
-  const tiles = buildTiles(portrait, small ? 6 : 8, small ? 8 : 10);
+  const { tiles, size: sizeTiles } = buildTiles(portrait, small ? 6 : 8, small ? 8 : 10);
+  ScrollTrigger.addEventListener('refresh', sizeTiles);
   const flip = () => {
     const from = offsetIn(title, stage);
     const to = offsetIn(name, stage);
@@ -162,8 +176,8 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     )
     .fromTo(portrait, { rotationY: 38, rotationX: 10 }, { rotationY: 0, rotationX: 0, duration: 0.7 }, 0)
     .fromTo('[data-bio]', { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.25 }, 0.36)
-    .to('.cvh__still', { opacity: 1, duration: 0.05 }, 0.66)
-    .set(tiles, { opacity: 0 }, 0.72);
+    .to('.cvh__still', { opacity: 1, duration: 0.04 }, 0.6)
+    .set(tiles, { opacity: 0 }, 0.69);
 
   // Al mover el ratón, el retrato gira un poco (decorativo, solo con ratón)
   mm.add('(hover: hover) and (pointer: fine)', () => {
@@ -279,6 +293,7 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
   addEventListener('load', () => ScrollTrigger.refresh());
 
   return () => {
+    ScrollTrigger.removeEventListener('refresh', sizeTiles);
     gsap.ticker.remove(raf);
     lenis.destroy();
   };

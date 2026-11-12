@@ -274,6 +274,9 @@ html.cv-js:not(.cv-ready) .cvnav { opacity: 0; }
   height: 100%;
   object-fit: cover;
   border-radius: var(--f-r-media);
+  /* Delante de los fragmentos (en 3D el orden lo da la profundidad): el fundido los tapa */
+  transform: translateZ(2px);
+  z-index: 1;
 }
 
 .cvh__tile {
@@ -912,13 +915,14 @@ html.cv-js .cve .cve__list { --edu: 0; }
   .cvnav__logo img { height: 14px; }
 }
 
-/* ══ Grano de película: claro y oscuro (se ve en papel y en negro) y vivo, a ~10 fps ══
+/* ══ Grano de película: puntos claros y oscuros sin velo gris (se ve en papel y en negro) y vivo, a ~10 fps ══
    Sustituye al grano de papel de .flat solo en esta página. Una capa fija que solo se
    desplaza (transform), así no repinta. */
 .cv::after {
   inset: -50%;
   z-index: 60;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.6 -.3 0 0 0 1.6 -.3 0 0 0 1.6 -.3 0 0 0 0 .09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Puntos oscuros y claros sueltos (sin velo: donde no hay punto, la capa es transparente) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 -0.549'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -0.9 0 0 0 0.351'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: cv-grain 0.8s steps(1) infinite;
 }
 
