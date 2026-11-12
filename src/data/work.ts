@@ -121,6 +121,8 @@ export const marketingProjects: Project[] = [
   { client: tbs, title: 'Spot publicitario', audience: 'brands', type: 'Anuncio · Captación', role, format: '16:9', youtubeId: 'e0-3fNZ9UlY' },
   { client: tbs, title: 'Trading algorítmico', audience: 'brands', type: 'Pieza de campaña', role, format: '16:9', youtubeId: 'yRmsgPeNcUA' },
   { client: tbs, title: 'Pieza hecha con IA', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', youtubeId: 'ErdE2j9k-R4' },
+  { client: tbs, title: 'Webinar de trading algorítmico', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', youtubeId: 'V-kJgESlrmU' },
+  { client: tbs, title: 'Webinar de acciones', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', youtubeId: 'vGV_IEelzE0' },
   { client: tbs, title: 'La desinformación en el trading', audience: 'brands', type: 'Pieza de campaña', role, format: '16:9', youtubeId: 'hbivGEOLbW8' },
 ];
 
@@ -171,6 +173,7 @@ export const projectHref = (project: Project) =>
 
 /** Fecha de publicación en YouTube (consultada el 15-10-2026), para los datos estructurados. */
 export const uploadDates: Record<string, string> = {
+  'V-kJgESlrmU': '2026-11-12', 'vGV_IEelzE0': '2026-11-12',
   'yptl01VvWqs': '2026-10-02', 'e0-3fNZ9UlY': '2026-10-02', 'yRmsgPeNcUA': '2026-10-02', 'ErdE2j9k-R4': '2026-10-02',
   'hbivGEOLbW8': '2026-10-02', 'x2hmLLqKDAU': '2025-05-29', '1EJ0qy_TeH8': '2025-01-16', 'X9rKRdIHmTI': '2025-01-15',
   'BsLbH6UDpgo': '2025-01-15', 'hLExGC-A2lM': '2026-09-18', 'McFee5DrY8s': '2026-09-11', 'ZxRvXqU2u40': '2026-06-13',
