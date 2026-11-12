@@ -12,6 +12,10 @@ export const cv = {
   phone: '689 02 64 20',
   whatsapp: 'https://wa.me/34689026420?text=' + encodeURIComponent('Hola Jesús, he visto tu CV en la web de Nanai.'),
   portfolio: 'https://jesusfont.framer.website',
+  /** Píldora «Ahora mismo» (sale de su experiencia actual). */
+  now: 'Filmmaker creativo en Traders Business School',
+  /** Punto verde junto al retrato: lo pidió el usuario (12-11-2026). */
+  available: 'Aceptando nuevos proyectos',
 
   claim: 'Datos primero, cámara después.',
   summary:
@@ -29,6 +33,9 @@ export const cv = {
       dates: 'feb. 2025 – actualidad',
       role: 'Filmmaker creativo y fotógrafo',
       org: 'Traders Business School',
+      current: true,
+      tags: ['Paid media', 'Producción', 'Fotografía', 'IA audiovisual'],
+      link: { href: '#cat-marcas', label: 'Ver trabajo' },
       points: [
         'Más de 100 piezas para campañas desde 2025, dentro del equipo de marketing.',
         'Conseguimos superar por 100k€ el objetivo del beneficio mensual para finales de 2025.',
@@ -38,18 +45,25 @@ export const cv = {
       dates: 'ago. 2025 – actualidad',
       role: 'Director',
       org: 'Nanai Studio, productora creativa',
+      current: true,
+      tags: ['Dirección creativa', 'Preproducción', 'Producción', 'Postproducción'],
+      link: { href: '/trabajos', label: 'Ver portfolio' },
       points: ['Dirección creativa de preproducción, producción y postproducción para Ana Vas y La2bleT, entre otros.'],
     },
     {
       dates: '2025',
       role: 'Jefe de equipo de cámara y fotografía',
       org: 'Festival de Cortometrajes de Sevilla',
+      tags: ['Cámara', 'Fotografía', 'Coordinación'],
       points: ['Equipo de cámara del festival y coordinación de operadores durante la gala.'],
     },
     {
       dates: 'mar. 2019 – actualidad',
       role: 'Filmmaker y fotógrafo',
       org: 'Profesional independiente',
+      current: true,
+      tags: ['Redes', 'Publicidad', 'Eventos y bodas', 'Podcast'],
+      link: { href: '#cat-social', label: 'Ver trabajo' },
       points: [
         'Contenido para redes: Rubén Avilés, Zeling y Ana Vas, entre otros.',
         'Vídeo de marca y publicidad; eventos y bodas.',

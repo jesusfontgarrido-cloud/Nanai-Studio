@@ -1,26 +1,29 @@
 ---
 /**
- * CV de Jesús Font (tercera versión, según el boceto del usuario del 10-11-2026). Página
+ * CV de Jesús Font (cuarta versión, 12-11-2026, tras el repaso del usuario). Página
  * oculta: ningún enlace de la web lleva aquí (fuera del sitemap y con noindex); solo
  * se llega con el enlace directo. Desde aquí sí se puede ir a la web y a «Hablemos».
+ * La versión anterior está en la rama cv-v3-respaldo.
  *
- *  1. Apertura: «Jesús Font» y el menú debajo. Al bajar, el nombre se coloca junto al retrato
- *     (que se monta con fragmentos en 3D) y la bio sube a su lado.
- *  2. Trabajos por categoría (Marcas, IA, Videoclips, Social): la lista a la izquierda y los
- *     vídeos subiendo a la derecha. Las luces se apagan al terminar el retrato y se encienden de golpe en «Más de 6 años».
- *  3. «Más de 6 años de experiencia» con fotos de rodaje flotando en 3D, y la información de
- *     valor (qué aporto y cifras), rodeada por la línea roja.
- *  4. Experiencia, formación y herramientas. 5. Contacto y botón a todos los trabajos.
- *  Una línea roja recorre la página por el margen y se dibuja con el scroll.
+ *  1. Apertura: «Jesús Font» letra a letra y la barra integrada abajo (sin cápsula). Al bajar,
+ *     el nombre se separa, el retrato crece desde abajo de la pantalla y se forma con grano,
+ *     y la bio entra enfocándose.
+ *  2. Trabajos por categoría (Marcas, IA, Videoclips, Social): la categoría activa crece y
+ *     las demás casi desaparecen, como una rueda. Datos de cada pieza bajo el vídeo.
+ *  3. «Más de 6 años de experiencia» con fotos metidas en el titular y otras flotando
+ *     alrededor; qué aporto, cifras y reseñas.
+ *  4. Dónde he trabajado (con etiquetas y enlace al trabajo), formación y herramientas.
+ *  5. Contacto: los datos a la izquierda, WhatsApp y el resto de la web a la derecha.
  *
- * Movimiento en src/scripts/cv.ts (GSAP ScrollTrigger + Lenis; criterio de Emil Kowalski).
- * Sin JS o con movimiento reducido, todo se ve quieto y completo.
+ * Movimiento en src/scripts/cv.ts (GSAP ScrollTrigger + Lenis). Inspiración de ritmo:
+ * lukebaffait.fr (solo ideas, nada copiado). Sin JS o con movimiento reducido, todo quieto.
  */
 import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/flat.css';
 import '../styles/cv.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
+import FlatReviews from '../components/flat/FlatReviews.astro';
 import { cv } from '../data/cv';
 import { site } from '../data/site';
 import { marketingProjects, musicProjects, contentProjects, creatorProjects, visible, ytThumb, ytSrcset, type Project } from '../data/work';
@@ -33,24 +36,32 @@ import f5 from '../assets/media/bts/tati-noche.jpg';
 import f6 from '../assets/media/bts/qv-claqueta.jpg';
 
 const portraitTile = await getImage({ src: portrait, format: 'webp', width: 1000 });
+const inline1 = await getImage({ src: f1, format: 'webp', width: 480 });
+const inline2 = await getImage({ src: f6, format: 'webp', width: 400 });
 
+const isAi = (p: Project) => /IA/.test(p.type);
 const impostora = visible(creatorProjects).find((p) => p.title === 'La Impostora');
 const categories: { id: string; name: string; projects: Project[] }[] = [
-  { id: 'marcas', name: 'Marcas', projects: [marketingProjects[0], marketingProjects[1], marketingProjects[2]] },
-  // La pieza hecha con IA va en su propia categoría (por ahora es la única)
-  { id: 'ia', name: 'IA', projects: [marketingProjects[3]] },
+  { id: 'marcas', name: 'Marcas', projects: visible(marketingProjects).filter((p) => !isAi(p)).slice(0, 3) },
+  // Piezas hechas enteramente con IA (TBS): la de campaña y los dos anuncios de webinar
+  { id: 'ia', name: 'IA', projects: visible(marketingProjects).filter(isAi) },
   { id: 'videoclips', name: 'Videoclips', projects: [musicProjects[0], musicProjects[1], ...(impostora ? [impostora] : [])] },
   { id: 'social', name: 'Social', projects: [contentProjects[3], contentProjects[1], contentProjects[0]] },
 ];
 
-// Fotos de rodaje que flotan alrededor de «Más de 6 años»: forma y sitio de cada una
+// Fotos de rodaje que flotan alrededor de «Más de 6 años»: forma, sitio y profundidad (para el ratón)
 const floaters = [
-  { src: f1, shape: 'pill', pos: 'left: 4%; top: 6%; width: 18%' },
-  { src: f2, shape: 'arch', pos: 'right: 6%; top: 2%; width: 13%' },
-  { src: f3, shape: 'tilt', pos: 'left: 14%; bottom: 4%; width: 12%' },
-  { src: f4, shape: 'circle', pos: 'right: 18%; bottom: 0%; width: 10%' },
-  { src: f5, shape: 'square', pos: 'left: 40%; top: -4%; width: 9%' },
-  { src: f6, shape: 'diamond', pos: 'right: 2%; top: 46%; width: 8%' },
+  { src: f2, shape: 'arch', pos: 'left: 6%; top: 4%; width: 12%', depth: 1 },
+  { src: f3, shape: 'tilt', pos: 'right: 7%; top: 8%; width: 14%', depth: 0.6 },
+  { src: f4, shape: 'circle', pos: 'left: 13%; bottom: 6%; width: 10%', depth: 1.4 },
+  { src: f5, shape: 'square', pos: 'right: 15%; bottom: 2%; width: 11%', depth: 0.9 },
+];
+
+const sections = [
+  { id: 'inicio', label: 'Inicio' },
+  { id: 'trabajos', label: 'Trabajos' },
+  { id: 'experiencia', label: 'Experiencia' },
+  { id: 'contacto', label: 'Contacto' },
 ];
 
 const home = new URL('/', Astro.site).toString();
@@ -70,13 +81,6 @@ const personLd = {
     sameAs: [site.jesus.instagram, site.jesus.linkedin, cv.portfolio],
   },
 };
-const menu = [
-  { href: '#trabajos', label: 'Trabajos' },
-  { href: '#experiencia', label: 'Experiencia' },
-  { href: '#contacto', label: 'Contacto' },
-];
-const waIcon =
-  'M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z';
 ---
 
 <BaseLayout
@@ -90,6 +94,8 @@ const waIcon =
   <div class="flat cv">
     <FlatMotion />
     <script is:inline>
+      // Quien llega a la web desde el CV no ve la apertura «Activar creatividad».
+      try { sessionStorage.setItem('nanai-opened', '1'); } catch (e) {}
       // Las escenas solo se preparan si hay JS y no se pide movimiento reducido.
       // Red de seguridad: si el módulo no llega en 4 s, todo se ve quieto.
       (function () {
@@ -102,51 +108,75 @@ const waIcon =
       })();
     </script>
 
-    <!-- Barra abajo: logo de Nanai, menú, la web y Hablemos -->
-    <header class="cvnav" data-nav>
-      <a class="cvnav__logo" href="/" aria-label="Nanai Studio, ir a la web del estudio">
-        <img src="/brand/logo-horizontal-negro.svg" alt="" width="478" height="61" />
-      </a>
-      <nav class="cvnav__menu" aria-label="Secciones">
-        {menu.map((item) => <a href={item.href}>{item.label}</a>)}
-      </nav>
-      <div class="cvnav__actions">
-        <a class="cvnav__web" href="/">Ver la web</a>
-        <a class="cvnav__wa cvnav__talk" href="/#contacto">
-          <span class="cvnav__dot" aria-hidden="true"></span>
-          <span>Hablemos</span>
-        </a>
-      </div>
-    </header>
+    <!-- Siempre a mano, sin caja: «Hablemos» arriba a la derecha y el índice de secciones en el lateral -->
+    <a class="cvtalk" href="/#contacto">
+      <span class="cvtalk__dot" aria-hidden="true"></span>
+      Hablemos
+    </a>
+    <nav class="cvindex" aria-label="Secciones" data-index>
+      {
+        sections.map((s) => (
+          <a href={`#${s.id}`} data-index-link={s.id}>
+            <span class="cvindex__label">{s.label}</span>
+            <span class="cvindex__bar" aria-hidden="true" />
+          </a>
+        ))
+      }
+    </nav>
 
     <main id="contenido" class="cv__main" data-main>
       <!-- 1 · Apertura y perfil -->
-      <section class="cvh" data-cvh>
+      <section id="inicio" class="cvh" data-cvh>
         <div class="cvh__stage">
           <div class="cvh__intro" data-intro>
             <span class="cvh__line" data-line aria-hidden="true"></span>
             <h1 class="cvh__title" data-title aria-label="Jesús Font, filmmaker creativo">
-              <span class="cvh__word" data-split aria-hidden="true">Jesús</span>
-              <span class="cvh__word" data-split aria-hidden="true">Font</span>
+              <span class="cvh__word" data-split data-word="left" aria-hidden="true">Jesús</span>
+              <span class="cvh__word" data-split data-word="right" aria-hidden="true">Font</span>
             </h1>
-            <nav class="cvh__menu" aria-label="Secciones (inicio)" data-menu>
-              {menu.map((item) => <a href={item.href}>{item.label}</a>)}
-            </nav>
             <p class="cvh__hint label" data-hint aria-hidden="true">Desliza</p>
+
+            <!-- Disponibilidad, desde el primer momento (lectura de cámara, como el REC de Nanai) -->
+            <p class="cvlive cvh__status" data-status>
+              <span class="cvlive__dot" aria-hidden="true"></span>
+              {cv.available}
+            </p>
+
+            <!-- La barra, integrada en la portada (se va con ella): la web, redes y cada sección -->
+            <div class="cvbar" data-bar>
+              <a class="cvbar__web" href="/">
+                <span aria-hidden="true">→</span> Ver mi web completa y mi portfolio
+              </a>
+              <ul class="cvbar__social" role="list">
+                <li><a href={site.jesus.instagram} target="_blank" rel="noopener me">Instagram</a></li>
+                <li><a href={site.jesus.linkedin} target="_blank" rel="noopener me">LinkedIn</a></li>
+                <li><a href={site.weddings} target="_blank" rel="noopener">Bodas</a></li>
+              </ul>
+              <nav class="cvbar__sections" aria-label="Secciones del CV">
+                <a href="#trabajos">Trabajos</a>
+                <a href="#experiencia">Experiencia</a>
+                <a href="#contacto">Contacto</a>
+              </nav>
+            </div>
           </div>
 
           <div class="cvh__profile">
             <div class="cvh__bio">
               <p class="cvh__name" data-name aria-hidden="true">Jesús Font</p>
               <div class="cvh__text" data-bio>
-                <p class="cvh__role label">{cv.role} · {cv.city}</p>
+                <p class="cvh__now"><span>Ahora mismo:</span> {cv.now}</p>
                 <p class="cvh__claim">{cv.claim}</p>
                 <p class="cvh__summary">{cv.summary}</p>
+                <p class="cvh__role label">{cv.role} · {cv.city}</p>
               </div>
             </div>
             <div class="cvh__space" data-space>
-              <div class="cvh__portrait" data-portrait style={`--img: url(${portraitTile.src})`}>
+              <div class="cvh__portrait" data-portrait data-src={portraitTile.src}>
                 <Image src={portrait} alt="Jesús Font con una cámara de cine al hombro" widths={[480, 800, 1100]} sizes="(min-width: 900px) 34vw, 72vw" class="cvh__still" loading="eager" />
+                <p class="cvlive cvh__available" data-available>
+                  <span class="cvlive__dot" aria-hidden="true"></span>
+                  {cv.available}
+                </p>
               </div>
             </div>
           </div>
@@ -159,16 +189,16 @@ const waIcon =
           <div class="cvw__side">
             <h2 id="cvw-title" class="label cvw__kicker">Trabajos</h2>
             <div class="cvw__track">
-            <span class="cvw__progress" aria-hidden="true"><span data-progress></span></span>
-            <ol class="cvw__cats" role="list">
-              {
-                categories.map((cat) => (
-                  <li>
-                    <a href={`#cat-${cat.id}`} data-cat-link={cat.id}>{cat.name}</a>
-                  </li>
-                ))
-              }
-            </ol>
+              <span class="cvw__progress" aria-hidden="true"><span data-progress></span></span>
+              <ol class="cvw__cats" role="list" data-cats>
+                {
+                  categories.map((cat) => (
+                    <li>
+                      <a href={`#cat-${cat.id}`} data-cat-link={cat.id}>{cat.name}</a>
+                    </li>
+                  ))
+                }
+              </ol>
             </div>
           </div>
 
@@ -184,11 +214,16 @@ const waIcon =
                           <img src={ytThumb(project.youtubeId!)} srcset={ytSrcset(project.youtubeId!)} sizes="(min-width: 900px) 52vw, 92vw" alt="" loading="lazy" width="1280" height="720" />
                           <span class="cvw__btn" aria-hidden="true">Reproducir</span>
                         </span>
-                        <span class="cvw__meta">
-                          <span class="cvw__title">{project.title ?? project.client}</span>
-                          <span class="label">{project.client} · {project.type}</span>
-                        </span>
                       </button>
+                      <div class="cvw__meta">
+                        <p class="cvw__title">{project.title ?? project.client}</p>
+                        <dl class="cvw__data">
+                          <div><dt>Cliente</dt><dd>{project.client}</dd></div>
+                          <div><dt>Tipo</dt><dd>{project.type}</dd></div>
+                          <div><dt>Producción</dt><dd>{project.role}</dd></div>
+                          <div><dt>Formato</dt><dd>{project.format}</dd></div>
+                        </dl>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -200,24 +235,27 @@ const waIcon =
 
       <!-- 3 · Más de 6 años de experiencia + información de valor -->
       <section id="experiencia" class="cvy" data-cvy aria-labelledby="cvy-title">
-        <hr class="cvy__rule wrap" data-rule />
         <div class="cvy__stage" data-years>
           {
             floaters.map((f) => (
-              <figure class={`cvy__float cvy__float--${f.shape}`} style={f.pos} data-float aria-hidden="true">
-                <Image src={f.src} alt="" widths={[240, 420]} sizes="18vw" loading="lazy" class="bw" />
+              <figure class={`cvy__float cvy__float--${f.shape}`} style={f.pos} data-float data-depth={f.depth} aria-hidden="true">
+                <span class="cvy__bob" data-bob>
+                  <Image src={f.src} alt="" widths={[240, 420]} sizes="14vw" loading="lazy" />
+                </span>
               </figure>
             ))
           }
-          <h2 id="cvy-title" class="cvy__title">Más de 6 años<br />de experiencia</h2>
-          <p class="cvy__credit label">Fotos de rodaje, en parte de @gallagm</p>
+          <h2 id="cvy-title" class="cvy__title" data-years-title>
+            <span class="cvy__line">Más de 6 <span class="inframe inframe--pill cvy__inframe" data-bob aria-hidden="true"><img src={inline1.src} alt="" width="480" height="240" loading="lazy" decoding="async" /></span> años</span>
+            <span class="cvy__line">de <span class="inframe inframe--arch cvy__inframe" data-bob aria-hidden="true"><img src={inline2.src} alt="" width="400" height="320" loading="lazy" decoding="async" /></span> experiencia</span>
+          </h2>
         </div>
 
         <div class="cvv wrap">
           <div class="cvv__grid" data-stagger>
             {
-              cv.skills.map((skill) => (
-                <article class="cvv__item">
+              cv.skills.map((skill, i) => (
+                <article class="cvv__item" style={`--c: ${['#D9291C', '#39A7F4', '#F0B24E'][i]}`}>
                   <h3 class="h3">{skill.title}</h3>
                   <p>{skill.text}</p>
                 </article>
@@ -227,7 +265,7 @@ const waIcon =
           <ul class="cvn__list" role="list" aria-label="En cifras">
             {
               cv.numbers.map((n) => (
-                <li class="cvn__item">
+                <li class="cvn__item" data-tile>
                   <span class="cvn__value">{n.prefix}<span data-count={n.value} data-decimals={'decimals' in n ? n.decimals : 0} data-from={'plain' in n ? n.value - 25 : 0}>{'decimals' in n ? String(n.value).replace('.', ',') : n.value}</span>{n.suffix}</span>
                   <span class="cvn__label">{n.label}</span>
                 </li>
@@ -237,6 +275,10 @@ const waIcon =
         </div>
       </section>
 
+      <div class="cv__reviews">
+        <FlatReviews />
+      </div>
+
       <!-- 4 · El resto: experiencia, formación y herramientas -->
       <section class="cvx wrap" aria-labelledby="cvx-title">
         <h2 id="cvx-title" class="h2" data-reveal="lines"><span>Dónde he trabajado</span></h2>
@@ -244,14 +286,27 @@ const waIcon =
           {
             cv.experience.map((job) => (
               <li class="cvx__row" data-row>
-                <p class="label">{job.dates}</p>
+                <div class="cvx__when">
+                  <p class="label">{job.dates}</p>
+                  {'current' in job && job.current && <p class="cvx__now">Actualidad</p>}
+                </div>
                 <div>
                   <h3 class="cvx__role">{job.role}</h3>
                   <p class="cvx__org">{job.org}</p>
                 </div>
-                <ul class="cvx__points" role="list">
-                  {job.points.map((point) => <li>{point}</li>)}
-                </ul>
+                <div class="cvx__detail">
+                  <ul class="cvx__points" role="list">
+                    {job.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                  <ul class="cvx__tags" role="list">
+                    {job.tags.map((tag, i) => <li style={`--c: ${cv.tools[(i * 2 + job.org.length) % cv.tools.length].color}`}>{tag}</li>)}
+                  </ul>
+                  {'link' in job && job.link && (
+                    <a class="cvx__link" href={job.link.href}>
+                      {job.link.label} <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </div>
               </li>
             ))
           }
@@ -278,7 +333,7 @@ const waIcon =
         <h2 id="cvs-title" class="h2" data-reveal="lines"><span>Herramientas</span></h2>
         <div class="cvs__table" data-table>
           <ul class="cvs__tools" role="list">
-            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7][i]}deg`}>{tool.name}</li>)}
+            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7][i]}deg; --c: ${tool.color}`}>{tool.name}</li>)}
           </ul>
           <p class="cvs__hint label" aria-hidden="true">Puedes moverlas</p>
         </div>
@@ -292,28 +347,34 @@ const waIcon =
           <span>en un solo folio.</span>
         </h2>
 
-        <div class="cvc__actions" data-reveal style="--i: 2">
-          <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener">
-            <span class="cvc__dot" aria-hidden="true"></span>
-            Escríbeme por WhatsApp
-            <span class="cvc__arrow" aria-hidden="true">→</span>
-          </a>
-          <a class="cvc__all" href="/trabajos">Ver todos los trabajos</a>
-        </div>
-
-        <ul class="cvc__links" role="list" data-reveal style="--i: 3">
+        <ul class="cvc__links" role="list" data-reveal style="--i: 2">
           <li><span class="label">Correo</span><a href={`mailto:${cv.email}`}>{cv.email}</a></li>
           <li><span class="label">Teléfono</span><a href={`tel:+34${cv.phone.replace(/\s/g, '')}`}>{cv.phone}</a></li>
           <li><span class="label">Instagram</span><a href={site.jesus.instagram} target="_blank" rel="noopener me">{site.jesus.instagramHandle}</a></li>
           <li><span class="label">LinkedIn</span><a href={site.jesus.linkedin} target="_blank" rel="noopener me">Jesús Font Garrido</a></li>
           <li><span class="label">Portfolio</span><a href={cv.portfolio} target="_blank" rel="noopener me">jesusfont.framer.website</a></li>
+          <li><span class="label">Bodas</span><a href={site.weddings} target="_blank" rel="noopener">Nanai Weddings</a></li>
         </ul>
 
-        <a class="cvc__studio" href="/">
-          <img src="/brand/isotipo-negro.svg" alt="" width="28" height="28" />
-          <span>Conoce Nanai Studio, la productora que dirijo</span>
-          <span aria-hidden="true">→</span>
-        </a>
+        <div class="cvc__side" data-reveal style="--i: 3">
+          <p class="cvlive cvc__status">
+            <span class="cvlive__dot" aria-hidden="true"></span>
+            {cv.available}
+          </p>
+          <a class="cvc__wa" href={cv.whatsapp} target="_blank" rel="noopener">
+            Escríbeme por WhatsApp
+            <span class="cvc__arrow" aria-hidden="true">→</span>
+          </a>
+          <div class="cvc__actions">
+            <a class="cvc__all" href="/trabajos">Ver todos los trabajos</a>
+            <a class="cvc__all cvc__all--ghost" href="/#contacto">Hablemos</a>
+          </div>
+          <a class="cvc__studio" href="/">
+            <img src="/brand/isotipo-negro.svg" alt="" width="28" height="28" />
+            <span>Conoce Nanai Studio, la productora que dirijo</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </section>
     </main>
 
