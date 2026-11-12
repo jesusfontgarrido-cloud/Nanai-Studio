@@ -10,6 +10,8 @@
  */
 import { getImage } from 'astro:assets';
 import tradersPoster from '../../assets/media/traders-poster.jpg';
+import tbsIaAlgoPoster from '../../assets/media/tbs-ia-algo-poster.jpg';
+import tbsIaAccionesPoster from '../../assets/media/tbs-ia-acciones-poster.jpg';
 import { projectHref, ytSrcset, ytThumb, type Project } from '../../data/work';
 
 interface Props {
@@ -42,9 +44,15 @@ const {
 } = Astro.props;
 
 const playerTitle = `${id}-player-title`;
-const poster = await getImage({ src: tradersPoster, format: 'webp', width: 1280 });
+// Pósteres de los vídeos alojados en la web (la clave es project.poster).
+const posterSources = { traders: tradersPoster, 'tbs-ia-algo': tbsIaAlgoPoster, 'tbs-ia-acciones': tbsIaAccionesPoster };
+const posters = Object.fromEntries(
+  await Promise.all(
+    Object.entries(posterSources).map(async ([key, src]) => [key, (await getImage({ src, format: 'webp', width: 1280 })).src]),
+  ),
+) as Record<string, string>;
 const mediaSrc = (project: Project) =>
-  project.youtubeId ? ytThumb(project.youtubeId) : project.poster === 'traders' ? poster.src : '';
+  project.youtubeId ? ytThumb(project.youtubeId) : (project.poster && posters[project.poster]) || '';
 const sizes = cols === 3 ? '(min-width: 1200px) 31vw, (min-width: 900px) 47vw, 94vw' : '(min-width: 900px) 47vw, 94vw';
 const pieceName = (project: Project) => [project.client, project.title].filter(Boolean).join(' · ');
 ---
@@ -76,7 +84,8 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
                 {...(youtube ? { target: '_blank', rel: 'noopener' } : {})}
                 data-play={youtube ? 'youtube' : project.video ? 'file' : undefined}
                 data-play-id={project.youtubeId}
-                data-play-src={project.video}
+                data-play-src={project.full ?? project.video}
+                data-play-sound={project.full ? '' : undefined}
                 data-play-name={pieceName(project)}
                 data-play-meta={`${project.type} · ${project.role}`}
               >
@@ -185,8 +194,10 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
         video.src = link.dataset.playSrc;
         video.controls = true;
         video.autoplay = true;
-        video.loop = true;
-        video.muted = true;
+        // El vídeo completo va con sonido; el bucle corto, en silencio.
+        const sound = 'playSound' in link.dataset;
+        video.loop = !sound;
+        video.muted = !sound;
         video.playsInline = true;
         screen.append(video);
         if (out) out.hidden = true;
