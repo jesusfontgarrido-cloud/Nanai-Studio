@@ -7,7 +7,8 @@ const SITE = 'https://nanaistudio.es';
 
 export default defineConfig({
   site: SITE,
-  integrations: [sitemap()],
+  // /jesus-font es una página oculta: fuera del sitemap y sin enlaces desde la web.
+  integrations: [sitemap({ filter: (page) => !page.includes('/jesus-font') })],
   // Todo el trabajo vive en /trabajos y el estudio, en /sobre-nosotros.
   redirects: {
     '/musica': '/trabajos',

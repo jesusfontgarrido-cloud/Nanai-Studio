@@ -50,7 +50,7 @@ html.cv-js:not(.cv-ready) .cvh__menu,
 html.cv-js:not(.cv-ready) .cvh__hint,
 html.cv-js:not(.cv-ready) .cvnav { opacity: 0; }
 
-/* ── Barra abajo: logo de Nanai, nombre y WhatsApp ────────────── */
+/* ── Barra abajo: logo de Nanai, menú, la web y Hablemos ────────────── */
 .cvnav {
   position: fixed;
   left: 50%;
@@ -121,6 +121,41 @@ html.cv-js:not(.cv-ready) .cvnav { opacity: 0; }
 
 @media (hover: hover) and (pointer: fine) {
   .cvnav__wa:hover { background: var(--f-red); }
+}
+
+/* Acciones de la barra: volver a la web y «Hablemos» (lleva al contacto de la home) */
+.cvnav__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cvnav__web {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding-inline: 12px;
+  color: #55554F;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cvnav__web:hover { color: #151514; }
+}
+
+.cvnav__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--f-red);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cvnav__talk:hover .cvnav__dot { background: #F4F4F1; }
 }
 
 @supports (animation-timeline: scroll()) {
@@ -913,6 +948,9 @@ html.cv-js .cve .cve__list { --edu: 0; }
 
 @media (max-width: 560px) {
   .cvnav__logo img { height: 14px; }
+  .cvnav { gap: 8px; padding-left: 14px; }
+  .cvnav__web { padding-inline: 8px; }
+  .cvnav__wa { padding-inline: 14px; }
 }
 
 /* ══ Grano de película: puntos claros y oscuros sin velo gris (se ve en papel y en negro) y vivo, a ~10 fps ══

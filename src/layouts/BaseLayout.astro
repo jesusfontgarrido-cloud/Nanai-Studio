@@ -11,6 +11,8 @@ interface Props {
   path?: string;
   /** Imagen para compartir (1200 × 630), ruta pública. */
   image?: string;
+  /** Página oculta: no se indexa en buscadores. */
+  noindex?: boolean;
 }
 
 const {
@@ -18,6 +20,7 @@ const {
   description = 'Productora audiovisual creativa en Sevilla. Dirección creativa y producción audiovisual para marcas, artistas y creadores.',
   path,
   image = '/og/nanai-studio.jpg',
+  noindex = false,
 } = Astro.props;
 
 const canonical = new URL(path ?? Astro.url.pathname, Astro.site).toString();
@@ -111,7 +114,7 @@ const jsonLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-video-preview:-1'} />
     <link rel="alternate" hreflang="es" href={canonical} />
     <link rel="alternate" hreflang="x-default" href={canonical} />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />

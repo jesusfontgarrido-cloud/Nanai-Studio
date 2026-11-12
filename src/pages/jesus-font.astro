@@ -1,7 +1,8 @@
 ---
 /**
  * CV de Jesús Font (tercera versión, según el boceto del usuario del 10-11-2026). Página
- * aislada; se llega desde «¿Quién hay detrás de Nanai?».
+ * oculta: ningún enlace de la web lleva aquí (fuera del sitemap y con noindex); solo
+ * se llega con el enlace directo. Desde aquí sí se puede ir a la web y a «Hablemos».
  *
  *  1. Apertura: «Jesús Font» y el menú debajo. Al bajar, el nombre se coloca junto al retrato
  *     (que se monta con fragmentos en 3D) y la bio sube a su lado.
@@ -82,6 +83,7 @@ const waIcon =
   title="Jesús Font | Filmmaker creativo en Sevilla"
   description="CV de Jesús Font Garrido, filmmaker creativo y director de Nanai Studio: producción, datos de paid media e IA audiovisual."
   path="/jesus-font/"
+  noindex
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(personLd)} />
 
@@ -100,7 +102,7 @@ const waIcon =
       })();
     </script>
 
-    <!-- Barra abajo: logo de Nanai, menú y WhatsApp -->
+    <!-- Barra abajo: logo de Nanai, menú, la web y Hablemos -->
     <header class="cvnav" data-nav>
       <a class="cvnav__logo" href="/" aria-label="Nanai Studio, ir a la web del estudio">
         <img src="/brand/logo-horizontal-negro.svg" alt="" width="478" height="61" />
@@ -108,10 +110,13 @@ const waIcon =
       <nav class="cvnav__menu" aria-label="Secciones">
         {menu.map((item) => <a href={item.href}>{item.label}</a>)}
       </nav>
-      <a class="cvnav__wa" href={cv.whatsapp} target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d={waIcon} /></svg>
-        <span>WhatsApp</span>
-      </a>
+      <div class="cvnav__actions">
+        <a class="cvnav__web" href="/">Ver la web</a>
+        <a class="cvnav__wa cvnav__talk" href="/#contacto">
+          <span class="cvnav__dot" aria-hidden="true"></span>
+          <span>Hablemos</span>
+        </a>
+      </div>
     </header>
 
     <main id="contenido" class="cv__main" data-main>
