@@ -19,8 +19,6 @@ export interface Project {
   /** Vídeo alojado en el sitio (bucle corto) o pieza publicada en YouTube. */
   youtubeId?: string;
   video?: string;
-  /** Vídeo completo con sonido para el reproductor (si no, se reproduce «video» en silencio). */
-  full?: string;
   poster?: string;
   /** Vídeo privado en YouTube: no se enseña hasta que sea público u oculto. */
   hidden?: boolean;
@@ -123,9 +121,6 @@ export const marketingProjects: Project[] = [
   { client: tbs, title: 'Spot publicitario', audience: 'brands', type: 'Anuncio · Captación', role, format: '16:9', youtubeId: 'e0-3fNZ9UlY' },
   { client: tbs, title: 'Trading algorítmico', audience: 'brands', type: 'Pieza de campaña', role, format: '16:9', youtubeId: 'yRmsgPeNcUA' },
   { client: tbs, title: 'Pieza hecha con IA', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', youtubeId: 'ErdE2j9k-R4' },
-  // Hechos por completo con IA (12-11-2026): alojados en la web; el bucle corto para la tarjeta.
-  { client: tbs, title: 'Webinar de trading algorítmico', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', video: '/media/tbs-ia-algo-loop.mp4', full: '/media/tbs-ia-algo.mp4', poster: 'tbs-ia-algo' },
-  { client: tbs, title: 'Webinar de acciones', audience: 'brands', type: 'Anuncio · Hecho con IA', role: 'Dirección creativa · Producción con IA', format: '16:9', video: '/media/tbs-ia-acciones-loop.mp4', full: '/media/tbs-ia-acciones.mp4', poster: 'tbs-ia-acciones' },
   { client: tbs, title: 'La desinformación en el trading', audience: 'brands', type: 'Pieza de campaña', role, format: '16:9', youtubeId: 'hbivGEOLbW8' },
 ];
 
