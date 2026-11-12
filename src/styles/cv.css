@@ -16,7 +16,14 @@
   transition: background-color 700ms ease, color 700ms ease;
 }
 
-/* Se apagan las luces: al pasar por los trabajos, la página entera es la sala de proyección */
+/* Corte seco al encender las luces (lo pone cv.ts un instante) */
+.cv.is-snap,
+.cv.is-snap .cvw__side { transition: none; }
+
+.cv a,
+.cv button { -webkit-tap-highlight-color: transparent; }
+
+/* Se apagan las luces: del final del retrato a «Más de 6 años», la página es la sala de proyección */
 .cv.is-dark {
   --f-bg: #121212;
   --f-surface-2: #1C1C1B;
@@ -889,8 +896,8 @@ html.cv-js .cve .cve__list { --edu: 0; }
   .cvnav { justify-content: space-between; }
   .cvw__grid { grid-template-columns: 1fr; }
   .cvw__side { top: 0; position: sticky; z-index: 2; padding-block: 10px; background: var(--f-bg); transition: background-color 700ms ease; }
-  .cvw__cats { display: flex; gap: 18px; }
-  .cvw__cats a { font-size: 26px; border: 0; padding-block: 4px; }
+  .cvw__cats { display: flex; gap: 14px; }
+  .cvw__cats a { font-size: 22px; border: 0; padding-block: 4px; }
   .cvw__progress { top: auto; bottom: -6px; left: 0; right: 0; width: auto; height: 4px; }
   .cvw__progress > span { transform: scaleX(var(--p, 0)); transform-origin: 0 50%; }
   .cvv__grid { grid-template-columns: 1fr; }

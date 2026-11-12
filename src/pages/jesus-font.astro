@@ -5,8 +5,8 @@
  *
  *  1. Apertura: «Jesús Font» y el menú debajo. Al bajar, el nombre se coloca junto al retrato
  *     (que se monta con fragmentos en 3D) y la bio sube a su lado.
- *  2. Trabajos por categoría (Marcas, Videoclips, Social): la lista a la izquierda y los
- *     vídeos subiendo a la derecha. Se apagan las luces: la página entera pasa a negro.
+ *  2. Trabajos por categoría (Marcas, IA, Videoclips, Social): la lista a la izquierda y los
+ *     vídeos subiendo a la derecha. Las luces se apagan al terminar el retrato y se encienden de golpe en «Más de 6 años».
  *  3. «Más de 6 años de experiencia» con fotos de rodaje flotando en 3D, y la información de
  *     valor (qué aporto y cifras), rodeada por la línea roja.
  *  4. Experiencia, formación y herramientas. 5. Contacto y botón a todos los trabajos.
@@ -35,7 +35,9 @@ const portraitTile = await getImage({ src: portrait, format: 'webp', width: 1000
 
 const impostora = visible(creatorProjects).find((p) => p.title === 'La Impostora');
 const categories: { id: string; name: string; projects: Project[] }[] = [
-  { id: 'marcas', name: 'Marcas', projects: [marketingProjects[0], marketingProjects[1], marketingProjects[3]] },
+  { id: 'marcas', name: 'Marcas', projects: [marketingProjects[0], marketingProjects[1], marketingProjects[2]] },
+  // La pieza hecha con IA va en su propia categoría (por ahora es la única)
+  { id: 'ia', name: 'IA', projects: [marketingProjects[3]] },
   { id: 'videoclips', name: 'Videoclips', projects: [musicProjects[0], musicProjects[1], ...(impostora ? [impostora] : [])] },
   { id: 'social', name: 'Social', projects: [contentProjects[3], contentProjects[1], contentProjects[0]] },
 ];

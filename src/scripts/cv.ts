@@ -178,10 +178,25 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     return () => removeEventListener('pointermove', move);
   });
 
-  // ── 3 · Trabajos: se apagan las luces, los vídeos suben y la categoría se marca ──
+  // ── 3 · Trabajos: con las luces apagadas, los vídeos suben y la categoría se marca ──
   const works = $('[data-cvw]');
   const cv = $('.cv');
-  ScrollTrigger.create({ trigger: works, start: 'top 55%', end: 'bottom 45%', toggleClass: { targets: cv, className: 'is-dark' } });
+  // Las luces se apagan al terminar el retrato y se encienden de golpe (un corte) en «Más de 6 años»;
+  // al volver hacia arriba, el negro vuelve con fundido.
+  const snap = () => {
+    cv.classList.add('is-snap');
+    requestAnimationFrame(() => requestAnimationFrame(() => cv.classList.remove('is-snap')));
+  };
+  ScrollTrigger.create({
+    trigger: works,
+    start: 'top bottom',
+    endTrigger: '[data-years]',
+    end: 'top 55%',
+    onToggle: (self) => {
+      if (!self.isActive && self.direction === 1) snap();
+      cv.classList.toggle('is-dark', self.isActive);
+    },
+  });
   const links = $$('[data-cat-link]', works);
   $$('[data-cat]', works).forEach((group) =>
     ScrollTrigger.create({
@@ -243,7 +258,7 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
       gsap.fromTo(
         tools,
         { opacity: 0, y: () => -innerHeight * 0.45, rotation: (i) => [-24, 18, -12, 26, -18, 14, -28][i] },
-        { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease: 'back.out(1.3)', stagger: 0.06 },
+        { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease: EASE_OUT, stagger: 0.06 },
       ),
   });
   Draggable.create(tools, { bounds: table, inertia: true, edgeResistance: 0.75, zIndexBoost: true });
