@@ -113,9 +113,6 @@ const waIcon =
     </header>
 
     <main id="contenido" class="cv__main" data-main>
-      <!-- La línea roja que recorre la página (se traza en cv.ts) -->
-      <svg class="cvline" aria-hidden="true" data-redline><path /></svg>
-
       <!-- 1 · Apertura y perfil -->
       <section class="cvh" data-cvh>
         <div class="cvh__stage">
@@ -154,6 +151,8 @@ const waIcon =
         <div class="cvw__grid wrap">
           <div class="cvw__side">
             <h2 id="cvw-title" class="label cvw__kicker">Trabajos</h2>
+            <div class="cvw__track">
+            <span class="cvw__progress" aria-hidden="true"><span data-progress></span></span>
             <ol class="cvw__cats" role="list">
               {
                 categories.map((cat) => (
@@ -163,6 +162,7 @@ const waIcon =
                 ))
               }
             </ol>
+            </div>
           </div>
 
           <div class="cvw__reel">
@@ -203,9 +203,10 @@ const waIcon =
             ))
           }
           <h2 id="cvy-title" class="cvy__title">Más de 6 años<br />de experiencia</h2>
+          <p class="cvy__credit label">Fotos de rodaje, en parte de @gallagm</p>
         </div>
 
-        <div class="cvv wrap" data-swing>
+        <div class="cvv wrap">
           <div class="cvv__grid" data-stagger>
             {
               cv.skills.map((skill) => (

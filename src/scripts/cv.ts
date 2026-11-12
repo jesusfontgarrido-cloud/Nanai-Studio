@@ -67,7 +67,7 @@ function buildTiles(host: HTMLElement, cols: number, rows: number) {
     for (let c = 0; c < cols; c++) {
       const t = document.createElement('span');
       t.className = 'cvh__tile';
-      t.style.cssText = `left:${(c / cols) * 100}%;top:${(r / rows) * 100}%;width:${100 / cols + 0.15}%;height:${100 / rows + 0.15}%;background-size:${cols * 100}% ${rows * 100}%;background-position:${(c / (cols - 1)) * 100}% ${(r / (rows - 1)) * 100}%`;
+      t.style.cssText = `left:${(c / cols) * 100}%;top:${(r / rows) * 100}%;width:${100 / cols}%;height:${100 / rows}%;background-size:${cols * 100}% ${rows * 100}%;background-position:${(c / (cols - 1)) * 100}% ${(r / (rows - 1)) * 100}%`;
       frag.appendChild(t);
       tiles.push(t);
     }
@@ -157,13 +157,13 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
         rotationY: () => rand(-110, 110),
         opacity: 0,
       },
-      { x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, opacity: 1, duration: 0.4, stagger: { amount: 0.22, from: 'random' } },
+      { x: 0, y: 0, z: 0, rotationX: 0, rotationY: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: { amount: 0.22, from: 'random' } },
       0.06,
     )
     .fromTo(portrait, { rotationY: 38, rotationX: 10 }, { rotationY: 0, rotationX: 0, duration: 0.7 }, 0)
     .fromTo('[data-bio]', { opacity: 0, y: 90 }, { opacity: 1, y: 0, duration: 0.25 }, 0.36)
-    .to('.cvh__still', { opacity: 1, duration: 0.06 }, 0.7)
-    .to(tiles, { opacity: 0, duration: 0.01 }, 0.78);
+    .to('.cvh__still', { opacity: 1, duration: 0.05 }, 0.66)
+    .set(tiles, { opacity: 0 }, 0.72);
 
   // Al mover el ratón, el retrato gira un poco (decorativo, solo con ratón)
   mm.add('(hover: hover) and (pointer: fine)', () => {
@@ -254,90 +254,16 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     { '--edu': 1, ease: 'none', scrollTrigger: { trigger: '[data-edu]', start: 'top 75%', end: 'bottom 55%', scrub: true } },
   );
 
-  // ── La línea roja: baja por el margen, rodea la información de valor y sigue ──
-  const main = $('[data-main]');
-  const svg = $<SVGSVGElement>('[data-redline]');
-  const path = $<SVGPathElement>('path', svg);
-  let total = 0;
-  let samples: { len: number; y: number }[] = [];
-
-  const traceLine = () => {
-    const w = main.clientWidth;
-    const h = main.scrollHeight;
-    const gutter = parseFloat(getComputedStyle($('.wrap', main)).paddingLeft) || 16;
-    const xL = Math.max(8, gutter * 0.45);
-    const xR = w - xL;
-    const amp = Math.max(4, gutter * 0.25);
-    const y0 = offsetIn(works, main).y;
-    const swing = $('[data-swing]');
-    const sTop = offsetIn(swing, main).y;
-    const sBot = sTop + swing.offsetHeight;
-    const yEnd = offsetIn($('#contacto'), main).y + 80;
-
-    // Ondulación suave: cada nudo tiene la tangente vertical, así los tramos enlazan sin picos
-    const wiggle = (x: number, from: number, to: number, dir = 1) => {
-      const count = Math.max(1, Math.round((to - from) / 700));
-      const step = (to - from) / count;
-      let d = '';
-      let px = x;
-      let py = from;
-      for (let i = 1; i <= count; i++) {
-        const nx = i === count ? x : x + amp * dir;
-        const ny = from + step * i;
-        d += ` C ${px} ${py + step * 0.5} ${nx} ${ny - step * 0.5} ${nx} ${ny}`;
-        px = nx;
-        py = ny;
-        dir *= -1;
-      }
-      return d;
-    };
-
-    const uY = sBot + 110;
-    let d = `M ${xL} ${y0}`;
-    d += wiggle(xL, y0, sTop - 80);
-    d += ` L ${xL} ${uY - 120}`;
-    d += ` C ${xL} ${uY} ${w * 0.12} ${uY} ${w * 0.5} ${uY}`;
-    d += ` C ${w * 0.88} ${uY} ${xR} ${uY} ${xR} ${uY + 200}`;
-    d += wiggle(xR, uY + 200, yEnd, -1);
-
-    svg.setAttribute('width', String(w));
-    svg.setAttribute('height', String(h));
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    path.setAttribute('d', d);
-    total = path.getTotalLength();
-    path.style.strokeDasharray = `${total}`;
-    // Tabla largo → altura (con la altura máxima alcanzada, para buscar rápido)
-    samples = [];
-    let maxY = 0;
-    for (let i = 0; i <= 600; i++) {
-      const len = (total * i) / 600;
-      maxY = Math.max(maxY, path.getPointAtLength(len).y);
-      samples.push({ len, y: maxY });
-    }
-    drawLine();
-  };
-
-  // La punta de la línea va siempre por el 75 % de la pantalla
-  const drawLine = () => {
-    if (!samples.length) return;
-    const target = scrollY + innerHeight * 0.75 - (main.getBoundingClientRect().top + scrollY);
-    let lo = 0;
-    let hi = samples.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (samples[mid].y < target) lo = mid + 1;
-      else hi = mid;
-    }
-    path.style.strokeDashoffset = String(total - samples[lo].len);
-  };
-
-  ScrollTrigger.addEventListener('refresh', traceLine);
-  ScrollTrigger.create({ trigger: main, start: 'top top', end: 'bottom bottom', onUpdate: drawLine });
+  // ── La línea roja: avanza junto a las categorías mientras duran los trabajos ──
+  gsap.fromTo(
+    '[data-progress]',
+    { '--p': 0 },
+    { '--p': 1, ease: 'none', scrollTrigger: { trigger: works, start: 'top 55%', end: 'bottom 55%', scrub: true } },
+  );
 
   addEventListener('load', () => ScrollTrigger.refresh());
 
   return () => {
-    ScrollTrigger.removeEventListener('refresh', traceLine);
     gsap.ticker.remove(raf);
     lenis.destroy();
   };

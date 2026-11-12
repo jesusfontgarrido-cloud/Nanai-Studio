@@ -37,27 +37,6 @@
   padding-bottom: 120px;
 }
 
-/* La línea roja de la página: detrás del contenido, se traza y se dibuja en cv.ts */
-.cvline {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  display: none;
-  overflow: visible;
-  pointer-events: none;
-}
-
-html.cv-js .cvline { display: block; }
-
-.cvline path {
-  fill: none;
-  stroke: var(--f-red);
-  stroke-width: clamp(8px, 1.1vw, 18px);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 /* Hasta que llega el módulo, lo que va a entrar animado no se pinta (sin parpadeo) */
 html.cv-js:not(.cv-ready) .cvh__title,
 html.cv-js:not(.cv-ready) .cvh__menu,
@@ -335,7 +314,33 @@ html.cv-js .cvh__name { opacity: 0; }
 
 .cvw__kicker { color: var(--f-dim); }
 
+.cvw__track { position: relative; }
+
 .cvw__cats { display: grid; }
+
+/* La línea roja: gruesa, junto a las categorías, se llena con el scroll de los trabajos */
+.cvw__progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(-1 * clamp(20px, 2.4vw, 40px));
+  display: none;
+  width: 8px;
+  border-radius: 8px;
+  background: var(--f-line);
+  overflow: hidden;
+}
+
+html.cv-js .cvw__progress { display: block; }
+
+.cvw__progress > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--f-red);
+  transform: scaleY(var(--p, 0));
+  transform-origin: 50% 0;
+}
 
 .cvw__cats a {
   display: block;
@@ -461,6 +466,8 @@ html:not(.cv-js) .cvw__cats a { color: var(--f-on-surface); }
   position: relative;
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 20px;
   min-height: 90svh;
   padding-inline: var(--f-gutter);
   perspective: 1200px;
@@ -475,6 +482,12 @@ html:not(.cv-js) .cvw__cats a { color: var(--f-on-surface); }
   line-height: 0.92;
   letter-spacing: -0.045em;
   text-align: center;
+}
+
+.cvy__credit {
+  position: relative;
+  z-index: 1;
+  color: var(--f-dim);
 }
 
 /* Fotos de rodaje en formas suaves (los fotogramas de Nanai), en blanco y negro */
@@ -494,12 +507,12 @@ html:not(.cv-js) .cvw__cats a { color: var(--f-on-surface); }
 .cvy__float--square { aspect-ratio: 1; border-radius: var(--f-r-media); rotate: 6deg; }
 .cvy__float--diamond { aspect-ratio: 1; border-radius: var(--f-r-media); rotate: 45deg; }
 
-/* Información de valor: qué aporto y las cifras (la línea roja la rodea por debajo) */
+/* Información de valor: qué aporto y las cifras */
 .cvv {
   display: grid;
   gap: clamp(40px, 6vw, 80px);
   margin-top: clamp(24px, 4vw, 56px);
-  margin-bottom: clamp(200px, 22vw, 320px);
+  margin-bottom: var(--f-sec);
 }
 
 .cvv__grid {
@@ -878,6 +891,8 @@ html.cv-js .cve .cve__list { --edu: 0; }
   .cvw__side { top: 0; position: sticky; z-index: 2; padding-block: 10px; background: var(--f-bg); transition: background-color 700ms ease; }
   .cvw__cats { display: flex; gap: 18px; }
   .cvw__cats a { font-size: 26px; border: 0; padding-block: 4px; }
+  .cvw__progress { top: auto; bottom: -6px; left: 0; right: 0; width: auto; height: 4px; }
+  .cvw__progress > span { transform: scaleX(var(--p, 0)); transform-origin: 0 50%; }
   .cvv__grid { grid-template-columns: 1fr; }
   .cvn__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 40px; }
   .cvx__row { grid-template-columns: 1fr; }
@@ -888,4 +903,29 @@ html.cv-js .cve .cve__list { --edu: 0; }
 
 @media (max-width: 560px) {
   .cvnav__logo img { height: 14px; }
+}
+
+/* ══ Grano de película: claro y oscuro (se ve en papel y en negro) y vivo, a ~10 fps ══
+   Sustituye al grano de papel de .flat solo en esta página. Una capa fija que solo se
+   desplaza (transform), así no repinta. */
+.cv::after {
+  inset: -50%;
+  z-index: 60;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.6 -.3 0 0 0 1.6 -.3 0 0 0 1.6 -.3 0 0 0 0 .09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: cv-grain 0.8s steps(1) infinite;
+}
+
+@keyframes cv-grain {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(-7%, 4%); }
+  25% { transform: translate(5%, -9%); }
+  37% { transform: translate(-11%, -3%); }
+  50% { transform: translate(8%, 10%); }
+  62% { transform: translate(-3%, 12%); }
+  75% { transform: translate(12%, -5%); }
+  87% { transform: translate(-9%, -11%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv::after { animation: none; }
 }
