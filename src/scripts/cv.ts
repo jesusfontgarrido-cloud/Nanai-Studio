@@ -145,6 +145,9 @@ function grainReveal(host: HTMLElement, src: string) {
     size,
     set(p: number) {
       progress = p;
+      // Del grano gordo y desenfocado a la foto nítida: el desenfoque se va con el grano
+      const blur = Math.pow(1 - p, 1.3) * 18;
+      canvas.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : '';
       draw();
     },
   };
@@ -220,9 +223,13 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     .fromTo(
       space,
       { x: () => fromCenter().x, y: () => fromCenter().y, scale: 0.32 },
-      { x: 0, y: 0, scale: 1, duration: 0.62, ease: 'power3.out' },
+      { x: 0, y: 0, scale: 1, duration: 0.62, ease: 'power2.out' },
       0.02,
     )
+    // Y no se para: la foto sigue subiendo con el scroll hasta que se suelta la escena,
+    // y la bio la acompaña más despacio (dos velocidades, sensación de profundidad)
+    .to(space, { y: () => -space.offsetHeight * 0.22, duration: 0.36 }, 0.64)
+    .fromTo('.cvh__bio', { y: 0 }, { y: () => -innerHeight * 0.06, duration: 0.5 }, 0.5)
     .to(reveal, { p: 1, duration: 0.5, onUpdate: () => grain.set(reveal.p) }, 0.08)
     .fromTo('[data-name]', { opacity: 0, filter: 'blur(16px)', y: 30 }, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.2 }, 0.34)
     .fromTo($$('[data-bio] > *'), { opacity: 0, filter: 'blur(10px)', y: 40 }, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.2, stagger: 0.05 }, 0.42)
@@ -271,6 +278,10 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     items.forEach((li, i) => {
       li.style.setProperty('--ad', String(Math.min(Math.abs(i - index), 3)));
       li.classList.toggle('is-active', i === index);
+      li.classList.toggle('is-past', i < index);
+      li.classList.toggle('is-far', i < index - 1);
+      li.classList.toggle('is-future', i > index);
+      li.setAttribute('aria-hidden', i > index ? 'true' : 'false');
     });
     links.forEach((a, i) => a.classList.toggle('is-active', i === index));
   };
