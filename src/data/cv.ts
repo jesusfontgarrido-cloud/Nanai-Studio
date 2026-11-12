@@ -11,7 +11,7 @@ export const cv = {
   email: 'jesusfontgarrido@gmail.com',
   phone: '689 02 64 20',
   whatsapp: 'https://wa.me/34689026420?text=' + encodeURIComponent('Hola Jesús, he visto tu CV en la web de Nanai.'),
-  portfolio: 'https://jesusfont.framer.website',
+  // Sin portfolio aparte: su portfolio es la web de Nanai Studio (decisión del usuario, 12-11-2026).
   /** Píldora «Ahora mismo» (sale de su experiencia actual). */
   now: 'Filmmaker creativo en Traders Business School',
   /** Punto verde junto al retrato: lo pidió el usuario (12-11-2026). */
@@ -81,6 +81,9 @@ export const cv = {
     { name: 'Lightroom', color: '#8BD96E' },
     { name: 'Magnific', color: '#F18FAA' },
     { name: 'Claude', color: '#F0B24E' },
+    { name: 'HeyGen', color: '#7FB2FF' },
+    { name: 'ElevenLabs', color: '#C9C9C2' },
+    { name: 'Higgsfield', color: '#E3F26B' },
   ],
 
   skills: [
@@ -119,6 +122,11 @@ export const cv = {
       dates: 'Curso',
       title: 'IA audiovisual aplicada',
       text: 'Consistencia de personaje e imagen, ahorro de créditos y generación local con ComfyUI.',
+    },
+    {
+      dates: 'Siempre',
+      title: 'Formación constante',
+      text: 'Siempre es importante formarse para estar al día de las nuevas herramientas y de cómo optimizar el negocio.',
     },
   ],
 

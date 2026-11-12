@@ -59,6 +59,20 @@ indexLinks.forEach((a) => {
   if (target) sectionObserver.observe(target);
 });
 
+// ── Formación: la línea va del primer punto al último, sin pasarse (también sin movimiento) ──
+const eduList = document.querySelector<HTMLElement>('[data-edu]');
+const fitEduLine = () => {
+  if (!eduList) return;
+  const last = eduList.lastElementChild as HTMLElement | null;
+  if (!last) return;
+  // Del centro del primer punto (top 3px + 7px) al centro del último
+  const bottom = eduList.offsetHeight - (last.offsetTop + 10);
+  eduList.style.setProperty('--edu-bottom', `${Math.max(0, bottom)}px`);
+};
+fitEduLine();
+addEventListener('resize', fitEduLine);
+document.fonts?.ready.then(fitEduLine);
+
 /** Parte una palabra en letras (para la apertura). */
 function splitChars(el: HTMLElement) {
   const text = el.textContent ?? '';
@@ -357,7 +371,7 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
   gsap.fromTo(
     '[data-tile]',
     { rotationX: -50, y: 40, opacity: 0, transformOrigin: '50% 100%' },
-    { rotationX: 0, y: 0, opacity: 1, duration: 1, stagger: 0.08, ease: EASE_OUT, scrollTrigger: { trigger: '.cvn__list', start: 'top 85%' } },
+    { rotationX: 0, y: 0, opacity: 1, duration: 1, stagger: 0.08, ease: EASE_OUT, scrollTrigger: { trigger: '.cvn__list', start: 'top 82%' } },
   );
   // Las cifras suben al ritmo del scroll (y crecen un poco); al volver hacia arriba, bajan.
   // Llegan a su valor final antes de la mitad de la pantalla, para leerlas quietas.
@@ -371,8 +385,8 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     gsap.set(value, { transformOrigin: '0% 100%' });
     ScrollTrigger.create({
       trigger: el,
-      start: 'top 95%',
-      end: 'top 50%',
+      start: 'top 82%',
+      end: 'top 38%',
       scrub: 0.4,
       onUpdate: (self) => {
         const p = gsap.parseEase('power2.out')(self.progress);
@@ -401,7 +415,7 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     onEnter: () =>
       gsap.fromTo(
         tools,
-        { opacity: 0, y: () => -innerHeight * 0.45, rotation: (i) => [-24, 18, -12, 26, -18, 14, -28][i] },
+        { opacity: 0, y: () => -innerHeight * 0.45, rotation: (i) => [-24, 18, -12, 26, -18, 14, -28, 20, -16, 22][i % 10] },
         { opacity: 1, y: 0, rotation: 0, duration: 0.9, ease: EASE_OUT, stagger: 0.06 },
       ),
   });

@@ -51,10 +51,10 @@ const categories: { id: string; name: string; projects: Project[] }[] = [
 
 // Fotos de rodaje que flotan alrededor de «Más de 6 años»: forma, sitio y profundidad (para el ratón)
 const floaters = [
-  { src: f2, shape: 'arch', pos: 'left: 6%; top: 4%; width: 12%', depth: 1 },
-  { src: f3, shape: 'tilt', pos: 'right: 7%; top: 8%; width: 14%', depth: 0.6 },
-  { src: f4, shape: 'circle', pos: 'left: 13%; bottom: 6%; width: 10%', depth: 1.4 },
-  { src: f5, shape: 'square', pos: 'right: 15%; bottom: 2%; width: 11%', depth: 0.9 },
+  { src: f2, shape: 'arch', pos: 'left: 9%; top: -2%; width: 9%', depth: 1 },
+  { src: f3, shape: 'tilt', pos: 'right: 8%; top: 4%; width: 10%', depth: 0.6 },
+  { src: f4, shape: 'circle', pos: 'left: 13%; bottom: 4%; width: 7%', depth: 1.4 },
+  { src: f5, shape: 'square', pos: 'right: 14%; bottom: 2%; width: 8%', depth: 0.9 },
 ];
 
 const sections = [
@@ -78,7 +78,7 @@ const personLd = {
     worksFor: { '@id': `${home}#estudio` },
     alumniOf: [{ '@type': 'EducationalOrganization', name: 'I.E.S. Néstor Almendros' }],
     address: { '@type': 'PostalAddress', addressLocality: 'Dos Hermanas', addressRegion: 'Sevilla', addressCountry: 'ES' },
-    sameAs: [site.jesus.instagram, site.jesus.linkedin, cv.portfolio],
+    sameAs: [site.jesus.instagram, site.jesus.linkedin],
   },
 };
 ---
@@ -333,7 +333,7 @@ const personLd = {
         <h2 id="cvs-title" class="h2" data-reveal="lines"><span>Herramientas</span></h2>
         <div class="cvs__table" data-table>
           <ul class="cvs__tools" role="list">
-            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7][i]}deg; --c: ${tool.color}`}>{tool.name}</li>)}
+            {cv.tools.map((tool, i) => <li style={`--rot:${[-6, 4, -3, 7, -5, 3, -7, 5, -4, 6][i % 10]}deg; --c: ${tool.color}`}>{tool.name}</li>)}
           </ul>
           <p class="cvs__hint label" aria-hidden="true">Puedes moverlas</p>
         </div>
@@ -352,7 +352,6 @@ const personLd = {
           <li><span class="label">Teléfono</span><a href={`tel:+34${cv.phone.replace(/\s/g, '')}`}>{cv.phone}</a></li>
           <li><span class="label">Instagram</span><a href={site.jesus.instagram} target="_blank" rel="noopener me">{site.jesus.instagramHandle}</a></li>
           <li><span class="label">LinkedIn</span><a href={site.jesus.linkedin} target="_blank" rel="noopener me">Jesús Font Garrido</a></li>
-          <li><span class="label">Portfolio</span><a href={cv.portfolio} target="_blank" rel="noopener me">jesusfont.framer.website</a></li>
           <li><span class="label">Bodas</span><a href={site.weddings} target="_blank" rel="noopener">Nanai Weddings</a></li>
         </ul>
 
