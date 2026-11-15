@@ -9,6 +9,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/flat.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
+import FlatFx from '../components/flat/FlatFx.astro';
 import FlatNav from '../components/flat/FlatNav.astro';
 import FlatPageHeader from '../components/flat/FlatPageHeader.astro';
 import FlatWork from '../components/flat/FlatWork.astro';
@@ -30,6 +31,7 @@ import { workFaq, workPage } from '../data/copy';
   <SeoWork projects={[...marketingProjects, ...contentProjects, ...musicProjects]} />
   <div class="flat">
     <FlatMotion />
+    <FlatFx />
     <FlatNav />
 
     <main id="contenido">

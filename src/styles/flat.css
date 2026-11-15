@@ -464,7 +464,8 @@ html.motion .flat [data-reveal],
 html.motion .flat [data-stagger] > * {
   transition:
     opacity var(--f-dur-reveal) var(--f-ease-out),
-    transform var(--f-dur-reveal) var(--f-ease-out);
+    transform var(--f-dur-reveal) var(--f-ease-out),
+    filter var(--f-dur-reveal) var(--f-ease-out);
   transition-delay: calc(var(--i, 0) * 60ms);
 }
 
@@ -472,6 +473,11 @@ html.motion .flat [data-reveal]:not(.is-in),
 html.motion .flat [data-stagger] > :not(.is-in) {
   opacity: 0;
   transform: translateY(28px);
+}
+
+/* Los textos entran desenfocados y se enfocan (no las fotos ni el formulario: el filtro sale caro) */
+html.motion .flat [data-reveal]:not(figure, form, [data-reveal='lines'], [data-reveal='focus']):not(.is-in) {
+  filter: blur(8px);
 }
 
 html.motion .flat [data-reveal='lines'],
@@ -487,12 +493,14 @@ html.motion .flat [data-reveal='lines'] > * {
   transition:
     transform 650ms var(--f-ease-out),
     clip-path 650ms var(--f-ease-out),
-    opacity 400ms var(--f-ease-out);
+    opacity 400ms var(--f-ease-out),
+    filter 650ms var(--f-ease-out);
   transition-delay: calc(var(--line, 0) * 80ms + var(--i, 0) * 60ms);
 }
 
 html.motion .flat [data-reveal='lines']:not(.is-in) > * {
   opacity: 0;
+  filter: blur(6px);
   transform: translateY(0.45em);
   clip-path: inset(0 -0.3em 100% -0.3em);
 }
@@ -515,6 +523,25 @@ html.motion .flat [data-reveal='focus'] img {
 html.motion .flat [data-reveal='focus']:not(.is-in) img {
   filter: blur(10px) grayscale(1);
   transform: scale(1.08);
+}
+
+/* Grano de película vivo (como en el CV): puntos oscuros y claros sueltos, sin velo gris, a ~8 fps.
+   Sustituye al grano de papel solo con movimiento. Capa fija que solo se desplaza (transform). */
+html.motion .flat::after {
+  inset: -30%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 -0.549'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -0.9 0 0 0 0.351'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: flat-grain 0.9s steps(1) infinite;
+}
+
+@keyframes flat-grain {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(-6%, 3%); }
+  25% { transform: translate(4%, -7%); }
+  37% { transform: translate(-9%, -2%); }
+  50% { transform: translate(6%, 8%); }
+  62% { transform: translate(-2%, 9%); }
+  75% { transform: translate(9%, -4%); }
+  87% { transform: translate(-7%, -8%); }
 }
 
 /* Desplegables que se abren con suavidad (Chrome; el resto, al instante) */
