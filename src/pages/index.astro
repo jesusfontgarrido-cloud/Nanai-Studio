@@ -13,6 +13,7 @@ import FlatDock from '../components/flat/FlatDock.astro';
 import FlatIndex from '../components/flat/FlatIndex.astro';
 import NanaiStage from '../components/flat/NanaiStage.astro';
 import FlatAbout from '../components/flat/FlatAbout.astro';
+import FlatBand from '../components/flat/FlatBand.astro';
 import FlatSteps from '../components/flat/FlatSteps.astro';
 import FlatWork from '../components/flat/FlatWork.astro';
 import FlatManifesto from '../components/flat/FlatManifesto.astro';
@@ -48,6 +49,7 @@ import { featuredProjects } from '../data/work';
     <main id="contenido">
       <NanaiStage />
       <FlatAbout />
+      <FlatBand />
       <FlatSteps />
       <FlatWork projects={featuredProjects} title={featuredWork.title} deck={featuredWork.deck} more={{ href: '/trabajos', label: 'Ver todos los trabajos' }} />
       <FlatManifesto />

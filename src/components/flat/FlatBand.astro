@@ -1,0 +1,19 @@
+---
+/**
+ * Banda cinética (16-11-2026): dos filas de texto gigante con lo que hace Nanai que se
+ * deslizan en sentidos opuestos al hacer scroll (la de abajo, solo contorno). Es decoración:
+ * va oculta a los lectores de pantalla porque lo dice ya «Cómo trabajamos». Sin JS o con
+ * movimiento reducido, quieta. El movimiento vive en src/scripts/flat-fx.ts.
+ */
+const words = ['Vídeo', 'Fotografía', 'Webs', 'IA y automatización'];
+const row = [...words, ...words, ...words];
+---
+
+<div class="fband" aria-hidden="true" data-band>
+  <p class="fband__row" data-band-row="-1">
+    {row.map((w) => <span>{w}<i class="fband__dot" /></span>)}
+  </p>
+  <p class="fband__row fband__row--outline" data-band-row="1">
+    {row.map((w) => <span>{w}<i class="fband__dot" /></span>)}
+  </p>
+</div>

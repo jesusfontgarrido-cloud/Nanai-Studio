@@ -906,3 +906,69 @@ html.fx-ready .flat .fphotos__open img { transition-property: filter, opacity; }
 @media (prefers-reduced-motion: reduce) {
   .flat .fserv__wheel li { transition: none; }
 }
+
+/* ══ Grano de película del CV (16-11-2026), en toda la web ══════════
+   Puntos claros y oscuros sueltos, sin velo gris (se ve en papel y en negro), vivo a ~10 fps.
+   Es exactamente el de .cv::after (cv.css). Una capa fija que solo se desplaza: no repinta. */
+.flat::after {
+  inset: -50%;
+  z-index: 60;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0 0 0 -0.549'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -0.9 0 0 0 0.351'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: flat-grain 0.8s steps(1) infinite;
+}
+
+@keyframes flat-grain {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(-7%, 4%); }
+  25% { transform: translate(5%, -9%); }
+  37% { transform: translate(-11%, -3%); }
+  50% { transform: translate(8%, 10%); }
+  62% { transform: translate(-3%, 12%); }
+  75% { transform: translate(12%, -5%); }
+  87% { transform: translate(-9%, -11%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flat::after { animation: none; }
+}
+
+/* ── Titulares palabra a palabra (flat-fx.ts parte las palabras) ── */
+.flat .fw {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.06em 0.04em 0.12em;
+  margin: -0.06em -0.04em -0.12em;
+  vertical-align: top;
+}
+
+.flat .fw__i { display: inline-block; transform-origin: 0% 100%; will-change: transform; }
+
+/* ── Banda cinética (FlatBand) ─────────────────────────────────── */
+.flat .fband {
+  display: grid;
+  gap: 0.04em;
+  padding-block: clamp(40px, 6vw, 96px);
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: clamp(64px, 11vw, 210px);
+  font-weight: 640;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.flat .fband__row { display: flex; width: max-content; margin: 0; will-change: transform; }
+.flat .fband__row span { display: inline-flex; align-items: center; }
+
+.flat .fband__dot {
+  display: inline-block;
+  width: 0.16em;
+  height: 0.16em;
+  margin-inline: 0.32em;
+  border-radius: 50%;
+  background: var(--f-red);
+}
+
+.flat .fband__row--outline { color: transparent; -webkit-text-stroke: 1.5px var(--f-on-surface); }
+.flat .fband__row--outline .fband__dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--f-red); }

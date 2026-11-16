@@ -139,6 +139,41 @@ async function start() {
       }
     });
 
+    // ── Titulares palabra a palabra: cada palabra sube desde su línea y se endereza, al ritmo
+    // del scroll (sustituye a la entrada por líneas de flat.css en los titulares de sección) ──
+    $$<HTMLElement>('[data-reveal="lines"]').forEach((title) => {
+      const words = splitWords(title);
+      if (!words.length) return;
+      title.removeAttribute('data-reveal');
+      gsap.fromTo(
+        words,
+        { yPercent: 115, rotate: 5, opacity: 0 },
+        { yPercent: 0, rotate: 0, opacity: 1, stagger: 0.08, ease: 'none', scrollTrigger: { trigger: title, start: 'top 94%', end: 'top 58%', scrub: true } },
+      );
+    });
+
+    // ── Banda cinética: las dos filas se deslizan en sentidos opuestos con el scroll ──
+    $$<HTMLElement>('[data-band]').forEach((band) => {
+      band.querySelectorAll<HTMLElement>('[data-band-row]').forEach((row) => {
+        const dir = Number(row.dataset.bandRow);
+        gsap.fromTo(
+          row,
+          { xPercent: dir < 0 ? 0 : -30 },
+          { xPercent: dir < 0 ? -30 : 0, ease: 'none', scrollTrigger: { trigger: band, start: 'top bottom', end: 'bottom top', scrub: true } },
+        );
+      });
+    });
+
+    // ── El logo del pie sube desde abajo al llegar al final ──
+    const footLogo = document.querySelector<HTMLElement>('.ffooter__logo');
+    if (footLogo) {
+      gsap.fromTo(
+        footLogo,
+        { yPercent: 70, opacity: 0.2 },
+        { yPercent: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: footLogo.parentElement, start: 'top bottom', end: 'bottom bottom', scrub: true } },
+      );
+    }
+
     // ── Filas que entran en 3D, abatiéndose desde arriba (preguntas y listas) ──
     $$<HTMLElement>('[data-row]').forEach((row) =>
       gsap.fromTo(
@@ -157,6 +192,52 @@ async function start() {
       if (heroPic) gsap.set(heroPic, { clearProps: 'all' });
     };
   });
+}
+
+/**
+ * Parte un titular en palabras para animarlas: cada palabra va en una ventana (.fw) que la
+ * recorta y su interior (.fw__i) es lo que se mueve. Los elementos internos (la cursiva de
+ * acento, los fotogramas) se tratan como una palabra entera.
+ */
+function splitWords(title: HTMLElement) {
+  const inner: HTMLElement[] = [];
+  const wrap = (node: Node) => {
+    const outer = document.createElement('span');
+    outer.className = 'fw';
+    const i = document.createElement('span');
+    i.className = 'fw__i';
+    outer.appendChild(i);
+    node.parentNode!.insertBefore(outer, node);
+    i.appendChild(node);
+    inner.push(i);
+  };
+  const walk = (el: Element) => {
+    [...el.childNodes].forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const parts = (node.textContent ?? '').split(/(\s+)/);
+        if (!parts.some((p) => p.trim())) return;
+        const frag = document.createDocumentFragment();
+        parts.forEach((part) => {
+          if (!part) return;
+          if (!part.trim()) {
+            frag.appendChild(document.createTextNode(part));
+            return;
+          }
+          const word = document.createTextNode(part);
+          frag.appendChild(word);
+        });
+        const words = [...frag.childNodes].filter((n) => (n.textContent ?? '').trim());
+        node.parentNode!.replaceChild(frag, node);
+        words.forEach(wrap);
+      } else if (node instanceof HTMLElement) {
+        // Las líneas (span de bloque) se recorren; lo demás (cursiva, fotograma) va entero
+        if (getComputedStyle(node).display === 'block' || node.tagName === 'SPAN' && !node.className) walk(node);
+        else wrap(node);
+      }
+    });
+  };
+  walk(title);
+  return inner;
 }
 
 /**
