@@ -313,6 +313,14 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
   line-height: 1.45;
 }
 
+/* La navaja suiza: en tinta, para que se lea como la conclusión */
+.cvh__all {
+  color: var(--f-on-surface);
+  font-size: var(--f-lead);
+  font-weight: 560;
+  line-height: 1.4;
+}
+
 .cvh__space {
   justify-self: center;
   width: min(100%, 64svh * 0.8);
@@ -665,7 +673,7 @@ html:not(.cv-js) .cvw__cats a { color: var(--f-on-surface); }
 
 .cvv__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--f-gap);
 }
 
@@ -680,6 +688,16 @@ html:not(.cv-js) .cvw__cats a { color: var(--f-on-surface); }
 .cvv__item p { color: var(--f-muted); font-size: 17px; }
 
 /* ══ 4 · La experiencia ═════════════════════════════════════════ */
+
+/* Lo que construyo con IA: titular y una línea de contexto al lado */
+.cvai__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: end;
+  gap: 16px var(--f-gap);
+}
+.cvai__lede { max-width: 42ch; color: var(--f-muted); font-size: 18px; line-height: 1.45; }
+@media (max-width: 900px) { .cvai__head { grid-template-columns: 1fr; } }
 .cvx { display: grid; gap: clamp(28px, 4vw, 48px); padding-block: var(--f-sec); }
 
 .cvn__list {
@@ -1040,7 +1058,8 @@ html.cv-js .cve .cve__list { --edu: 0; }
 }
 
 /* Reseñas de Google (el mismo componente que la home), con el aire del CV */
-.cv__reviews { padding-bottom: var(--f-sec); }
+.cv__reviews { padding-bottom: 0; }
+.cv__reviews + .cvx { padding-top: clamp(40px, 5vw, 80px); }
 
 /* ── Reproductor ─────────────────────────────────────────────── */
 .cvplayer {
@@ -1094,7 +1113,7 @@ html.cv-js .cve .cve__list { --edu: 0; }
   }
   .cvh__space { order: -1; width: min(56vw, 34svh * 0.8); }
   .cvh__claim { font-size: 24px; }
-  .cvh__summary { font-size: 16px; }
+  .cvh__summary, .cvh__all { font-size: 16px; }
   .cvh__text { gap: 10px; }
   .cvindex { display: none; }
   .cvh__hint { bottom: 150px; }
