@@ -47,12 +47,18 @@ import { process, processHead } from '../../data/copy';
       let reached = -1;
 
       // La raya roja baja hasta el centro del último nodo encendido
+      // Se mide con la maquetación (offsetTop), no con lo que se ve: las filas entran girando en
+      // 3D y medir en pantalla hacía que la raya diera saltos
       const measure = () => {
         const node = steps[reached]?.querySelector<HTMLElement>('.fstep__node');
         if (!node) return;
-        const box = node.getBoundingClientRect();
-        const origin = list.getBoundingClientRect();
-        list.style.setProperty('--reach-y', `${box.top + box.height / 2 - origin.top}px`);
+        let y = node.offsetHeight / 2;
+        let el: HTMLElement | null = node;
+        while (el && el !== list) {
+          y += el.offsetTop;
+          el = el.offsetParent as HTMLElement | null;
+        }
+        list.style.setProperty('--reach-y', `${y}px`);
       };
 
       // Solo avanza: lo que se ha encendido, se queda encendido
@@ -65,8 +71,6 @@ import { process, processHead } from '../../data/copy';
 
       list.classList.add('is-armed');
       addEventListener('resize', measure);
-      // Las filas entran en 3D: se vuelve a medir cuando se asientan
-      addEventListener('scroll', () => requestAnimationFrame(measure), { passive: true });
 
       const io = new IntersectionObserver(
         (entries) => entries.forEach((e) => e.isIntersecting && light(steps.indexOf(e.target as HTMLElement))),
@@ -102,9 +106,11 @@ import { process, processHead } from '../../data/copy';
   .fsteps__list::after {
     content: '';
     position: absolute;
+    z-index: 0;
     top: 0;
     left: 13px;
     width: 1px;
+    pointer-events: none;
   }
 
   .fsteps__list::before { bottom: 0; background: var(--f-line-strong); }
@@ -117,8 +123,10 @@ import { process, processHead } from '../../data/copy';
 
   .fsteps__list:not(.is-armed)::after { display: none; }
 
+  /* Cada fila va por encima de la raya: los nodos la tapan (las filas son capas propias por el 3D) */
   .fstep {
     position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: minmax(120px, 0.5fr) minmax(0, 1.2fr) minmax(0, 1.3fr);
     align-items: baseline;
