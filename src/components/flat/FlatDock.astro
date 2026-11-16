@@ -6,7 +6,6 @@
  *
  * En la home aparece cuando la barra de la apertura se va (la clase .is-docked la pone home.ts);
  * en el resto de páginas está siempre (`docked`), con un botón al inicio con el isotipo.
- * A la izquierda, en escritorio, el contador de scroll «(00)».
  */
 interface Props {
   docked?: boolean;
@@ -38,4 +37,3 @@ const current = (href: string) => (path === href ? ('page' as const) : undefined
   </header>
 </div>
 
-<p class="fprogress" aria-hidden="true" data-progress>(00)</p>
