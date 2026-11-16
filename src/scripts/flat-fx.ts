@@ -12,11 +12,10 @@ const root = document.documentElement;
 async function start() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const [{ default: gsap }, { ScrollTrigger }, { default: Lenis }, { grainReveal }] = await Promise.all([
+  const [{ default: gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([
     import('gsap'),
     import('gsap/ScrollTrigger'),
     import('lenis'),
-    import('./grain'),
   ]);
   gsap.registerPlugin(ScrollTrigger);
   root.classList.add('fx-ready');
@@ -63,27 +62,13 @@ async function start() {
       gsap.to(heroPic, { scale: 1.16, duration: 16, ease: 'sine.inOut', yoyo: true, repeat: -1 });
     }
 
-    // ── Grano del CV: las fotos marcadas con data-grain se forman grano a grano al llegar ──
-    $$<HTMLElement>('[data-grain]').forEach((host) => {
-      const grain = grainReveal(host, host.dataset.grain!);
-      host.classList.add('has-grain');
-      ScrollTrigger.addEventListener('refresh', grain.size);
-      const state = { p: 0 };
-      gsap.to(state, {
-        p: 1,
-        ease: 'none',
-        onUpdate: () => grain.set(state.p),
-        onComplete: () => host.classList.add('is-grain-done'),
-        onReverseComplete: () => host.classList.remove('is-grain-done'),
-        scrollTrigger: {
-          trigger: host,
-          start: 'top 85%',
-          end: 'top 30%',
-          scrub: true,
-          onLeaveBack: () => host.classList.remove('is-grain-done'),
-          onLeave: () => host.classList.add('is-grain-done'),
-        },
-      });
+    // ── Fotos que suben con desenfoque, como la del hero (p. ej. el retrato de Jesús) ──
+    $$<HTMLElement>('[data-rise]').forEach((el) => {
+      gsap.fromTo(
+        el,
+        { yPercent: 16, opacity: 0, filter: 'blur(20px)' },
+        { yPercent: 0, opacity: 1, filter: 'blur(0px)', ease: 'power1.out', scrollTrigger: { trigger: el, start: 'top 98%', end: 'top 45%', scrub: true } },
+      );
     });
 
     // ── Las luces se apagan (como en el CV): mientras el trabajo o el pie están a la vista,

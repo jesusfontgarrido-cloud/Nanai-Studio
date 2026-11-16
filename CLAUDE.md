@@ -32,8 +32,9 @@ anterior), movimiento en `src/scripts/flat-fx.ts` (todas las páginas) y `src/sc
 - **Zoom** en las imágenes al hacer scroll (`[data-zoom]`, piezas de trabajo y fotos).
 - **Trabajos:** rueda de categorías del CV (FlatCats), fija a la izquierda en escritorio y fila de
   botones en móvil, solo en el tramo de trabajos. Ficha de cada pieza a la vista.
-- **Grano de película del CV en toda la web** (capa viva `.flat::after`, igual que `.cv::after`) y grano
-  que forma los retratos (`data-grain`). Índice lateral (FlatIndex) en escritorio.
+- **Grano de película del CV en toda la web** (capa viva `.flat::after`, igual que `.cv::after`). El
+  retrato de Jesús ya no se forma con grano (no gustó): sube con desenfoque como el hero (`data-rise`).
+  Índice lateral (FlatIndex) en escritorio.
 - **Más impacto (16-11):** titulares de sección palabra a palabra al ritmo del scroll (flat-fx.ts,
   sustituye a `data-reveal="lines"`), banda cinética de texto gigante (FlatBand) y logo del pie que sube.
 - Títulos nuevos: «Lo que nos preguntan antes de empezar.» y «Cuéntanos qué tienes en mente.».

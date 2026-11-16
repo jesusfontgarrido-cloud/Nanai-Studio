@@ -7,7 +7,7 @@
  * (la idea ya está en la home; repetirla aquí sobraba).
  * Va sin cápsula: respira directo sobre el negro.
  */
-import { Picture, getImage } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import portrait from '../../assets/media/jesus-font-4x5.jpg';
 import FlatEm from './FlatEm.astro';
 import { idea, manifesto, studio } from '../../data/copy';
@@ -20,14 +20,12 @@ interface Props {
 
 const { num = '03', variant = 'teaser' } = Astro.props;
 const full = variant === 'full';
-// El retrato se forma con grano al llegar (como en el CV): versión mediana para el lienzo
-const grainSrc = (await getImage({ src: portrait, format: 'webp', width: 900 })).src;
 ---
 
 <section id="la-idea" class="sec" aria-labelledby="manifesto-title">
   <div class="wrap fmanifesto">
     <div class:list={['fmanifesto__grid', { 'fmanifesto__grid--teaser': !full }]}>
-      <figure class="fmanifesto__portrait bw" data-grain={grainSrc}>
+      <figure class="fmanifesto__portrait bw" data-rise>
         <Picture
           src={portrait}
           formats={['avif', 'webp']}
