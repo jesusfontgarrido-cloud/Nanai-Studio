@@ -1,0 +1,28 @@
+---
+/**
+ * Rueda de categorías de /trabajos (16-11-2026), la de los trabajos del CV de /jesus-font:
+ * la categoría que estás viendo crece y las demás casi desaparecen. En escritorio va fija a la
+ * izquierda; en móvil, como fila de botones bajo la barra de arriba. Solo se ve mientras
+ * recorres los trabajos (flat-fx.ts pone .in-works y marca la activa). Pulsar lleva a la sección.
+ */
+interface Props {
+  items: { id: string; label: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="fcats" aria-label="Tipos de trabajo" data-cats>
+  <ol class="fcats__list" role="list">
+    {
+      items.map((item, i) => (
+        <li>
+          <a href={`#${item.id}`} data-cat-link={item.id}>
+            <span class="fcats__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="fcats__name">{item.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>

@@ -4,6 +4,37 @@ Web de Nanai Studio, productora audiovisual creativa de Sevilla, dirigida por Je
 Todo el contenido visible va en español. El código (variables, clases, commits) en inglés.
 El criterio visual sale de la skill `estilo-nanai` (rúbrica de la sección 8).
 
+## Lenguaje del CV (15/16-11-2026, rama claude/web-estilo-cv) — MANDA SOBRE LO DE ABAJO
+
+**El CV de Jesús (/jesus-font) es la base de cómo deben ser sus webs**, con el ritmo de
+lukebaffait.fr como inspiración (nunca copia): la página es un solo escenario que avanza con el
+scroll. Estilos en `src/styles/cv-skin.css` (tras flat.css; quitar el import devuelve la piel
+anterior), movimiento en `src/scripts/flat-fx.ts` (todas las páginas) y `src/scripts/home.ts`.
+- **Apertura (NanaiStage, home):** el logo oficial (SVG partido en trazos) se monta letra a letra y,
+  debajo, la foto del rodaje es una tarjeta que se forma con el **grano del CV** al cargar
+  (`src/scripts/grain.ts`, no atado al scroll). Al bajar (tramo fijado corto, +110 %), la tarjeta hace
+  **zoom** hasta la pantalla completa, con contrazoom dentro, y el logo sube y se desenfoca; al final
+  entran el logo pequeño, la etiqueta, el claim y los botones. (El recorte entre las mitades del logo
+  se descartó el 16-11: transición rara que rompía el scroll.) Ojo: el hook es `data-stage-card`;
+  `data-card` es de las piezas de trabajo.
+- **Barra (FlatDock):** al entrar, abajo e integrada (Trabajos · Sobre nosotros · ● Abierto a
+  nuevos proyectos · ● Hablemos); al bajar sube y se queda fija como botones, con desenfoque
+  gaussiano en degradado debajo (tres capas de backdrop-filter con máscara). Sin Inicio; en las
+  demás páginas, botón con el isotipo para volver. Contador «(00)» a la izquierda en escritorio.
+- **Fondo que cambia sin bandas:** las secciones de sala heredan los colores de la página y es la
+  página la que se apaga (`.flat.is-dark`) con el trabajo y con el pie. Sin cápsulas.
+- **Cómo trabajamos (FlatAbout):** como «Más de 6 años» del CV: titular enorme con fotogramas y
+  fotos que llegan desde el fondo y flotan.
+- **Qué hacemos (FlatServices), con protagonismo:** «Vídeo, foto, webs e IA.» enorme y, debajo, los
+  cuatro nombres gigantes fijos a la izquierda como rueda; a la derecha cada frente con su imagen real
+  (la web de Nanai Weddings para Webs) haciendo zoom, su texto y lo que incluye.
+- **Proceso (FlatSteps) en vertical**, filas como «Dónde he trabajado» del CV que se marcan al bajar.
+- **Zoom** en las imágenes al hacer scroll (`[data-zoom]`, piezas de trabajo y fotos).
+- **Trabajos:** rueda de categorías del CV (FlatCats), fija a la izquierda en escritorio y fila de
+  botones en móvil, solo en el tramo de trabajos. Ficha de cada pieza a la vista.
+- **Grano** también en los retratos (`data-grain`). Índice lateral (FlatIndex) en escritorio.
+- Títulos nuevos: «Lo que nos preguntan antes de empezar.» y «Cuéntanos qué tienes en mente.».
+
 ## Dirección visual: editorial limpia (1-10-2026, tercera vuelta)
 
 **Entre un guion y una revista.** Papel blanco con un punto de gris (`#F4F4F1`) y grano fino

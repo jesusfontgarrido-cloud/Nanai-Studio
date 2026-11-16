@@ -1,0 +1,23 @@
+---
+/**
+ * Índice lateral de secciones, el del CV de /jesus-font (15-11-2026): una raya por sección en
+ * el borde derecho; la activa crece y enseña su nombre. Solo en escritorio con ratón: en móvil
+ * y en táctil sobra (la página se recorre con el dedo). La sección activa la marca flat-fx.ts.
+ */
+interface Props {
+  items: { id: string; label: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="findex" aria-label="Secciones de la página" data-findex>
+  {
+    items.map((item) => (
+      <a href={`#${item.id}`} data-findex-link={item.id}>
+        <span class="findex__label">{item.label}</span>
+        <span class="findex__bar" aria-hidden="true" />
+      </a>
+    ))
+  }
+</nav>

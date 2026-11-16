@@ -1,0 +1,138 @@
+---
+/**
+ * Apertura y hero de la home (16-11-2026): la de Jesús Font es la base, con el ritmo de
+ * lukebaffait.fr como inspiración (nada copiado).
+ *
+ *  1. Al entrar, el logo de Nanai se monta letra a letra sobre el papel; abajo, la barra
+ *     integrada (Trabajos · Sobre nosotros · ● Abierto a nuevos proyectos · ● Hablemos).
+ *  2. Debajo del logo, la foto del rodaje es una tarjeta que se forma con el grano del CV al
+ *     cargar. Al bajar, la tarjeta hace zoom hasta llenar la pantalla (con contrazoom dentro) y
+ *     el logo sube y se desenfoca. La barra sube y se queda arriba (FlatDock). (16-11-2026: el
+ *     recorte que crecía entre las mitades del logo se sustituyó por este zoom, más limpio.)
+ *  3. Con la foto entera, el logo pequeño, «Productora creativa en Sevilla», el claim y los
+ *     botones entran enfocándose.
+ *
+ * Sin JS o con movimiento reducido: la foto a sangre con todo el texto encima, quieta (como el
+ * hero anterior). El movimiento vive en src/scripts/home.ts.
+ */
+import { getImage } from 'astro:assets';
+import heroImage from '../../assets/media/bts/fama-rodaje-mustang.jpg';
+import feeling from '../../assets/media/bts/fama-retrato-rojo.jpg';
+import tradersPoster from '../../assets/media/traders-poster.jpg';
+import logoRaw from '../../assets/brand/logo-horizontal.svg?raw';
+import FlatSlideCta from './FlatSlideCta.astro';
+import { site } from '../../data/site';
+import { hero } from '../../data/copy';
+
+const feelingFrame = await getImage({ src: feeling, format: 'webp', width: 480, height: 240, fit: 'cover' });
+const workFrame = await getImage({ src: tradersPoster, format: 'webp', width: 400, height: 320, fit: 'cover' });
+
+/* La foto, con dirección de arte: en pantallas verticales va un recorte vertical propio. */
+const wide = [1024, 1440, 1920, 2560];
+const tall = [[900, 1600], [1260, 2240]];
+const set = async (format: 'avif' | 'webp') => ({
+  wide: (await Promise.all(wide.map((width) => getImage({ src: heroImage, format, width })))).map((img, i) => `${img.src} ${wide[i]}w`).join(', '),
+  tall: (await Promise.all(tall.map(([width, height]) => getImage({ src: heroImage, format, width, height, fit: 'cover' })))).map((img, i) => `${img.src} ${tall[i][0]}w`).join(', '),
+});
+const avif = await set('avif');
+const webp = await set('webp');
+const fallback = await getImage({ src: heroImage, format: 'jpg', width: 1920 });
+const portrait = '(max-aspect-ratio: 2/3)';
+const wideSizes = '(max-aspect-ratio: 3/2) 150vh, 100vw';
+
+/* El logo oficial, partido en sus trazos: 0–1 isotipo, 2–6 «Nanai», 7–12 «Studio». */
+const paths = [...logoRaw.matchAll(/<path d="([^"]+)" fill="([^"]+)"\/>/g)].map((m) => ({ d: m[1], red: m[2] !== '#0A0A0A' }));
+const left = paths.slice(0, 7);
+const right = paths.slice(7);
+---
+
+<section id="inicio" class="nstage" aria-label="Presentación" data-stage>
+  <div class="nstage__pin" data-stage-pin>
+    <!-- La foto: a sangre sin JS; con JS es una tarjeta bajo el logo que hace zoom hasta la pantalla completa -->
+    <div class="nstage__card" data-stage-card>
+    <div class="nstage__frame" data-frame>
+      <picture class="nstage__pic" data-pic>
+        <source media={portrait} type="image/avif" srcset={avif.tall} sizes="100vw" />
+        <source media={portrait} type="image/webp" srcset={webp.tall} sizes="100vw" />
+        <source type="image/avif" srcset={avif.wide} sizes={wideSizes} />
+        <source type="image/webp" srcset={webp.wide} sizes={wideSizes} />
+        <img
+          src={fallback.src}
+          width={heroImage.width}
+          height={heroImage.height}
+          alt="Rodaje del videoclip Fama de Maleante: un operador con gimbal graba a Ana Vas junto a un Mustang rojo, con el equipo alrededor"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+      <span class="nstage__shade" aria-hidden="true" data-shade></span>
+      <span class="nstage__fade" aria-hidden="true"></span>
+
+      <div class="wrap nstage__over" data-over>
+        <span class="nstage__mini" aria-hidden="true" data-mini>
+          <svg viewBox="0 0 476 61" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            {paths.map((p) => <path d={p.d} fill={p.red ? '#DE1212' : 'currentColor'} />)}
+          </svg>
+        </span>
+        <p class="label nstage__label" data-over-item>{hero.label}</p>
+        <h1 class="display nstage__title" data-over-item>
+          <span class="nstage__line">
+            Que se <span class="inframe inframe--pill" aria-hidden="true"><img src={feelingFrame.src} alt="" width="480" height="240" decoding="async" /></span>
+            <em class="accent">sienta</em>,
+          </span>
+          <span class="nstage__line">
+            y que <span class="inframe inframe--arch" aria-hidden="true"><img src={workFrame.src} alt="" width="400" height="320" decoding="async" /></span>
+            funcione
+          </span>
+        </h1>
+        <div class="nstage__actions" data-over-item>
+          <FlatSlideCta href="#trabajo" label="Ver trabajos" />
+          <FlatSlideCta href={site.whatsapp} label="WhatsApp" variant="outline" />
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- El logo grande de la apertura (solo con JS; el nombre real es el del logo pequeño) -->
+    <p class="nstage__logo" aria-hidden="true" data-logo>
+      <svg class="nstage__half nstage__half--left" viewBox="0 0 260 61" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false" data-half="left">
+        {left.map((p, i) => <path d={p.d} fill={p.red ? '#DE1212' : 'currentColor'} data-glyph={i < 2 ? 'iso' : 'letter'} data-red={p.red ? '' : undefined} />)}
+      </svg>
+      <svg class="nstage__half nstage__half--right" viewBox="274 0 202 61" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false" data-half="right">
+        {right.map((p) => <path d={p.d} fill="currentColor" data-glyph="letter" />)}
+      </svg>
+    </p>
+
+    <p class="label nstage__hint" aria-hidden="true" data-hint>Desliza</p>
+
+    <!-- La barra de la apertura: abajo, integrada; al bajar se va y aparece arriba (FlatDock) -->
+    <div class="nstage__bar" data-bar>
+      <nav class="nstage__links" aria-label="Principal">
+        <a class="fbtn" href="/trabajos">Trabajos</a>
+        <a class="fbtn" href="/sobre-nosotros">Sobre nosotros</a>
+      </nav>
+      <div class="nstage__side">
+        <p class="flive"><span class="flive__dot" aria-hidden="true"></span>Abierto a nuevos proyectos</p>
+        <a class="fbtn fbtn--talk" href="#contacto"><span class="flive__dot" aria-hidden="true"></span>Hablemos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  // Antes de pintar: con JS y sin movimiento reducido, la escena se prepara (logo grande, foto
+  // pequeña). Red de seguridad: si el módulo no llega en 4 s, todo se ve quieto.
+  (function () {
+    var root = document.documentElement;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.classList.add('stage-js');
+    setTimeout(function () {
+      if (!root.classList.contains('stage-ready')) root.classList.remove('stage-js');
+    }, 4000);
+  })();
+</script>
+
+<script>
+  import '../../scripts/home';
+</script>

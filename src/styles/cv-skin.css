@@ -1,0 +1,908 @@
+/* ═══════════════════════════════════════════════════════════════
+   cv-skin.css — la web de Nanai Studio con el lenguaje del CV de /jesus-font
+   (15-11-2026). Va DESPUÉS de flat.css en cada página; quitar el import
+   devuelve la web a la piel editorial con cápsulas.
+
+   Lo que trae del CV:
+   · Sin cápsulas: todo sobre el mismo papel, de margen a margen.
+   · Las luces se apagan: al llegar al trabajo (y al pie) la página entera
+     pasa a la sala de proyección (.flat.is-dark, lo pone flat-fx.ts).
+   · Navegación integrada, sin caja: logo, páginas y «● Hablemos» flotando,
+     e índice lateral de secciones (FlatIndex).
+   · Ficha de cada pieza bajo el vídeo (cliente, tipo, producción, formato),
+     sin esconderla detrás del ratón.
+   · Filas que entran en 3D y contacto a tamaño de portada.
+   Sin JS o con movimiento reducido, todo se ve quieto y completo.
+   ═══════════════════════════════════════════════════════════════ */
+
+.flat {
+  --cv-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  overflow-x: clip;
+  transition: background-color 700ms ease, color 700ms ease;
+}
+
+/* ── Las luces se apagan ─────────────────────────────────────── */
+.flat.is-dark {
+  --f-bg: #121212;
+  --f-surface: #121212;
+  --f-surface-2: #1C1C1B;
+  --f-surface-3: #282826;
+  --f-line: rgba(244, 244, 241, 0.14);
+  --f-line-strong: rgba(244, 244, 241, 0.34);
+  --f-on-surface: #F4F4F1;
+  --f-muted: #ADADA6;
+  --f-dim: #8E8E87;
+  --f-red-text: #F0473B;
+  background: #121212;
+  color: #F4F4F1;
+}
+
+.flat .sec { transition: background-color 700ms ease, color 700ms ease; }
+
+/* Fuera las cápsulas: las bandas van de margen a margen, sin esquinas */
+.flat .sec.tone-dark,
+.flat .sec.tone-red,
+.flat .sec.tone-bone {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* El hueso del proceso se funde con el papel (y con la sala cuando se apaga) */
+.flat .sec.tone-bone { background: transparent; --f-surface-3: var(--f-line-strong); }
+
+/* ── Navegación integrada, sin caja ──────────────────────────── */
+.flat .fnav .fnav__bar {
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--f-on-surface);
+  transition: color 700ms ease;
+}
+
+/* Sin velo, como en el CV: solo sobre la foto del hero lleva una sombra suave (más abajo) */
+.flat .fnav .fnav__bar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -40px;
+  z-index: -1;
+  opacity: 0;
+  background: linear-gradient(to bottom, rgba(10, 10, 9, 0.42), rgba(10, 10, 9, 0));
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+
+.flat .fnav .fnav__links a { color: var(--f-muted); }
+.flat .fnav .fnav__links a:hover,
+.flat .fnav .fnav__links a[aria-current='page'] { color: var(--f-on-surface); }
+.flat .fnav .fnav__idx { color: var(--f-dim); }
+
+/* «● Hablemos» como en el CV: punto de REC y texto, sin botón */
+.flat .fnav .fnav__cta {
+  padding-inline: 4px;
+  background: transparent;
+  color: var(--f-on-surface);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 700ms ease;
+}
+
+.flat .fnav .fnav__cta:hover { background: transparent; }
+.flat .fnav .fnav__dot { width: 8px; height: 8px; transition: transform 240ms var(--cv-ease); }
+.flat .fnav .fnav__cta:hover .fnav__dot { background: var(--f-red); transform: scale(1.6); }
+.flat .fnav .fnav__menu { color: var(--f-on-surface); }
+
+/* Logo negro en papel; claro en la sala y sobre la foto del hero */
+.flat .fnav .fnav__logo img { transition: filter 700ms ease; }
+.flat.is-dark .fnav .fnav__logo img,
+.flat.on-photo .fnav .fnav__logo img { filter: invert(1) brightness(1.1); }
+
+/* Sobre la foto del hero: texto claro y, en vez del velo de papel, una sombra suave arriba */
+.flat.on-photo .fnav .fnav__bar { color: #F4F4F1; }
+.flat.on-photo .fnav .fnav__bar::before { opacity: 1; }
+.flat.on-photo .fnav .fnav__links a,
+.flat.on-photo .fnav .fnav__idx { color: rgba(244, 244, 241, 0.78); }
+.flat.on-photo .fnav .fnav__links a:hover,
+.flat.on-photo .fnav .fnav__links a[aria-current='page'],
+.flat.on-photo .fnav .fnav__cta,
+.flat.on-photo .fnav .fnav__menu { color: #F4F4F1; }
+
+/* ── Índice lateral (FlatIndex) ──────────────────────────────── */
+.flat .findex {
+  position: fixed;
+  right: var(--f-gutter);
+  top: 50%;
+  z-index: 19;
+  display: none;
+  gap: 6px;
+  translate: 0 -50%;
+}
+
+@media (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  .flat .findex { display: grid; }
+}
+
+.flat .findex a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: 32px;
+  color: var(--f-on-surface);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 700ms ease;
+}
+
+.flat .findex__bar {
+  width: 2px;
+  height: 26px;
+  border-radius: 2px;
+  background: var(--f-line-strong);
+  transition: height 400ms var(--cv-ease), background-color 300ms ease;
+}
+
+.flat .findex__label {
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 250ms ease, transform 400ms var(--cv-ease);
+}
+
+.flat .findex a.is-active .findex__bar { height: 52px; background: var(--f-on-surface); }
+.flat .findex a.is-active .findex__label { opacity: 1; transform: none; }
+.flat .findex a:hover .findex__label { opacity: 0.7; transform: none; }
+.flat.on-photo .findex a { color: #F4F4F1; }
+.flat.on-photo .findex__bar { background: rgba(244, 244, 241, 0.45); }
+.flat.on-photo .findex a.is-active .findex__bar { background: #F4F4F1; }
+
+/* ── El trabajo: ficha de cada pieza, a la vista ─────────────── */
+.flat .fpiece__data {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px var(--f-gap);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--f-line);
+}
+
+@media (min-width: 700px) {
+  .flat .fpiece__data { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .flat .fwork__grid--3 .fpiece__data { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.flat .fpiece__data div { display: grid; gap: 4px; align-content: start; }
+
+.flat .fpiece__data dt {
+  color: var(--f-dim);
+  font-family: var(--font-type);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.flat .fpiece__data dd { margin: 0; font-size: 15px; line-height: 1.35; }
+
+/* Las fichas dejan de repetirse en el velo del vídeo: allí solo queda «Reproducir» */
+.flat .fpiece__info { display: none; }
+
+/* ── Contacto a tamaño de portada ────────────────────────────── */
+.flat .fcontact__head { padding-bottom: clamp(32px, 4vw, 64px); }
+
+.flat .fcontact__head .fcontact__title {
+  max-width: 14ch;
+  font-size: clamp(56px, 9vw, 160px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+
+/* Corte seco al encender las luces (lo pone flat-fx.ts un instante) */
+.flat.is-snap,
+.flat.is-snap .sec,
+.flat.is-snap .fnav .fnav__bar { transition: none; }
+
+/* ── 3D: lo que entra con el scroll (solo con flat-fx activo) ── */
+/* GSAP manda en estas piezas: fuera la transición de la entrada escalonada de flat.css */
+html.fx-ready .flat [data-stagger] > [data-row],
+html.fx-ready .flat [data-stagger] > [data-card] { transition: none; }
+html.fx-ready .flat [data-row] { transform-style: preserve-3d; }
+html.fx-ready .flat .ffaq__list,
+html.fx-ready .flat .fwork__grid { perspective: 1200px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flat,
+  .flat .sec,
+  .flat .fnav .fnav__bar,
+  .flat .findex a { transition: none; }
+}
+
+/* ── Móvil: la barra lleva fondo (en pantalla estrecha el texto pasaría por debajo y se pisaría).
+   Sigue el color de la página: papel, o la sala cuando se apagan las luces. «Menú» sin caja. ── */
+@media (max-width: 899px) {
+  .flat .fnav .fnav__bar {
+    background: color-mix(in srgb, var(--f-bg) 94%, transparent);
+    transition: color 700ms ease, background-color 700ms ease;
+  }
+  .flat.on-photo .fnav .fnav__bar { background: transparent; }
+}
+
+.flat .fnav .fnav__menu {
+  border-color: transparent;
+  background: transparent;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   16-11-2026 · La web como el CV, con el ritmo de lukebaffait.fr
+   (escena de apertura, barra que sube con desenfoque, grano, fondo
+   que cambia sin bandas). La base es el CV de /jesus-font.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Fondo que cambia sin bandas: las secciones «de sala» ya no pintan su propio negro;
+   heredan los colores de la página, que es la que se apaga (flat-fx.ts). Sin JS siguen
+   siendo negras por sí mismas. ── */
+html.fx-ready .flat .sec.tone-dark {
+  --f-bg: inherit;
+  --f-surface: inherit;
+  --f-surface-2: inherit;
+  --f-surface-3: inherit;
+  --f-line: inherit;
+  --f-line-strong: inherit;
+  --f-on-surface: inherit;
+  --f-muted: inherit;
+  --f-dim: inherit;
+  --f-inverse: inherit;
+  --f-on-inverse: inherit;
+  --f-red-text: inherit;
+  background: transparent;
+  color: inherit;
+}
+
+/* ── Botones de la barra (siempre a mano) ─────────────────────── */
+.flat .fbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--f-line-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--f-bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--f-on-surface);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease, transform 160ms ease-out;
+}
+
+.flat .fbtn:active { transform: scale(0.97); }
+.flat .fbtn[aria-current='page'] { border-color: var(--f-on-surface); }
+
+@media (hover: hover) and (pointer: fine) {
+  .flat .fbtn:hover { background: var(--f-on-surface); color: var(--f-bg); border-color: var(--f-on-surface); }
+}
+
+.flat .fbtn--talk { background: var(--f-on-surface); color: var(--f-bg); border-color: var(--f-on-surface); text-transform: uppercase; letter-spacing: 0.04em; }
+@media (hover: hover) and (pointer: fine) {
+  .flat .fbtn--talk:hover { background: var(--f-red); border-color: var(--f-red); color: #FFFFFF; }
+}
+
+.flat .fbtn--home { padding: 0 11px; }
+.flat .fbtn--home img { width: 20px; height: 20px; }
+.flat .fbtn__iso--light { display: none; }
+.flat.is-dark .fbtn__iso--ink,
+.flat.on-photo .fbtn__iso--ink { display: none; }
+.flat.is-dark .fbtn__iso--light,
+.flat.on-photo .fbtn__iso--light { display: block; }
+
+/* «● Abierto a nuevos proyectos»: la lectura de cámara del CV */
+.flat .flive {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0;
+  color: var(--f-on-surface);
+  font-family: var(--font-type);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flat .flive__dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--f-red);
+  box-shadow: 0 0 0 3px rgba(217, 41, 28, 0.28);
+  animation: flive-rec 1.4s steps(1) infinite;
+}
+
+.flat .fbtn--talk .flive__dot { width: 7px; height: 7px; box-shadow: none; }
+
+@keyframes flive-rec {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.25; }
+}
+
+/* ── La barra de arriba (FlatDock) ────────────────────────────── */
+.flat .fdock {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  opacity: 0;
+  transform: translateY(-110%);
+  pointer-events: none;
+  transition: transform 520ms var(--cv-ease), opacity 320ms ease;
+}
+
+.flat.is-docked .fdock,
+.flat .fdock--always {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Desenfoque gaussiano en degradado: tres capas, más desenfoque arriba, nada abajo */
+.flat .fdock__blur {
+  position: absolute;
+  inset: 0 0 -46px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--f-bg) 50%, transparent), transparent);
+  transition: background 700ms ease;
+}
+
+.flat .fdock__blur span { position: absolute; inset: 0; }
+.flat .fdock__blur span:nth-child(1) {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+.flat .fdock__blur span:nth-child(2) {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 75%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 75%);
+}
+.flat .fdock__blur span:nth-child(3) {
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 50%);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 50%);
+}
+
+.flat .fdock__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) var(--f-gutter) 14px;
+}
+
+.flat .fdock__links,
+.flat .fdock__side { display: flex; align-items: center; gap: 8px; }
+.flat .fdock__side { gap: 18px; }
+
+/* Sobre la foto del hero: botones oscuros translúcidos y texto claro */
+.flat.on-photo .fdock__blur { background: linear-gradient(to bottom, rgba(10, 10, 9, 0.35), transparent); }
+.flat.on-photo .fdock .fbtn:not(.fbtn--talk) { border-color: rgba(244, 244, 241, 0.4); background: rgba(14, 14, 13, 0.32); color: #F4F4F1; }
+.flat.on-photo .fdock .fbtn--talk { background: #F4F4F1; border-color: #F4F4F1; color: #151514; }
+.flat.on-photo .fdock .flive { color: #F4F4F1; }
+
+@media (max-width: 719px) {
+  .flat .fdock__live { display: none; }
+  .flat .fbtn { min-height: 38px; padding: 0 12px; font-size: 13px; }
+  .flat .fdock__links { gap: 6px; }
+}
+
+/* Contador de scroll «(00)» */
+.flat .fprogress {
+  position: fixed;
+  left: var(--f-gutter);
+  top: 50%;
+  z-index: 19;
+  display: none;
+  margin: 0;
+  translate: 0 -50%;
+  color: var(--f-dim);
+  font-family: var(--font-type);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: color 700ms ease;
+}
+
+@media (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  .flat .fprogress { display: block; }
+}
+
+.flat.on-photo .fprogress { color: rgba(244, 244, 241, 0.7); }
+
+/* ── La escena de la apertura (NanaiStage) ────────────────────── */
+.flat .nstage { position: relative; }
+
+.flat .nstage__pin {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--f-bg);
+}
+
+.flat .nstage__card { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
+
+.flat .nstage__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--f-surface-2);
+}
+
+/* Con la escena, bordes fundidos en degradado que se abren al hacer zoom (lo anima home.ts) */
+html.stage-js .flat .nstage__frame {
+  --feather-a: 100%;
+  --feather-b: 150%;
+  background: transparent;
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 var(--feather-a), transparent var(--feather-b));
+  mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 var(--feather-a), transparent var(--feather-b));
+}
+
+.flat .nstage__pic { position: absolute; inset: 0; display: block; transform-origin: 50% 45%; }
+.flat .nstage__pic img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+
+.flat .nstage__grain { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+
+.flat .nstage__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(60% 50% at 50% 50%, rgba(12, 12, 11, 0.62), rgba(12, 12, 11, 0.3) 62%, rgba(12, 12, 11, 0)),
+    linear-gradient(rgba(12, 12, 11, 0.08), rgba(12, 12, 11, 0.08));
+  pointer-events: none;
+}
+
+.flat .nstage__fade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(to bottom, transparent 82%, color-mix(in srgb, var(--f-bg) 75%, transparent) 93%, var(--f-bg) 100%);
+  pointer-events: none;
+}
+
+.flat .nstage__over {
+  --f-on-surface: #F4F4F1;
+  --f-line-strong: rgba(244, 244, 241, 0.6);
+  --f-inverse: #F4F4F1;
+  --f-on-inverse: #151514;
+  --f-surface-3: rgba(244, 244, 241, 0.2);
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  height: 100%;
+  padding-top: 72px;
+  padding-bottom: clamp(70px, 12vh, 130px);
+  color: var(--f-on-surface);
+  text-align: center;
+  text-shadow: 0 1px 28px rgba(12, 12, 11, 0.28);
+}
+
+.flat .nstage__mini { display: block; width: clamp(130px, 13vw, 210px); color: #F4F4F1; }
+.flat .nstage__mini svg { display: block; width: 100%; height: auto; }
+.flat .nstage__label { margin: 0; color: var(--f-on-surface); }
+.flat .nstage__title { margin: 0; font-size: clamp(44px, 8vw, 140px); color: var(--f-on-surface); }
+.flat .nstage__title .accent { color: inherit; }
+.flat .nstage__title .inframe { box-shadow: 0 0 0 2px rgba(244, 244, 241, 0.9); }
+.flat .nstage__line { display: block; }
+.flat .nstage__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; }
+
+/* El logo grande (solo con la escena) */
+.flat .nstage__logo {
+  --h: clamp(46px, 9.4vw, 158px);
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--h) * 14 / 61);
+  margin: 0;
+  color: var(--f-on-surface);
+  pointer-events: none;
+}
+
+.flat .nstage__half { display: block; height: var(--h); overflow: hidden; }
+.flat .nstage__half--left { width: calc(var(--h) * 260 / 61); }
+.flat .nstage__half--right { width: calc(var(--h) * 202 / 61); }
+
+.flat .nstage__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(92px, 14vh, 130px);
+  z-index: 4;
+  display: none;
+  margin: 0;
+  translate: -50% 0;
+  color: var(--f-dim);
+}
+
+/* La barra de la apertura: abajo, integrada en la página, con un filete */
+.flat .nstage__bar {
+  position: absolute;
+  left: var(--f-gutter);
+  right: var(--f-gutter);
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--f-line);
+}
+
+.flat .nstage__links,
+.flat .nstage__side { display: flex; align-items: center; gap: 8px; }
+.flat .nstage__side { gap: 18px; }
+
+/* Sin escena (sin JS o con movimiento reducido): la barra va sobre la foto, en claro */
+html:not(.stage-js) .flat .nstage__bar { border-top-color: rgba(244, 244, 241, 0.3); }
+html:not(.stage-js) .flat .nstage__bar .fbtn:not(.fbtn--talk) { border-color: rgba(244, 244, 241, 0.4); background: rgba(14, 14, 13, 0.32); color: #F4F4F1; }
+html:not(.stage-js) .flat .nstage__bar .fbtn--talk { background: #F4F4F1; border-color: #F4F4F1; color: #151514; }
+html:not(.stage-js) .flat .nstage__bar .flive { color: #F4F4F1; }
+
+/* Con escena: logo grande y pista visibles; la foto empieza cerrada; nada parpadea antes de tiempo */
+html.stage-js .flat .nstage__logo { display: flex; }
+html.stage-js .flat .nstage__card { opacity: 0; }
+html.stage-js .flat [data-mini],
+html.stage-js .flat [data-over-item] { opacity: 0; }
+html.stage-js:not(.stage-ready) .flat .nstage__logo,
+html.stage-js:not(.stage-ready) .flat .nstage__bar,
+html.stage-js:not(.stage-ready) .flat .nstage__hint { opacity: 0; }
+
+@media (max-width: 719px) {
+  .flat .nstage__side .flive { display: none; }
+  .flat .nstage__title { font-size: clamp(42px, 12vw, 64px); }
+  .flat .nstage__pic img { object-position: 50% 40%; }
+  .flat .nstage__shade {
+    background:
+      radial-gradient(ellipse 95% 42% at 50% 47%, rgba(12, 12, 11, 0.64), rgba(12, 12, 11, 0.3) 70%, rgba(12, 12, 11, 0) 100%),
+      linear-gradient(rgba(12, 12, 11, 0.16), rgba(12, 12, 11, 0.16));
+  }
+}
+
+/* ── Grano en fotos sueltas (data-grain, p. ej. el retrato de La idea) ── */
+.flat [data-grain] { position: relative; overflow: hidden; }
+.flat [data-grain] > .fgrain { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; pointer-events: none; }
+.flat .has-grain picture,
+.flat .has-grain > img { opacity: 0; transition: opacity 300ms ease; }
+.flat .has-grain.is-grain-done picture,
+.flat .has-grain.is-grain-done > img { opacity: 1; }
+.flat .has-grain.is-grain-done > .fgrain { opacity: 0; }
+/* Mientras se forma, en blanco y negro como la foto final */
+.flat .bw.has-grain:not(.is-grain-done) { filter: grayscale(1); }
+
+/* ── Cómo trabajamos (FlatAbout), como «Más de 6 años» del CV ── */
+.flat .fabout { padding-block: var(--f-sec); }
+
+.flat .fabout__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  min-height: 62svh;
+  padding-block: clamp(24px, 4vw, 56px);
+  padding-inline: var(--f-gutter);
+  perspective: 1200px;
+}
+
+.flat .fabout__label { position: relative; z-index: 1; margin: 0; color: var(--f-muted); }
+
+.flat .fabout__title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(50px, 10vw, 200px);
+  font-weight: 640;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-align: center;
+}
+
+.flat .fabout__line { display: block; white-space: nowrap; }
+.flat .fabout__inframe { box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.6); }
+
+.flat .fabout__sub {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: var(--f-muted);
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.4vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.flat .fabout__float { position: absolute; margin: 0; overflow: visible; transform-style: preserve-3d; will-change: transform, opacity; }
+.flat .fabout__float img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
+.flat .fabout__bob { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: inherit; box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.65); }
+.flat .fabout__float--arch { aspect-ratio: 3 / 4; border-radius: 999px 999px var(--f-r-media) var(--f-r-media); }
+.flat .fabout__float--tilt { aspect-ratio: 4 / 3; border-radius: var(--f-r-media); rotate: -8deg; }
+.flat .fabout__float--circle { aspect-ratio: 1; border-radius: 50%; }
+.flat .fabout__float--square { aspect-ratio: 1; border-radius: var(--f-r-media); rotate: 6deg; }
+
+.flat .fabout__body { display: grid; gap: clamp(36px, 5vw, 64px); margin-top: clamp(24px, 4vw, 48px); }
+.flat .fabout__deck { max-width: 46ch; margin-inline: auto; color: var(--f-muted); text-align: center; }
+
+/* Los cuatro frentes en 2 filas de 2 (16-11-2026: más presencia que la fila de 4) */
+.flat .fabout__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(36px, 4vw, 64px) clamp(24px, 4vw, 72px);
+  max-width: 1180px;
+  width: 100%;
+  margin-inline: auto;
+  perspective: 1200px;
+}
+
+.flat .fabout__item .h3 { font-size: clamp(28px, 2.8vw, 44px); letter-spacing: -0.03em; }
+
+.flat .fabout__item {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 3px solid var(--c, var(--f-on-surface));
+}
+
+.flat .fabout__item p { max-width: 46ch; color: var(--f-muted); font-size: clamp(17px, 1.3vw, 19px); }
+
+@media (max-width: 899px) {
+  .flat .fabout__float { display: none; }
+  .flat .fabout__stage { min-height: 0; }
+}
+
+@media (max-width: 559px) {
+  .flat .fabout__grid { grid-template-columns: 1fr; }
+  .flat .fabout__title { font-size: clamp(44px, 13vw, 70px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flat .fdock,
+  .flat .fbtn { transition: none; }
+  .flat .flive__dot { animation: none; }
+}
+
+/* ── Rueda de categorías de /trabajos (FlatCats), la del CV ───── */
+.flat .fcats {
+  position: fixed;
+  z-index: 25;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease, transform 500ms var(--cv-ease);
+}
+
+.flat.in-works .fcats { opacity: 1; pointer-events: auto; }
+
+.flat .fcats__list { display: flex; margin: 0; padding: 0; list-style: none; }
+
+.flat .fcats a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--f-on-surface);
+  text-decoration: none;
+  transition: color 700ms ease, opacity 400ms ease, transform 500ms var(--cv-ease), filter 400ms ease;
+}
+
+.flat .fcats__num { color: var(--f-dim); font-family: var(--font-type); font-size: 12px; transition: color 300ms ease; }
+.flat .fcats a.is-active .fcats__num { color: var(--f-red-text); }
+
+/* Escritorio con ratón: columna fija a la izquierda; la activa crece, las demás casi desaparecen */
+@media (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  .flat .fcats {
+    left: var(--f-gutter);
+    top: 50%;
+    width: 210px;
+    transform: translate(-12px, -50%);
+  }
+
+  .flat.in-works .fcats { transform: translate(0, -50%); }
+
+  .flat .fcats__list { flex-direction: column; gap: 4px; }
+
+  .flat .fcats a {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 640;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    opacity: 0.22;
+    transform: scale(0.62);
+    transform-origin: 0% 50%;
+    filter: blur(1px);
+  }
+
+  .flat .fcats a.is-active { opacity: 1; transform: none; filter: none; }
+  .flat .fcats a:hover { opacity: 0.6; filter: none; }
+  .flat .fcats a.is-active:hover { opacity: 1; }
+
+  /* Los trabajos dejan sitio a la rueda */
+  .flat main.has-cats .fwork > .wrap,
+  .flat main.has-cats .fphotos-sec > .wrap,
+  .flat main.has-cats .fpage-sec > .wrap { padding-left: calc(var(--f-gutter) + 240px); }
+
+  /* Con la rueda, el contador de scroll sobra a la izquierda */
+  .flat.in-works .fprogress { opacity: 0; }
+}
+
+/* Móvil y táctil: fila de botones bajo la barra de arriba, desplazable */
+@media not ((min-width: 1100px) and (hover: hover) and (pointer: fine)) {
+  .flat .fcats {
+    left: 0;
+    right: 0;
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    transform: translateY(-8px);
+  }
+
+  .flat.in-works .fcats { transform: none; }
+
+  .flat .fcats__list {
+    gap: 6px;
+    padding: 0 var(--f-gutter) 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .flat .fcats__list::-webkit-scrollbar { display: none; }
+
+  .flat .fcats a {
+    min-height: 34px;
+    padding: 0 12px;
+    align-items: center;
+    border: 1px solid var(--f-line-strong);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--f-bg) 70%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .flat .fcats a.is-active { background: var(--f-on-surface); color: var(--f-bg); border-color: var(--f-on-surface); }
+  .flat .fcats a.is-active .fcats__num { color: inherit; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flat .fcats,
+  .flat .fcats a { transition: none; }
+}
+
+/* ── Qué hacemos (FlatServices): vídeo, foto, webs e IA con protagonismo ── */
+.flat .fserv { padding-block: var(--f-sec); }
+
+.flat .fserv__head { display: grid; gap: 14px; margin-bottom: clamp(48px, 8vw, 120px); }
+
+.flat .fserv__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(60px, 12.5vw, 240px);
+  font-weight: 640;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.flat .fserv__title > span { display: block; }
+.flat .fserv__title .accent { color: var(--f-red); }
+
+.flat .fserv__n {
+  display: inline-block;
+  margin-right: 0.5em;
+  color: var(--f-dim);
+  font-family: var(--font-type);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  vertical-align: super;
+}
+
+.flat .fserv__grid { display: grid; gap: clamp(48px, 6vw, 96px); }
+
+.flat .fserv__wheel { display: none; margin: 0; padding: 0; list-style: none; }
+
+.flat .fserv__items { display: grid; gap: clamp(72px, 12vh, 160px); }
+
+.flat .fserv__item { display: grid; align-content: center; gap: 20px; }
+
+.flat .fserv__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(40px, 10vw, 72px);
+  font-weight: 640;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.flat .fserv__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--f-surface-2);
+  box-shadow: 0 40px 80px -50px rgba(0, 0, 0, 0.55);
+}
+
+.flat .fserv__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.flat .fserv__text { max-width: 44ch; margin: 0; color: var(--f-muted); font-size: clamp(18px, 1.4vw, 21px); line-height: 1.5; }
+
+.flat .fserv__tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.flat .fserv__tags li {
+  padding: 7px 13px;
+  border: 1px solid var(--f-line-strong);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Escritorio: los nombres gigantes, fijos a la izquierda, como una rueda */
+@media (min-width: 1100px) {
+  .flat .fserv__grid { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: start; }
+
+  .flat .fserv__wheel {
+    position: sticky;
+    top: 24vh;
+    display: grid;
+    gap: 6px;
+  }
+
+  .flat .fserv__wheel li {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 5.2vw, 96px);
+    font-weight: 640;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    opacity: 0.14;
+    filter: blur(1.5px);
+    transform: scale(0.8);
+    transform-origin: 0% 50%;
+    transition: opacity 500ms ease, transform 600ms var(--cv-ease), filter 500ms ease, color 300ms ease;
+  }
+
+  .flat .fserv__wheel li.is-active { opacity: 1; filter: none; transform: none; }
+  .flat .fserv__wheel li.is-active .fserv__n { color: var(--f-red-text); }
+  .flat .fserv__wheel li.is-past { opacity: 0.08; }
+
+  .flat .fserv__name { display: none; }
+  .flat .fserv__item { min-height: 76vh; }
+}
+
+/* ── Zoom de las imágenes al hacer scroll (flat-fx.ts): la transición CSS de transform se quita
+   para que no arrastre el zoom (se mantiene la del filtro: el B/N que se enciende a color) ── */
+html.fx-ready .flat [data-zoom] img,
+html.fx-ready .flat .fpiece__media img,
+html.fx-ready .flat .fphotos__open img { transition-property: filter, opacity; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flat .fserv__wheel li { transition: none; }
+}

@@ -1,9 +1,10 @@
 ---
 /**
- * Preguntas. El plano rojo de la página: la única banda en rojo, a sangre. Las objeciones
+ * Preguntas. Desde el 15-11-2026 (lenguaje del CV) van en papel, como filas que entran en 3D;
+ * el plano rojo sigue disponible con tone="red". Las objeciones
  * (precio, idea cerrada, qué pasa después) se resuelven aquí, justo antes del contacto.
  */
-import type { Faq } from '../../data/copy';
+import { faqHead, type Faq } from '../../data/copy';
 
 interface Props {
   items: Faq[];
@@ -17,26 +18,26 @@ const faqLd = {
   '@type': 'FAQPage',
   mainEntity: Astro.props.items.map((item) => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })),
 };
-const { items, label = 'Preguntas', num = '05', tone = 'red' } = Astro.props;
+const { items, label = 'Preguntas', num = '05', tone = 'paper' } = Astro.props;
 ---
 
 <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
 
-<section class:list={['sec', tone === 'red' && 'tone-red']} aria-label={label}>
+<section id="preguntas" class:list={['sec', tone === 'red' && 'tone-red']} aria-label={label}>
   <div class="wrap">
 
     <div class="ffaq__grid">
       <div class="ffaq__head">
       <h2 class="h2 ffaq__title" data-reveal="lines">
-        <span>Antes de escribirnos,</span>
-        <span class="ffaq__title-2">quizá te preguntas…</span>
+        <span>{faqHead.title[0]}</span>
+        <span class="ffaq__title-2">{faqHead.title[1]}</span>
       </h2>
       </div>
 
       <div class="ffaq__list" data-stagger>
         {
           items.map((item) => (
-            <details class="ffaq__item">
+            <details class="ffaq__item" data-row>
               <summary class="ffaq__q">
                 <span>{item.q}</span>
                 <span class="ffaq__icon" aria-hidden="true" />

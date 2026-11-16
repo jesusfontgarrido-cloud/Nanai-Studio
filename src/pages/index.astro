@@ -6,12 +6,13 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/flat.css';
-import FlatOpener from '../components/flat/FlatOpener.astro';
+import '../styles/cv-skin.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
 import FlatFx from '../components/flat/FlatFx.astro';
-import FlatNav from '../components/flat/FlatNav.astro';
-import FlatHero from '../components/flat/FlatHero.astro';
-import FlatMethod from '../components/flat/FlatMethod.astro';
+import FlatDock from '../components/flat/FlatDock.astro';
+import FlatIndex from '../components/flat/FlatIndex.astro';
+import NanaiStage from '../components/flat/NanaiStage.astro';
+import FlatAbout from '../components/flat/FlatAbout.astro';
 import FlatSteps from '../components/flat/FlatSteps.astro';
 import FlatWork from '../components/flat/FlatWork.astro';
 import FlatManifesto from '../components/flat/FlatManifesto.astro';
@@ -25,18 +26,28 @@ import { featuredProjects } from '../data/work';
 
 <BaseLayout
   title="Nanai Studio | Productora audiovisual creativa en Sevilla: vídeo y fotografía"
-  description="Productora audiovisual creativa en Sevilla. Vídeo publicitario, branded content, videoclips y fotografía para marcas, artistas y creadores, con un método basado en datos para cumplir objetivos."
+  description="Productora creativa en Sevilla: vídeo publicitario, branded content, videoclips, fotografía y webs para marcas, artistas y creadores. Usamos datos e IA para que cada pieza cumpla su objetivo."
   path="/"
 >
   <div class="flat">
     <FlatMotion />
     <FlatFx />
-    <FlatOpener />
-    <FlatNav />
+    <FlatDock />
+    <FlatIndex
+      items={[
+        { id: 'inicio', label: 'Inicio' },
+        { id: 'metodo', label: 'Cómo trabajamos' },
+        { id: 'proceso', label: 'Proceso' },
+        { id: 'trabajo', label: 'Trabajo' },
+        { id: 'la-idea', label: 'La idea' },
+        { id: 'preguntas', label: 'Preguntas' },
+        { id: 'contacto', label: 'Contacto' },
+      ]}
+    />
 
     <main id="contenido">
-      <FlatHero />
-      <FlatMethod />
+      <NanaiStage />
+      <FlatAbout />
       <FlatSteps />
       <FlatWork projects={featuredProjects} title={featuredWork.title} deck={featuredWork.deck} more={{ href: '/trabajos', label: 'Ver todos los trabajos' }} />
       <FlatManifesto />

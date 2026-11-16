@@ -235,7 +235,11 @@ export interface Faq {
 export const homeFaq: Faq[] = [
   {
     q: '¿Qué es exactamente Nanai Studio?',
-    a: 'Una productora creativa que nace para llevar a la realidad las ideas de cada cliente, con un método que equilibra la calidad y el cumplimiento de objetivos. No buscamos solo que algo sea bonito: buscamos que tenga sentido y que rinda.',
+    a: 'Una productora creativa de Sevilla. Hacemos vídeo, fotografía y webs, y usamos la IA para que cada proceso sea más rápido. No buscamos solo que algo sea bonito: buscamos que tenga sentido y que rinda.',
+  },
+  {
+    q: '¿También hacéis webs y automatizaciones?',
+    a: 'Sí. Diseñamos y programamos webs (esta, por ejemplo) y creamos herramientas con IA que quitan trabajo manual: flujos de montaje, informes o apps a medida.',
   },
   {
     q: '¿Podríais trabajar conmigo?',
@@ -351,11 +355,11 @@ export const workFaq: Faq[] = [
     q: 'No veo nada que encaje con lo que quiero. ¿Podéis hacer algo distinto?',
     a: 'Sí. Si no lo ves aquí es porque todavía no nos lo han propuesto. En Nanai no nos da miedo plantarle cara a ningún proyecto.',
   },
-  homeFaq[1],
   homeFaq[2],
   homeFaq[3],
-  homeFaq[5],
+  homeFaq[4],
   homeFaq[6],
+  homeFaq[7],
 ];
 
 /** Contacto: el formulario pide lo justo para poder responder bien. */
@@ -384,4 +388,35 @@ export const contactOptions: { kind: ContactKind; value: string }[] = [
 export const defaultKind: Record<Audience, ContactKind> = {
   brands: 'brand',
   creators: 'artist',
+};
+
+/* ═══ Lenguaje del CV (16-11-2026) ═══════════════════════════════════════
+   Nanai se cuenta como el CV de Jesús: además de vídeo y foto, hace webs y usa la IA
+   para optimizar procesos (lo pidió Jesús el 15-11-2026). Nada inventado. */
+
+/** Hero: la definición funcional acompaña siempre al claim. */
+export const hero = {
+  label: 'Productora creativa en Sevilla · Vídeo, foto, webs e IA',
+};
+
+/** Cómo trabajamos, al estilo de «Más de 6 años» del CV: titular con fotogramas y cuatro frentes. */
+export const about = {
+  label: 'Cómo trabajamos',
+  deck: method.deck,
+  services: [
+    { title: 'Vídeo', text: 'Anuncios, branded content, videoclips y contenido para redes, de la idea al montaje.', tags: ['Anuncios y paid', 'Branded content', 'Videoclips', 'Redes y podcast'] },
+    { title: 'Fotografía', text: 'Campañas, producto, moda y retrato, con el mismo criterio que el vídeo.', tags: ['Producto y gastronomía', 'Moda y retrato', 'Campañas', 'Foto de rodaje'] },
+    { title: 'Webs', text: 'Diseñamos y programamos webs como esta: rápidas, claras y pensadas para que te escriban.', tags: ['Diseño', 'Desarrollo', 'SEO', 'Publicación'] },
+    { title: 'IA y automatización', text: 'Usamos la IA para optimizar procesos: flujos de montaje, informes y herramientas a medida que quitan trabajo manual.', tags: ['Flujos de montaje', 'Informes', 'Herramientas a medida', 'Vídeo con IA'] },
+  ],
+};
+
+/** Preguntas: titular nuevo (antes «Antes de escribirnos, quizá te preguntas…»). */
+export const faqHead = {
+  title: ['Lo que nos preguntan', 'antes de empezar.'] as const,
+};
+
+/** Contacto: titular nuevo a tamaño de portada (antes «¿Hablamos?»). */
+export const contactHead = {
+  title: ['Cuéntanos', 'qué tienes', 'en mente.'] as const,
 };

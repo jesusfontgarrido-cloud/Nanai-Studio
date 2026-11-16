@@ -69,7 +69,7 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
           const youtube = Boolean(project.youtubeId);
           const href = projectHref(project) ?? fallbackHref;
           return (
-            <li class="fpiece">
+            <li class="fpiece" data-card>
               <a
                 class="fpiece__link"
                 href={href}
@@ -116,6 +116,12 @@ const pieceName = (project: Project) => [project.client, project.title].filter(B
                 </span>
                 <span class="visually-hidden">(reproducir vídeo)</span>
               </a>
+              <!-- Ficha de la pieza, como en el CV: a la vista, no detrás del ratón -->
+              <dl class="fpiece__data">
+                <div><dt>Tipo</dt><dd>{project.type}</dd></div>
+                <div><dt>Producción</dt><dd>{project.role}</dd></div>
+                <div><dt>Formato</dt><dd>{project.format}</dd></div>
+              </dl>
             </li>
           );
         })

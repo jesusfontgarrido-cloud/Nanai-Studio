@@ -34,7 +34,7 @@ const wideSizes = '(max-aspect-ratio: 3/2) 150vh, 100vw';
 const workFrame = await getImage({ src: tradersPoster, format: 'webp', width: 400, height: 320, fit: 'cover' });
 ---
 
-<section class="fhero" aria-label="Presentación" data-hero>
+<section id="inicio" class="fhero" aria-label="Presentación" data-hero>
   <figure class="fhero__photo" data-reveal="focus">
     <picture>
       <source media={portrait} type="image/avif" srcset={avif.tall} sizes="100vw" />

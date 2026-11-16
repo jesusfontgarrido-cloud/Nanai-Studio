@@ -1,0 +1,63 @@
+---
+/**
+ * Cómo trabajamos (16-11-2026), con la forma de «Más de 6 años de experiencia» del CV:
+ * un titular enorme con fotogramas incrustados, fotos de rodaje que llegan desde el fondo y
+ * flotan alrededor, y debajo los cuatro frentes del estudio (vídeo, foto, webs e IA), cada uno
+ * con su filete en la escala roja de Nanai. Sin JS: todo quieto y en su sitio.
+ * El movimiento vive en src/scripts/home.ts.
+ */
+import { Image, getImage } from 'astro:assets';
+import planning from '../../assets/media/bts/juandi-plan-tableta.jpg';
+import shooting from '../../assets/media/bts/impostora-gimbal.jpg';
+import monitor from '../../assets/media/bts/fama-monitor-rojo.jpg';
+import clapper from '../../assets/media/bts/lqd-claqueta.jpg';
+import beach from '../../assets/media/bts/juandi-playa-operadora.jpg';
+import night from '../../assets/media/bts/tati-noche.jpg';
+import { about, method } from '../../data/copy';
+
+const inline1 = await getImage({ src: monitor, format: 'webp', width: 480 });
+const inline2 = await getImage({ src: clapper, format: 'webp', width: 400 });
+
+// Fotos que flotan alrededor del titular: forma, sitio y profundidad (para el ratón)
+const floaters = [
+  { src: planning, shape: 'arch', pos: 'left: 7%; top: -4%; width: 10%', depth: 1, alt: 'Planificando el rodaje sobre una tableta' },
+  { src: beach, shape: 'tilt', pos: 'right: 7%; top: 2%; width: 11%', depth: 0.6, alt: 'Operadora de cámara en la playa' },
+  { src: shooting, shape: 'circle', pos: 'left: 12%; bottom: 0%; width: 8%', depth: 1.4, alt: 'Rodaje con gimbal' },
+  { src: night, shape: 'square', pos: 'right: 13%; bottom: -2%; width: 9%', depth: 0.9, alt: 'Rodaje de noche' },
+];
+const colors = ['#D9291C', '#B4483D', '#8A8A84', '#5A5A56'];
+---
+
+<section id="metodo" class="sec fabout" aria-labelledby="about-title" data-about>
+  <div class="fabout__stage" data-about-stage>
+    {
+      floaters.map((f) => (
+        <figure class={`fabout__float fabout__float--${f.shape}`} style={f.pos} data-float data-depth={f.depth} aria-hidden="true">
+          <span class="fabout__bob" data-bob>
+            <Image src={f.src} alt="" widths={[240, 420]} sizes="14vw" loading="lazy" />
+          </span>
+        </figure>
+      ))
+    }
+    <p class="label fabout__label">{about.label}</p>
+    <h2 id="about-title" class="fabout__title" data-about-title>
+      <span class="fabout__line">Trabajamos <span class="inframe inframe--pill fabout__inframe" data-bob aria-hidden="true"><img src={inline1.src} alt="" width="480" height="240" loading="lazy" decoding="async" /></span></span>
+      <span class="fabout__line">con <span class="inframe inframe--arch fabout__inframe" data-bob aria-hidden="true"><img src={inline2.src} alt="" width="400" height="320" loading="lazy" decoding="async" /></span> método</span>
+    </h2>
+    <p class="fabout__sub">{method.title[1]}</p>
+  </div>
+
+  <div class="wrap fabout__body">
+    <p class="lead fabout__deck" data-reveal>{about.deck}</p>
+    <div class="fabout__grid" data-about-grid>
+      {
+        about.services.map((s, i) => (
+          <article class="fabout__item" style={`--c: ${colors[i]}`}>
+            <h3 class="h3">{s.title}</h3>
+            <p>{s.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

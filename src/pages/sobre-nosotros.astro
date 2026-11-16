@@ -5,9 +5,10 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/flat.css';
+import '../styles/cv-skin.css';
 import FlatMotion from '../components/flat/FlatMotion.astro';
 import FlatFx from '../components/flat/FlatFx.astro';
-import FlatNav from '../components/flat/FlatNav.astro';
+import FlatDock from '../components/flat/FlatDock.astro';
 import FlatPageHeader from '../components/flat/FlatPageHeader.astro';
 import FlatManifesto from '../components/flat/FlatManifesto.astro';
 import FlatGallery from '../components/flat/FlatGallery.astro';
@@ -29,7 +30,7 @@ import teamPhoto from '../assets/media/bts/juandi-equipo-guitarra.jpg';
   <div class="flat">
     <FlatMotion />
     <FlatFx />
-    <FlatNav />
+    <FlatDock docked />
 
     <main id="contenido">
       <FlatPageHeader

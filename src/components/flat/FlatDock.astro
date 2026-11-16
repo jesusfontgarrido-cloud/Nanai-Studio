@@ -1,0 +1,41 @@
+---
+/**
+ * La barra de arriba (16-11-2026). No es una barra de navegación al uso: son botones siempre a
+ * mano (Trabajos, Sobre nosotros, Hablemos) y la lectura «● Abierto a nuevos proyectos».
+ * Lo que pasa por debajo se desenfoca en degradado (tres capas de backdrop-filter con máscara).
+ *
+ * En la home aparece cuando la barra de la apertura se va (la clase .is-docked la pone home.ts);
+ * en el resto de páginas está siempre (`docked`), con un botón al inicio con el isotipo.
+ * A la izquierda, en escritorio, el contador de scroll «(00)».
+ */
+interface Props {
+  docked?: boolean;
+}
+
+const { docked = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const current = (href: string) => (path === href ? ('page' as const) : undefined);
+---
+
+<div class:list={['fdock', { 'fdock--always': docked }]} data-dock>
+  <div class="fdock__blur" aria-hidden="true"><span></span><span></span><span></span></div>
+  <header class="fdock__bar">
+    <nav class="fdock__links" aria-label="Principal">
+      {docked && (
+        <a class="fbtn fbtn--home" href="/" aria-label="Nanai Studio, inicio">
+          {/* Negro en papel y el blanco oficial en la sala (invertir colores volvía celeste el rojo) */}
+          <img class="fbtn__iso fbtn__iso--ink" src="/brand/isotipo-negro.svg" alt="" width="20" height="20" />
+          <img class="fbtn__iso fbtn__iso--light" src="/brand/isotipo-blanco.svg" alt="" width="20" height="20" />
+        </a>
+      )}
+      <a class="fbtn" href="/trabajos" aria-current={current('/trabajos')}>Trabajos</a>
+      <a class="fbtn" href="/sobre-nosotros" aria-current={current('/sobre-nosotros')}>Sobre nosotros</a>
+    </nav>
+    <div class="fdock__side">
+      <p class="flive fdock__live"><span class="flive__dot" aria-hidden="true"></span>Abierto a nuevos proyectos</p>
+      <a class="fbtn fbtn--talk" href="#contacto"><span class="flive__dot" aria-hidden="true"></span>Hablemos</a>
+    </div>
+  </header>
+</div>
+
+<p class="fprogress" aria-hidden="true" data-progress>(00)</p>
