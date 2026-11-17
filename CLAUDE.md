@@ -20,7 +20,7 @@ anterior), movimiento en `src/scripts/flat-fx.ts` (todas las páginas) y `src/sc
 - **Barra (FlatDock):** al entrar, abajo e integrada (Trabajos · Sobre nosotros · ● Abierto a
   nuevos proyectos · ● Hablemos); al bajar sube y se queda fija como botones, con desenfoque
   gaussiano en degradado debajo (tres capas de backdrop-filter con máscara). Sin Inicio; en las
-  demás páginas, botón con el isotipo para volver. (El contador «(00)» de la izquierda se quitó el 16-11: no gustó.)
+  demás páginas, botón con el isotipo para volver. (El contador «(00)» de la izquierda se quitó el 16-11: no gustó.) El índice lateral va pegado al borde y su etiqueta sale al pasar el ratón (17-11).
 - **Fondo que cambia sin bandas:** las secciones de sala heredan los colores de la página y es la
   página la que se apaga (`.flat.is-dark`) con el trabajo y con el pie. Sin cápsulas.
 - **Cómo trabajamos (FlatAbout):** como «Más de 6 años» del CV: titular enorme con fotogramas y
@@ -56,7 +56,7 @@ botones repetidos («Hablemos» solo en la barra; el contacto es el mismo en tod
 - **Fotogramas en los titulares** con formas suaves (`.inframe--pill`, `.inframe--arch`).
 - **Sin cortes secos:** la página es siempre el mismo papel. Lo que tiene color va en cápsulas de
   esquinas suaves con un margen de papel alrededor: el proceso (hueso), el trabajo y el pie
-  (negro, la sala de proyección) y las preguntas (rojo `#D9291C`, un plano por página).
+  (negro, la sala de proyección) y las preguntas (rojo `#DE1212`, un plano por página).
 - **Voces:** League Spartan (titulares, minúscula; también la firma de Jesús), Archivo (cuerpo e
   interfaz, incluida la barra), Courier Prime (solo notas pequeñas: etiquetas, pies y créditos de
   foto, la voz de guion) y Playfair cursiva solo en «sienta» y «espectacular».
