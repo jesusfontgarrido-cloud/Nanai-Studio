@@ -316,10 +316,11 @@ html.cv-scrolled .cvbar { opacity: 0 !important; pointer-events: none; }
 .cvh__profile {
   display: grid;
   /* Bio y retrato juntos y centrados: en pantallas anchas quedaba un hueco enorme en medio */
-  grid-template-columns: minmax(0, 640px) minmax(0, calc(64svh * 0.8));
+  /* La columna de la bio mide lo que mide su texto: así no queda aire de sobra entre bio y foto */
+  grid-template-columns: minmax(0, 560px) minmax(0, calc(64svh * 0.8));
   justify-content: center;
   align-items: center;
-  gap: clamp(40px, 7vw, 140px);
+  gap: clamp(48px, 5vw, 96px);
   max-width: 1480px;
   min-height: 100svh;
   margin-inline: auto;
@@ -328,7 +329,7 @@ html.cv-scrolled .cvbar { opacity: 0 !important; pointer-events: none; }
 
 .cvh__bio { display: grid; gap: clamp(20px, 2.6vw, 36px); align-content: center; }
 
-.cvh__text { display: grid; gap: 16px; max-width: 52ch; }
+.cvh__text { display: grid; gap: 16px; }
 
 .cvh__role { color: var(--f-dim); }
 
@@ -1209,7 +1210,5 @@ html.cv-js .cve .cve__list { --edu: 0; }
   .cv::after { animation: none; }
 }
 
-/* Hueco para el índice lateral en escritorio (que no pise vídeos ni retrato) */
-@media (min-width: 900px) {
-  .cv__main { padding-right: clamp(56px, 5vw, 88px); }
-}
+/* (17-11) Ya no se reserva hueco a la derecha para el índice: va pegado al borde, dentro del margen,
+   y la reserva descentraba toda la página (más aire a la derecha que a la izquierda). */
