@@ -197,9 +197,10 @@ import { process, processHead } from '../../data/copy';
     box-shadow: inset 0 0 0 1px var(--f-line-strong);
   }
 
+  /* Atenuado pero legible (AA): la información no espera a la animación */
   .fsteps__list.is-armed .fstep:not(.is-done) .fstep__name,
-  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__text,
-  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__num { opacity: 0.32; }
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__num { opacity: 0.5; }
+  .fsteps__list.is-armed .fstep:not(.is-done) .fstep__text { opacity: 0.85; }
 
   @media (max-width: 899px) {
     .fstep {

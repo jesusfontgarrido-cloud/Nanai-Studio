@@ -6,7 +6,7 @@
    titulares llevan fotogramas incrustados, recortados con formas suaves.
 
    · Papel por defecto. El negro es la sala de proyección (el trabajo y el
-     pie). El rojo, un plano por página. Un solo rojo, plano: #D9291C.
+     pie). El rojo, un plano por página. Un solo rojo, plano: #DE1212 (el del Figma de identidad).
    · Voces: League Spartan (titulares, minúscula), Archivo (cuerpo), Courier
      Prime (notas pequeñas, como un guion) y Playfair cursiva (1–3 palabras,
      con el mismo tamaño aparente que la palabra de al lado).
@@ -35,7 +35,7 @@
   --f-on-inverse: #F4F4F1;
 
   /* El rojo REC. Blanco encima: 4,9:1. Texto pequeño en rojo: --f-red-text */
-  --f-red: #D9291C;
+  --f-red: #DE1212;
   --f-on-red: #FFFFFF;
   --f-red-text: #B8231A;
 
@@ -119,8 +119,8 @@ body:has(> .flat) {
 }
 
 .flat .tone-red {
-  --f-bg: #D9291C;
-  --f-surface: #D9291C;
+  --f-bg: #DE1212;
+  --f-surface: #DE1212;
   --f-surface-2: rgba(255, 255, 255, 0.1);
   --f-surface-3: rgba(255, 255, 255, 0.16);
   --f-line: rgba(255, 248, 242, 0.32);

@@ -16,11 +16,9 @@ const { kind = 'brand' } = Astro.props;
 ---
 
 <section id="contacto" class="sec fcontact" aria-labelledby="contact-title">
-  <div class="wrap fcontact__head">
-    <h2 id="contact-title" class="h2 fcontact__title" data-reveal="lines">{contactHead.title.map((line) => <span>{line}</span>)}</h2>
-  </div>
   <div class="wrap fcontact__grid">
     <div class="fcontact__intro">
+      <h2 id="contact-title" class="h2 fcontact__title" data-reveal="lines">{contactHead.title.map((line) => <span>{line}</span>)}</h2>
       <p class="lead fcontact__lead" data-reveal style="--i: 2">{contact.lead}</p>
 
       <a class="fcontact__wa" href={site.whatsapp} data-reveal style="--i: 3">

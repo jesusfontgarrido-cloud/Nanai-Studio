@@ -89,23 +89,23 @@ export const cv = {
   ],
 
   /** Escala de las etiquetas: del rojo de Nanai al gris (15-11-2026, fuera los pasteles). */
-  tagScale: ['#D9291C', '#B4483D', '#8A8A84', '#5A5A56'],
+  tagScale: ['#DE1212', '#B4483D', '#8A8A84', '#5A5A56'],
 
   /** Colores de las cápsulas del CV en papel: la misma escala roja y gris. */
   tools: [
-    { name: 'Premiere Pro', color: '#D9291C' },
+    { name: 'Premiere Pro', color: '#DE1212' },
     { name: 'After Effects', color: '#8A8A84' },
     { name: 'DaVinci Resolve', color: '#B4483D' },
     { name: 'Photoshop', color: '#BDBDB6' },
     { name: 'Lightroom', color: '#E06A5E' },
     { name: 'Magnific', color: '#5A5A56' },
-    { name: 'Claude Code', color: '#D9291C' },
+    { name: 'Claude Code', color: '#DE1212' },
     { name: 'HeyGen', color: '#8A8A84' },
     { name: 'ElevenLabs', color: '#B4483D' },
     { name: 'Higgsfield', color: '#BDBDB6' },
     { name: 'ComfyUI', color: '#E06A5E' },
     { name: 'Astro', color: '#5A5A56' },
-    { name: 'Cloudflare', color: '#D9291C' },
+    { name: 'Cloudflare', color: '#DE1212' },
   ],
 
   skills: [
