@@ -288,7 +288,7 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
   font-size: clamp(64px, 15vw, 290px);
 }
 
-.cvh__name { font-size: clamp(52px, 6.4vw, 120px); word-spacing: 0.06em; }
+.cvh__name { font-size: clamp(52px, min(6.4vw, 10.5svh), 120px); word-spacing: 0.06em; }
 
 /* Cada palabra es una máscara: las letras suben desde la línea base */
 .cvh__word {
@@ -298,7 +298,11 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
 
 .cvh__char { display: inline-block; will-change: transform; }
 
-html.cv-scrolled .cvh__hint { opacity: 0 !important; }
+/* Lo de la portada se va en cuanto se baja, aunque la apertura no haya terminado: si no, la
+   etiqueta tapaba el nombre y la barra se montaba sobre la bio. La clase manda sobre GSAP. */
+html.cv-scrolled .cvh__hint,
+html.cv-scrolled .cvh__status,
+html.cv-scrolled .cvbar { opacity: 0 !important; pointer-events: none; }
 
 .cvh__hint {
   position: absolute;
@@ -311,22 +315,27 @@ html.cv-scrolled .cvh__hint { opacity: 0 !important; }
 /* El perfil: el nombre y la bio a la izquierda, el retrato en su espacio 3D */
 .cvh__profile {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  /* Bio y retrato juntos y centrados: en pantallas anchas quedaba un hueco enorme en medio */
+  grid-template-columns: minmax(0, 640px) minmax(0, calc(64svh * 0.8));
+  justify-content: center;
   align-items: center;
-  gap: clamp(28px, 5vw, 96px);
+  gap: clamp(40px, 7vw, 140px);
+  max-width: 1480px;
   min-height: 100svh;
-  padding: 72px var(--f-gutter) 110px;
+  margin-inline: auto;
+  padding: 72px var(--f-gutter) 96px;
 }
 
 .cvh__bio { display: grid; gap: clamp(20px, 2.6vw, 36px); align-content: center; }
 
-.cvh__text { display: grid; gap: 16px; max-width: 46ch; }
+.cvh__text { display: grid; gap: 16px; max-width: 52ch; }
 
 .cvh__role { color: var(--f-dim); }
 
 .cvh__claim {
   font-family: var(--font-display);
-  font-size: clamp(26px, 2.6vw, 44px);
+  /* Con la altura de la pantalla también: en pantallas bajas el texto no cabía y pisaba la barra */
+  font-size: clamp(26px, min(2.6vw, 4.2svh), 44px);
   font-weight: 620;
   line-height: 1.05;
   letter-spacing: -0.025em;
@@ -334,14 +343,14 @@ html.cv-scrolled .cvh__hint { opacity: 0 !important; }
 
 .cvh__summary {
   color: var(--f-muted);
-  font-size: var(--f-lead);
+  font-size: clamp(17px, min(1.4vw, 2.3svh), 22px);
   line-height: 1.45;
 }
 
 /* La navaja suiza: en tinta, para que se lea como la conclusión */
 .cvh__all {
   color: var(--f-on-surface);
-  font-size: var(--f-lead);
+  font-size: clamp(17px, min(1.4vw, 2.3svh), 22px);
   font-weight: 560;
   line-height: 1.4;
 }
