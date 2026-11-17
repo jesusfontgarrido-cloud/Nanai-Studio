@@ -148,14 +148,15 @@
   transition: opacity 250ms ease, transform 400ms var(--cv-ease);
 }
 
-.flat .findex a.is-active .findex__bar { height: 52px; background: var(--f-on-surface); }
+.flat .findex a.is-active .findex__bar { height: 52px; background: var(--f-red); }
+.flat .findex.is-telling a.is-active .findex__label { opacity: 1; transform: none; }
 /* La sección activa la marca la raya larga; el nombre sale al pasar el ratón (no tapa el contenido) */
 .flat .findex a:hover .findex__label,
 .flat .findex a:focus-visible .findex__label { opacity: 1; transform: none; }
 .flat .findex:hover a:not(:hover) .findex__label { opacity: 0.55; transform: none; }
 .flat.on-photo .findex a { color: #F4F4F1; }
 .flat.on-photo .findex__bar { background: rgba(244, 244, 241, 0.45); }
-.flat.on-photo .findex a.is-active .findex__bar { background: #F4F4F1; }
+.flat.on-photo .findex a.is-active .findex__bar { background: var(--f-red); }
 
 /* ── El trabajo: ficha de cada pieza, a la vista ─────────────── */
 .flat .fpiece__data {

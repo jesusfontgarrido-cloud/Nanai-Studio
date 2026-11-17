@@ -20,7 +20,7 @@ anterior), movimiento en `src/scripts/flat-fx.ts` (todas las páginas) y `src/sc
 - **Barra (FlatDock):** al entrar, abajo e integrada (Trabajos · Sobre nosotros · ● Abierto a
   nuevos proyectos · ● Hablemos); al bajar sube y se queda fija como botones, con desenfoque
   gaussiano en degradado debajo (tres capas de backdrop-filter con máscara). Sin Inicio; en las
-  demás páginas, botón con el isotipo para volver. (El contador «(00)» de la izquierda se quitó el 16-11: no gustó.) El índice lateral va pegado al borde y su etiqueta sale al pasar el ratón (17-11).
+  demás páginas, botón con el isotipo para volver. (El contador «(00)» de la izquierda se quitó el 16-11: no gustó.) El índice lateral (web y CV) va pegado al borde, oscuro en claro y claro en negro; la sección activa en rojo y su nombre unos segundos al cambiar o al pasar el ratón (17-11).
 - **Fondo que cambia sin bandas:** las secciones de sala heredan los colores de la página y es la
   página la que se apaga (`.flat.is-dark`) con el trabajo y con el pie. Sin cápsulas.
 - **Cómo trabajamos (FlatAbout):** como «Más de 6 años» del CV: titular enorme con fotogramas y

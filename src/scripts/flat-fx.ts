@@ -235,7 +235,18 @@ function chrome() {
 
   const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-findex-link]')];
   if (links.length && 'IntersectionObserver' in window) {
-    const mark = (id: string) => links.forEach((a) => a.classList.toggle('is-active', a.dataset.findexLink === id));
+    // La sección activa: raya roja larga y su nombre unos segundos al cambiar (luego solo al pasar el ratón)
+    const rail = links[0].closest<HTMLElement>('.findex');
+    let current = '';
+    let tellTimer = 0;
+    const mark = (id: string) => {
+      links.forEach((a) => a.classList.toggle('is-active', a.dataset.findexLink === id));
+      if (id === current || !rail) return;
+      current = id;
+      rail.classList.add('is-telling');
+      clearTimeout(tellTimer);
+      tellTimer = window.setTimeout(() => rail.classList.remove('is-telling'), 2200);
+    };
     mark(links[0].dataset.findexLink!);
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && mark((e.target as HTMLElement).id)),

@@ -75,6 +75,22 @@ if (stage && flat && root.classList.contains('stage-js')) {
       flat.classList.toggle('is-docked', on);
     };
 
+    // Barra e índice en claro solo mientras la foto llena la pantalla. Antes se quedaba puesto
+    // al acabar la escena (onUpdate ya no corre) y el índice salía blanco sobre el papel.
+    let stageProgress = 0;
+    const setOnPhoto = () =>
+      flat.classList.toggle('on-photo', stageProgress > 0.62 && card.getBoundingClientRect().bottom > innerHeight * 0.55);
+    let photoTick = false;
+    const onScroll = () => {
+      if (photoTick) return;
+      photoTick = true;
+      requestAnimationFrame(() => {
+        photoTick = false;
+        setOnPhoto();
+      });
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: {
@@ -88,7 +104,8 @@ if (stage && flat && root.classList.contains('stage-js')) {
           // Si alguien baja durante la apertura, la apertura se termina al momento
           if (self.progress > 0.01 && intro.isActive()) intro.progress(1);
           setDock(self.progress > 0.06);
-          flat.classList.toggle('on-photo', self.progress > 0.62);
+          stageProgress = self.progress;
+          setOnPhoto();
         },
         onLeave: () => setDock(true),
       },
@@ -130,6 +147,7 @@ if (stage && flat && root.classList.contains('stage-js')) {
     });
 
     return () => {
+      removeEventListener('scroll', onScroll);
       flat.classList.remove('is-docked', 'on-photo');
     };
   });

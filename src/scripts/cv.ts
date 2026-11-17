@@ -48,7 +48,20 @@ player.addEventListener('close', () => screen.replaceChildren());
 
 // ── Índice lateral: marca la sección en la que estás (también sin movimiento) ──
 const indexLinks = $$('[data-index-link]');
-const markIndex = (id: string) => indexLinks.forEach((a) => a.classList.toggle('is-active', a.dataset.indexLink === id));
+// La sección activa: raya roja larga y su nombre unos segundos al cambiar (luego solo al pasar el ratón)
+const indexRail = document.querySelector<HTMLElement>('[data-index]');
+let indexCurrent = '';
+let indexTimer = 0;
+const markIndex = (id: string) => {
+  indexLinks.forEach((a) => a.classList.toggle('is-active', a.dataset.indexLink === id));
+  if (id === indexCurrent || !indexRail) return;
+  const first = indexCurrent === '';
+  indexCurrent = id;
+  if (first) return;
+  indexRail.classList.add('is-telling');
+  clearTimeout(indexTimer);
+  indexTimer = window.setTimeout(() => indexRail.classList.remove('is-telling'), 2200);
+};
 markIndex('inicio');
 const sectionObserver = new IntersectionObserver(
   (entries) => entries.forEach((e) => e.isIntersecting && markIndex((e.target as HTMLElement).id)),
@@ -199,6 +212,12 @@ mm.add('(prefers-reduced-motion: no-preference)', () => {
     .fromTo('[data-status]', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.8 }, '<')
     .fromTo('.cvtalk, .cvindex', { opacity: 0 }, { opacity: 1, duration: 0.8 }, '<')
     .fromTo('[data-hint]', { opacity: 0 }, { opacity: 1, duration: 0.6 }, '-=0.4');
+
+  // «Desliza» se va en cuanto se baja, aunque la apertura no haya terminado: si no, se quedaba
+  // encima de la bio (en móvil sobre todo). La clase manda sobre el estilo que pone GSAP.
+  const markScrolled = () => document.documentElement.classList.toggle('cv-scrolled', scrollY > 40);
+  addEventListener('scroll', markScrolled, { passive: true });
+  markScrolled();
   if (seen) intro.timeScale(2.2);
 
   // ── 2 · El nombre se abre, el retrato crece desde abajo con grano y la bio enfoca ──

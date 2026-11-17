@@ -85,9 +85,28 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
   .cvtalk:hover .cvtalk__dot { transform: scale(1.6); }
 }
 
+/* Sin caja, pero legible: lo que pasa por debajo se desenfoca en degradado (como la barra de la web) */
+.cvtalk::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  width: min(100%, 320px);
+  height: calc(84px + env(safe-area-inset-top, 0px));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  -webkit-mask: linear-gradient(to bottom, #000 45%, transparent), linear-gradient(to left, #000 60%, transparent);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to bottom, #000 45%, transparent), linear-gradient(to left, #000 60%, transparent);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
 .cvindex {
   position: fixed;
-  right: var(--f-gutter);
+  /* Fuera de la columna de contenido: en el margen chocaba con lo alineado a la derecha */
+  right: 20px;
   top: 50%;
   z-index: 70;
   display: grid;
@@ -122,11 +141,15 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
   transition: opacity 250ms ease, transform 400ms var(--cv-ease);
 }
 
-.cvindex a.is-active .cvindex__bar { height: 52px; background: var(--f-on-surface); }
-.cvindex a.is-active .cvindex__label { opacity: 1; transform: none; }
+.cvindex a.is-active .cvindex__bar { height: 52px; background: var(--f-red); }
+.cvindex.is-telling a.is-active .cvindex__label { opacity: 1; transform: none; }
+
+/* La sección activa la marca la raya larga; el nombre sale al pasar el ratón o con el teclado */
+.cvindex a:focus-visible .cvindex__label { opacity: 1; transform: none; }
 
 @media (hover: hover) and (pointer: fine) {
-  .cvindex a:hover .cvindex__label { opacity: 0.7; transform: none; }
+  .cvindex:hover a:not(:hover) .cvindex__label { opacity: 0.55; transform: none; }
+  .cvindex a:hover .cvindex__label { opacity: 1; transform: none; }
 }
 
 /* La barra de la portada: un filete y tres grupos, integrada en la página */
@@ -274,6 +297,8 @@ html.cv-js:not(.cv-ready) .cvindex { opacity: 0; }
 }
 
 .cvh__char { display: inline-block; will-change: transform; }
+
+html.cv-scrolled .cvh__hint { opacity: 0 !important; }
 
 .cvh__hint {
   position: absolute;
